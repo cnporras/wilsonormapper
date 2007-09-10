@@ -1,0 +1,1065 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" > 
+<HTML>
+<HEAD>
+	<TITLE>WilsonORMapper.dll</TITLE>
+	<META name='Author' content='Paul Wilson (Paul@WilsonDotNet.com)' />
+	<META name='Description' content='WilsonORMapper.dll Documentation' />
+<STYLE>
+<!--
+	TD { font-size: smaller; padding-left: 8pt; padding-right: 8pt; }
+//-->
+</STYLE>
+</HEAD>
+<BODY>	
+<DIV align="center">
+	<A href="http://www.ORMapper.net" target="_blank">www.ORMapper.net</A>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<A href="mailto:Paul@WilsonDotNet.com" target="_blank">Paul@WilsonDotNet.com</A>
+</DIV>
+<H1 align="center">NameSpace: Wilson.ORMapper</H1>
+<H2 align="center">Assembly: WilsonORMapper</H2>
+<TABLE align="center" border="0" cellspacing="4" cellpadding="0">
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TH colspan="2">Member</TH>
+	<TH>Type</TH>
+	<TH>Description (Including Parameters)</TH>
+	<TH>MS Syntax</TH>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>ObjectSpace</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.ObjectSpace class is the peristence engine that all work occurs through.
+	    Please see <A href="http://www.ASPAlliance.com/PaulWilson/Articles/?id=21" target="_blank">
+	    my article on MS ObjectSpaces</A> in .NET v2.0 for the syntax details and examples.</TD>
+	<TD>Exists</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ObjectSpace</TD>
+	<TD>new</TD>
+	<TD>Use one of the first constructors for in-process desktop applications,
+	    the latter constructors for web and remote server applications:<BR>
+	    (string mappingFile, string connectString, Provider providerType)<BR>
+	    (string mappingFile, string connectString, CustomProvider customProvider)<BR>
+	    (Stream mappingStream, string connectString, Provider providerType)<BR>
+	    (Stream mappingStream, string connectString, CustomProvider customProvider)<BR>
+	    (string mappingFile, string connectString, Provider providerType, int sessionMinutes, int cleanupMinutes)<BR>
+	    (string mappingFile, string connectString, CustomProvider customProvider, int sessionMinutes, int cleanupMinutes)<BR>
+	    (Stream mappingStream, string connectString, Provider providerType, int sessionMinutes, int cleanupMinutes)<BR>
+	    (Stream mappingStream, string connectString, CustomProvider customProvider, int sessionMinutes, int cleanupMinutes)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>IsolatedContext</TD>
+	<TD>ObjectSpace</TD>
+	<TD>Create a new ObjectSpace for isolated object tracking with no additional overhead.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>QueryHelper</TD>
+	<TD>QueryHelper</TD>
+	<TD>Use the QueryHelper object to help build provider-specific
+	    expressions for query where-clauses and sort-order field-names.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>SetInterceptor</TD>
+	<TD>void</TD>
+	<TD>Set an Interceptor to Handle all Database Commands for Logging or modifying
+	    Sql Commands as needed.  Set to null to stop interception for performance:<BR>
+	    (IInterceptCommand interceptor)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetObject</TD>
+	<TD>object</TD>
+	<TD>Use the first signature to create a new object and start tracking,
+	    the second signature to get an existing object and start tracking:<BR>
+	    (Type objectType)<BR>
+	    (Type objectType, object objectKey)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>Differs</TD>
+</TR>   
+<TR valign="top">
+	<TD></TD>
+	<TD></TD>
+	<TD>&lt;objectType&gt;</TD>
+	<TD><I>And for .NET v2.0 generics:</I><BR>
+	    &lt;Type objectType&gt;()<BR>
+	    &lt;Type objectType&gt;(object objectKey)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetObjectKey</TD>
+	<TD>object</TD>
+	<TD>Get the primary key of an entity object:<BR>
+	    (object entityObject)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetObjectState</TD>
+	<TD>ObjectState</TD>
+	<TD>Get the current state of an entity object:<BR>
+	    (object entityObject)</TD>
+	<TD>Moved</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetObjectCount</TD>
+	<TD>int</TD>
+	<TD>Get the count of entity objects for where clause:<BR>
+	    (Type objectType, string whereClause)<BR>
+	    (ObjectQuery objectQuery)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD></TD>
+	<TD>int</TD>
+	<TD><I>And for .NET v2.0 generics:</I><BR>
+	    &lt;Type objectType&gt;(string whereClause)<BR>
+	    &lt;Type objectType&gt;(ObjectQuery&lt;Type objectType&gt; objectQuery)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetObjectReader</TD>
+	<TD>ObjectReader</TD>
+	<TD>Get a forward-only cursor collection of entity objects:<BR>
+	    (Type objectType, string whereClause)<BR>
+	    (ObjectQuery objectQuery)<BR>
+	    (SelectProcedure selectProcedure)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD></TD>
+	<TD>ObjectReader&lt;objectType&gt;</TD>
+	<TD><I>And for .NET v2.0 generics:</I><BR>
+	    &lt;Type objectType&gt;(string whereClause)<BR>
+	    &lt;Type objectType&gt;(ObjectQuery&lt;Type objectType&gt; objectQuery)<BR>
+	    &lt;Type objectType&gt;(SelectProcedure&lt;Type objectType&gt; selectProcedure)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetObjectSet</TD>
+	<TD>ObjectSet</TD>
+	<TD>Get a one-way bindable collection of entity objects:<BR>
+	    (Type objectType, string whereClause)<BR>
+	    (ObjectQuery objectQuery)<BR>
+	    (SelectProcedure selectProcedure)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD></TD>
+	<TD>ObjectSet&lt;objectType&gt;</TD>
+	<TD><I>And for .NET v2.0 generics:</I><BR>
+	    &lt;Type objectType&gt;(string whereClause)<BR>
+	    &lt;Type objectType&gt;(ObjectQuery&lt;Type objectType&gt; objectQuery)<BR>
+	    &lt;Type objectType&gt;(SelectProcedure&lt;Type objectType&gt; selectProcedure)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetCollection</TD>
+	<TD>IList</TD>
+	<TD>Get a strongly typed custom collection of entity objects:<BR>
+	    (Type collectionType, Type objectType, string whereClause)<BR>
+	    (Type collectionType, ObjectQuery objectQuery)<BR>
+	    (Type collectionType, SelectProcedure selectProcedure)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD></TD>
+	<TD>Collection&lt;objectType&gt;</TD>
+	<TD><I>And for .NET v2.0 generics:</I><BR>
+	    &lt;Type objectType&gt;(string whereClause)<BR>
+	    &lt;Type objectType&gt;(ObjectQuery&lt;Type objectType&gt; objectQuery)<BR>
+	    &lt;Type objectType&gt;(SelectProcedure&lt;Type objectType&gt; selectProcedure)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetDataSet</TD>
+	<TD>DataSet</TD>
+	<TD>Get a raw dataset, or optional typed dataset, for situations that require it:<BR>
+	    (Type objectType, string whereClause)<BR>
+	    (ObjectQuery objectQuery)<BR>
+	    (Type objectType, string whereClause, string[] selectFields)<BR>
+	    (ObjectQuery objectQuery, string[] selectFields)<BR>
+	    (SelectProcedure selectProcedure)<BR>
+	    (string sqlStatement)<BR>
+	    (DataSet dataSet, Type objectType, string whereClause)<BR>
+	    (DataSet dataSet, ObjectQuery objectQuery)<BR>
+	    (DataSet dataSet, Type objectType, string whereClause, string[] selectFields)<BR>
+	    (DataSet dataSet, ObjectQuery objectQuery, string[] selectFields)<BR>
+	    (DataSet dataSet, SelectProcedure selectProcedure)<BR>
+	    (DataSet dataSet, string sqlStatement)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD></TD>
+	<TD>DataSet</TD>
+	<TD><I>And for .NET v2.0 generics:</I><BR>
+	    &lt;Type objectType&gt;(string whereClause)<BR>
+	    &lt;Type objectType&gt;(ObjectQuery&lt;Type objectType&gt; objectQuery)<BR>
+	    &lt;Type objectType&gt;(string whereClause, string[] selectFields)<BR>
+	    &lt;Type objectType&gt;(ObjectQuery&lt;Type objectType&gt; objectQuery, string[] selectFields)<BR>
+	    &lt;Type objectType&gt;(SelectProcedure&lt;Type objectType&gt; selectProcedure)<BR>
+	    &lt;Type objectType&gt;(DataSet dataSet, string whereClause)<BR>
+	    &lt;Type objectType&gt;(DataSet dataSet, ObjectQuery&lt;Type objectType&gt; objectQuery)<BR>
+	    &lt;Type objectType&gt;(DataSet dataSet, string whereClause, string[] selectFields)<BR>
+	    &lt;Type objectType&gt;(DataSet dataSet, ObjectQuery&lt;Type objectType&gt; objectQuery, string[] selectFields)<BR>
+	    &lt;Type objectType&gt;(DataSet dataSet, SelectProcedure&lt;Type objectType&gt; selectProcedure)<BR>
+	    also OPathQuery and CompiledQuery</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>BeginTransaction</TD>
+	<TD>Transaction</TD>
+	<TD>Get a Transaction for greater control:<BR>
+	    () -- Default IsolationLevel.ReadCommitted<BR>
+	    (IsolationLevel isolationLevel)</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ExecuteCommand</TD>
+	<TD>int</TD>
+	<TD>Directly execute a raw sql command against the datasource:<BR>
+	    (SelectProcedure selectProcedure)<BR>
+	    (string sqlStatement)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ExecuteScalar</TD>
+	<TD>object</TD>
+	<TD>Efficiently retrieve a single value from the datasource:<BR>
+	    (SelectProcedure selectProcedure)<BR>
+	    (string sqlStatement)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ExecuteUpdate</TD>
+	<TD>int</TD>
+	<TD>Directly execute an update against the datasource:<BR>
+	    (Type objectType, string whereClause, string updateClause)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD></TD>
+	<TD>int</TD>
+	<TD><I>And for .NET v2.0 generics:</I><BR>
+	    &lt;Type objectType&gt;(string whereClause, string updateClause)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ExecuteDelete</TD>
+	<TD>int</TD>
+	<TD>Directly execute a deletion against the datasource:<BR>
+	    (Type objectType, string whereClause)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD></TD>
+	<TD>int</TD>
+	<TD><I>And for .NET v2.0 generics:</I><BR>
+	    &lt;Type objectType&gt;(string whereClause)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>StartTracking</TD>
+	<TD>void</TD>
+	<TD>Start tracking all changes made to an entity object:<BR>
+	    (object entityObject, InitialState initialState)<BR>
+	    (ICollection entityObjects, InitialState initialState)</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>EndTracking</TD>
+	<TD>void</TD>
+	<TD>End tracking (clear cache) all changes to an entity object:<BR>
+	    (object entityObject)<BR>
+	    (ICollection entityObjects)</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ClearTracking</TD>
+	<TD>void</TD>
+	<TD>Clear tracking (clear cache) all object instances.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>MarkForDeletion</TD>
+	<TD>void</TD>
+	<TD>Mark an entity object for deletion on later persistence:<BR>
+	    (object entityObject)<BR>
+	    (ICollection entityObjects)</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>CancelChanges</TD>
+	<TD>void</TD>
+	<TD>Cancel all changes to an entity object since tracking:<BR>
+	    (object entityObject)<BR>
+	    (ICollection entityObjects)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>PersistChanges</TD>
+	<TD>void</TD>
+	<TD>Save all changes made to or delete an entity object, and optionally persist all relation changes:<BR>
+	    (object entityObject)<BR>
+	    (ICollection entityObjects)<BR>
+	    (object entityObject, PersistDepth persistDepth)<BR>
+	    (ICollection entityObjects, PersistDepth persistDepth)</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Resync</TD>
+	<TD>object</TD>
+	<TD>Get the latest version of an entity object from database:<BR>
+	    (object entityObject)<BR>
+	    (ICollection entityObjects)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>Provider</H3></TD>
+	<TD>Enumeration</TD>
+	<TD>MsSql,<BR>
+	    Sql2005,<BR>
+	    Access,<BR>
+	    Oracle,<BR>
+	    OleDb,<BR>
+	    Odbc</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>InitialState</H3></TD>
+	<TD>Enumeration</TD>
+	<TD>Inserted (new but not inserted),<BR>
+	    Unchanged (existing not modified),<BR>
+	    Updated (existing and modified)</TD>
+	<TD>Same</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>ObjectState</H3></TD>
+	<TD>Enumeration</TD>
+	<TD>Inserted (new but not inserted),<BR>
+	    Unchanged (existing not modified),<BR>
+	    Updated (existing and modified),<BR>
+	    Deleted (marked for deletion),<BR>
+	    Unknown (actually deleted)</TD>
+	<TD>Same</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>PersistDepth</H3></TD>
+	<TD>Enumeration</TD>
+	<TD>SingleObject (only the immediate entity object),<BR>
+	    ObjectGraph (changes to related children also)</TD>
+	<TD>Same</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>ObjectQuery</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.ObjectQuery class is used to create more detailed queries, including paging.</TD>
+	<TD>Exists</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ObjectQuery</TD>
+	<TD>new</TD>
+	<TD>Use the first constructor for full collections,
+	    the second constructor for paged collections:<BR>
+	    (Type objectType, string whereClause, string sortClause)<BR>
+	    (Type objectType, string whereClause, string sortClause, int pageSize, int pageIndex)<BR>
+	    (Type objectType, string whereClause, string sortClause, int pageSize, int pageIndex, bool skipCounts)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ObjectType</TD>
+	<TD>Type</TD>
+	<TD>Read-only property</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>WhereClause</TD>
+	<TD>string</TD>
+	<TD>Read-only property</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>SortClause</TD>
+	<TD>string</TD>
+	<TD>Read-only property</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>PageSize</TD>
+	<TD>int</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>PageIndex</TD>
+	<TD>int</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>SkipCounts</TD>
+	<TD>bool</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>ObjectSet</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.ObjectSet class is the main type of collection of entity objects.
+	    It implements IObjectSet, and thus IList, so see the interfaces for more details.</TD>
+	<TD>Exists</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>ObjectList</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.ObjectList class is a lazy-loading collection of entity objects.
+	    It implements IObjectSet, and thus IList, and ILoadOnDemand, so see the interfaces for more details.</TD>
+	<TD>Exists</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>ObjectReader</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.ObjectReader class is a forward-only cursor of entity objects.
+	    It implements IObjectPage and IEnumerable, so see the interfaces for more details.</TD>
+	<TD>Exists</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Current</TD>
+	<TD>object</TD>
+	<TD>Return the current object</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ObjectKey</TD>
+	<TD>object</TD>
+	<TD>Return the current primary key</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>HasObjects</TD>
+	<TD>bool</TD>
+	<TD>Read-only property</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>IsClosed</TD>
+	<TD>bool</TD>
+	<TD>Read-only property</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Read</TD>
+	<TD>bool</TD>
+	<TD>Advance the cursor position</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Close</TD>
+	<TD>void</TD>
+	<TD>Close the database connection</TD>
+	<TD>Same</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>ObjectHolder</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.ObjectHolder class is a lazy-loading container for a related parent entity object.
+		It implements ILoadOnDemand, so see that interface for more details.</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>InnerObject</TD>
+	<TD>object</TD>
+	<TD>Property that gets or sets the related parent entity object.</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Key</TD>
+	<TD>object</TD>
+	<TD>Property that gets or sets the related parent entity key.</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>SelectProcedure</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.SelectProcedure class is used to load an entity object collection with a stored procedure.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>SelectProcedure</TD>
+	<TD>new</TD>
+	<TD>Specify the type of the entity object and the name of the stored procedure:<BR>
+	    (Type objectType, string procedureName)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>AddParameter</TD>
+	<TD>int</TD>
+	<TD>Add a stored procedure parameter by providing the name and the value:<BR>
+	    (string parameterName, object parameterValue)<BR>
+	    (string parameterName, object parameterValue, object nullValue)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ObjectType</TD>
+	<TD>Type</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ProcedureName</TD>
+	<TD>string</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ParameterCount</TD>
+	<TD>int</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ParameterName</TD>
+	<TD>string</TD>
+	<TD>Return the parameter name:<BR>
+	    (int index)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ParameterValue</TD>
+	<TD>object</TD>
+	<TD>Return the parameter value:<BR>
+	    (int index)</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>QueryHelper</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.QueryHelper class helps build provider-specific
+	    expressions for query where-clauses and sort-order field-names.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetFieldName</TD>
+	<TD>string</TD>
+	<TD>Return the provider-specific field-name, like [TableName].[FieldName],
+	    given an entity-alias object description, like ClassName.PropertyName.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetTableName</TD>
+	<TD>string</TD>
+	<TD>Return the provider-specific table-name, like [TableName], given an entity-type.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>CleanValue</TD>
+	<TD>string</TD>
+	<TD>Format a raw value as a string for sql and to protect against sql injection.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ChangeType</TD>
+	<TD>object</TD>
+	<TD>Convert a value from one type to another -- useful for .NET v2.0 nullable types.</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>Transaction</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.Transaction class is used to allow greater control over the persistence of multiple objects</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Commit</TD>
+	<TD>void</TD>
+	<TD>Commit the current transaction to the database.</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Rollback</TD>
+	<TD>void</TD>
+	<TD>Rollback the current transaction in the database.</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetDataSet</TD>
+	<TD>DataSet</TD>
+	<TD>Get a raw dataset, or optional typed dataset, for situations that require it:<BR>
+	    (Type objectType, string whereClause)<BR>
+	    (ObjectQuery objectQuery)<BR>
+	    (Type objectType, string whereClause, string[] selectFields)<BR>
+	    (ObjectQuery objectQuery, string[] selectFields)<BR>
+	    (SelectProcedure selectProcedure)<BR>
+	    (string sqlStatement)<BR>
+	    (DataSet dataSet, Type objectType, string whereClause)<BR>
+	    (DataSet dataSet, ObjectQuery objectQuery)<BR>
+	    (DataSet dataSet, Type objectType, string whereClause, string[] selectFields)<BR>
+	    (DataSet dataSet, ObjectQuery objectQuery, string[] selectFields)<BR>
+	    (DataSet dataSet, SelectProcedure selectProcedure)<BR>
+	    (DataSet dataSet, string sqlStatement)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ExecuteCommand</TD>
+	<TD>int</TD>
+	<TD>Directly execute a raw sql command against the datasource:<BR>
+	    (SelectProcedure selectProcedure)<BR>
+	    (string sqlStatement)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ExecuteScalar</TD>
+	<TD>object</TD>
+	<TD>Efficiently retrieve a single value from the datasource:<BR>
+	    (SelectProcedure selectProcedure)<BR>
+	    (string sqlStatement)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ExecuteUpdate</TD>
+	<TD>int</TD>
+	<TD>Directly execute an update against the datasource:<BR>
+	    (Type objectType, string whereClause, string updateClause)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ExecuteDelete</TD>
+	<TD>int</TD>
+	<TD>Directly execute a deletion against the datasource:<BR>
+	    (Type objectType, string whereClause)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>PersistChanges</TD>
+	<TD>void</TD>
+	<TD>Save all changes made to or delete an entity object, and optionally persist all relation changes:<BR>
+	    (object entityObject)<BR>
+	    (ICollection entityObjects)<BR>
+	    (object entityObject, PersistDepth persistDepth)<BR>
+	    (ICollection entityObjects, PersistDepth persistDepth)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Dispose</TD>
+	<TD>void</TD>
+	<TD>Close the Connection of the Transaction.</TD>
+	<TD>Differs</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>CustomProvider</H3></TD>
+	<TD>Class</TD>
+	<TD>The Wilson.ORMapper.CustomProvider class is the means to plugin a custom database provider,
+		including setting proper delimiters, identity query, and select page query.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>CustomProvider</TD>
+	<TD>new</TD>
+	<TD>Specify the custom database provider assembly, connection type, and data-adapter type:<BR>
+	    (string adoAssemblyName, string connectionType, string dataAdapterType)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>StartDelimiter</TD>
+	<TD>string</TD>
+	<TD>Start and End Delimiters are placed around all table and field names.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>EndDelimiter</TD>
+	<TD>string</TD>
+	<TD>Start and End Delimiters are placed around all table and field names.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GuidDelimiter</TD>
+	<TD>string</TD>
+	<TD>Delimiters placed around Guid values -- if not the default single quote.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>DateDelimiter</TD>
+	<TD>string</TD>
+	<TD>Delimiters placed around Date values -- if not the default single quote.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>LineTerminator</TD>
+	<TD>string</TD>
+	<TD>Terminator at the end of each statement -- if not the default semi-colon.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>DateFormat</TD>
+	<TD>string</TD>
+	<TD>Format used for date values in Sql -- if not the default ToString() method.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>MinimumDate</TD>
+	<TD>DateTime</TD>
+	<TD>Provider specific date value to substitute for DateTime.MinValue for compatibility.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>MaximumDate</TD>
+	<TD>DateTime</TD>
+	<TD>Provider specific date value to substitute for DateTime.MaxValue for compatibility.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ParameterPrefix</TD>
+	<TD>string</TD>
+	<TD>Prefix used to indicate parameters in sql -- if not the default @ symbol.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>IdentityQuery</TD>
+	<TD>string</TD>
+	<TD>This should be the sql statement to retrieve the last "identity" value.
+	     Reference the name of the key field as {0} and the name of the table as {1}.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>SelectPageQuery</TD>
+	<TD>string</TD>
+	<TD>This should be the sql statement to retrieve a specific "page" of data.
+		Reference the page size as {0}, skip rows as {1}, and start row as {2}.</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>IObjectHelper</H3></TD>
+	<TD>Interface</TD>
+	<TD>The Wilson.ORMapper.IObjectHelper interface can be implemented to improve performance.</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Item</TD>
+	<TD>object</TD>
+	<TD>Implement this property with a switch statement to directly get and set object fields:<BR>
+	    (string memberName)</TD>
+	<TD>Same</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>IObjectNotification</H3></TD>
+	<TD>Interface</TD>
+	<TD>The Wilson.ORMapper.IObjectNotification interface can be implemented to handle events.</TD>
+	<TD>Exists</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>OnCreated</TD>
+	<TD>void</TD>
+	<TD>Triggered after an entity object is created in the database:<BR>
+	    (Transaction transaction)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>OnCreating</TD>
+	<TD>void</TD>
+	<TD>Triggered before an entity object is created in the database:<BR>
+	    (Transaction transaction)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>OnDeleted</TD>
+	<TD>void</TD>
+	<TD>Triggered after an entity object is deleted in the database:<BR>
+	    (Transaction transaction)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>OnDeleting</TD>
+	<TD>void</TD>
+	<TD>Triggered before an entity object is deleted in the database:<BR>
+	    (Transaction transaction)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>OnMaterialized</TD>
+	<TD>void</TD>
+	<TD>Triggered when an entity object is materialized from the database:<BR>
+	    (IDataRecord dataRecord)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>OnPersistError</TD>
+	<TD>void</TD>
+	<TD>Triggered when an error has occurred persisting an entity object:<BR>
+	    (Transaction transaction, Exception exception)</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>OnUpdated</TD>
+	<TD>void</TD>
+	<TD>Triggered after an entity object is updated in the database:<BR>
+	    (Transaction transaction)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>OnUpdating</TD>
+	<TD>void</TD>
+	<TD>Triggered before an entity object is updated in the database:<BR>
+	    (Transaction transaction)</TD>
+	<TD>Differs</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>IObjectSet</H3></TD>
+	<TD>Interface</TD>
+	<TD>The Wilson.ORMapper.IObjectSet interface is used for ObjectSets and ObjectLists.
+	    It inherits both IObjectPage and IList, so see the interfaces for more details.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>GetObject</TD>
+	<TD>object</TD>
+	<TD>Return the object with the specified primary key:<BR>
+	    (object objectKey)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Add</TD>
+	<TD>void</TD>
+	<TD>Add the object with the specified primary key:<BR>
+	    (object objectKey, object entityObject)</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>RemoveByKey</TD>
+	<TD>void</TD>
+	<TD>Remove the object with the specified primary key:<BR>
+	    (object objectKey)</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>IObjectPage</H3></TD>
+	<TD>Interface</TD>
+	<TD>The Wilson.ORMapper.IObjectPage interface is used for ObjectSet, ObjectList, and ObjectReader.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>ObjectType</TD>
+	<TD>Type</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>PageIndex</TD>
+	<TD>int</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>PageCount</TD>
+	<TD>int</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>TotalCount</TD>
+	<TD>int</TD>
+	<TD>Read-only property</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>ILoadOnDemand</H3></TD>
+	<TD>Interface</TD>
+	<TD>The Wilson.ORMapper.ILoadOnDemand interface is used for ObjectHolder and ObjectList.</TD>
+	<TD>Exists</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>IsLoaded</TD>
+	<TD>bool</TD>
+	<TD>Read-only property</TD>
+	<TD>Same</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>Resync</TD>
+	<TD>void</TD>
+	<TD>Get the latest version of an entity object from database.</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>IInterceptCommand</H3></TD>
+	<TD>Interface</TD>
+	<TD>The Wilson.ORMapper.IInterceptCommand interface is used for Intercepting all Database Commands
+	    so that Logging can be implemented or Sql Commands modified if needed.</TD>
+	<TD>None</TD>
+</TR>
+<TR valign="top">
+	<TD></TD>
+	<TD>InterceptCommand</TD>
+	<TD>void</TD>
+	<TD>Method to implement to handle Interception of all Database Commands:<BR>
+	    (Guid transactionId, Type entityType, CommandInfo commandInfo, IDbCommand dbCommand)</TD>
+	<TD>None</TD>
+</TR>
+<TR><TD colspan="5"><HR></TD></TR>
+<TR valign="top">
+	<TD colspan="2"><H3>Mappings.config</H3></TD>
+	<TD>Example</TD>
+	<TD>The mappings file should have entities for each table, along with attributes for each field.
+	    Lookups allow you to map a join with a lookup table to map additional read-only lookup fields.
+	    Create views for more complicated scenarios with multiple tables, just like a table is mapped.
+	    Relationships supported are one-to-many, many-to-one (used for one-to-one), and many-to-many.</TD>
+	<TD>Differs</TD>
+</TR>
+<TR><TD colspan="5"><BR><PRE style="font-size: 12;">
+	&lt;?xml version="1.0" encoding="utf-8" ?&gt;
+	&lt;mappings [version="4.2"] [defaultNamespace="Namespace"]&gt;
+		&lt;file path="file|path|resource" [embedded="true|false"] /&gt;
+		&lt;entity type="Namespace.BusinessClass" table="TableName" keyMember="MemberName[,...]"
+				[keyType="Auto|Guid|User|Composite|None"] [sortOrder="FieldName ASC|DESC"]
+				[changesOnly="true|false"] [readOnly="true|false"] [autoTrack="true|false"]
+				[typeField="TypeDiscriminatorField"] [typeValue="DefaultValue"]
+				[insertSP="InsertSP"] [updateSP="UpdateSP"] [deleteSP="DeleteSP"]&gt;
+			&lt;attribute member="MemberName" field="FieldName" [nullValue="NullValue"] [alias="PropertyName"]
+				[parameter="ParameterName"] [persistType="Persist|ReadOnly|Concurrent"] /&gt;
+			&lt;lookup member="MemberName" field="FieldName" [nullValue="NullValue"] [alias="PropertyName"]
+				table="LookupTable" foreignKey="ForeignKey" lookupKey="LookupKey" /&gt;
+			&lt;relation relationship="OneToMany" [member="MemberName"] field="DestField" [alias="PropertyName"]
+				type="Namespace.RelatedClass" [lazyLoad="true|false"] [cascadeDelete="true|false"]
+				[filter="whereClause"] [selectSP="SelectSP"] [queryOnly="true|false"] /&gt;
+			&lt;relation relationship="ManyToOne" [member="MemberName"] field="DestField" [alias="PropertyName"]
+				type="Namespace.RelatedClass" [lazyLoad="true|false"] [selectSP="SelectSP"] [queryOnly="true|false"] /&gt;
+			&lt;relation relationship="ManyToMany" [member="MemberName"] field="RelatedField" [alias="PropertyName"]
+				type="Namespace.RelatedClass" [lazyLoad="true|false"] [cascadeDelete="true|false"] [queryOnly="true|false"]
+				table="RelationTable" sourceField="RelationSourceField" destField="RelationDestField"
+				[filter="whereClause"] [selectSP="SelectSP"] [insertSP="InsertSP"] [deleteSP="DeleteSP"] /&gt;
+		&lt;/entity&gt;
+		&lt;subEntity type="Namespace.BusinessClass" inherits="Namespace.BaseEntityClass" typeValue="Value"&gt;
+			&lt;attribute ... /&gt;
+			&lt;relation ... /&gt;
+		&lt;/subEntity&gt;
+	&lt;/mappings&gt;
+</PRE></TD></TR>
+<TR><TD colspan="5"><HR></TD></TR>
+</TABLE>
+<H4 align="center">Version: 4.2</H4>
+<DIV align="center">©2004-2005 Paul Wilson</DIV>
+</BODY>
+</HTML>

@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>OPath Query System</title>
+<link rel="stylesheet" type="text/css" href="OPath.css" />
+</head>
+
+<body>
+
+<h1>OPath Query System</h1>
+<hr size="1" />
+<p>Jeff Lanning (<a href="mailto:jefflanning@gmail.com">jefflanning@gmail.com</a>)<br>
+October 11, 2005</p>
+<h2>Introduction</h2>
+<p>The Object Path Language (OPath) is a query language developed by Microsoft which 
+allows you to query for objects stored in relational databases using standard object-oriented 
+syntax.&nbsp; The OPath language is loosely based on
+<a href="http://www.w3.org/TR/xpath">XML Path Language (XPath)</a> and contains 
+elements familiar to both Visual Basic .NET and C# developers.&nbsp; OPath also includes 
+several operators for complex value comparisons and enables you to traverse object 
+relationships like you would using standard application code.</p>
+<p>Version 4.0 of Wilson ORMapper introduced an implementation of Microsoft&#39;s OPath language 
+and supporting API based on the documentation found in the December CTP 
+of Windows &quot;Longhorn&quot; SDK (Build 4074).&nbsp; Microsoft was still 
+developing this technology 
+when this implementation was created but, as of October 2005, it appears Microsoft has abandoned 
+that effort and directed its attention elsewhere; specifically to Linq and DLinq.&nbsp; 
+While this it an unfortunate turn of events, the technology still provides 
+incredible value and additional updates and enhancements will continue to be 
+made to the OPath implementation in 
+the Wilson ORMapper.</p>
+<h2>What's New</h2>
+<p>Version 4.2 contains the following enhancements:</p>
+<ul>
+	<li>String functions RIGHT, LEFT, UPPER, LOWER have been added.&nbsp; See
+	<a href="OPath%20Language.htm#functions">OPath Functions</a> for details.</li>
+	<li>Sort expressions can now contain relationship traversals, which allows 
+	sorting records using values from related tables.&nbsp;
+	For example, sorting a list of Products by Category Name where Products are 
+	assigned to a Category by ID.&nbsp; See
+	<a href="OPath%20Query%20API.htm#Sorting_Query_Results">Sorting Query 
+	Results</a> for details.</li>
+<li>Support for the new Lookup field type (new in 4.2) has been added.&nbsp; 
+Lookup fields can be used in queries.</li>
+	<li>A few minor bugs were also corrected.</li>
+</ul>
+<h2>Related Documents</h2>
+<p><a href="OPath%20Language.htm">OPath Language</a></p>
+<p>Describes the OPath language in detail and includes details on operators, keywords, 
+predicates, functions, and so on.</p>
+<p><a href="OPath%20Query%20API.htm">OPath Query API</a></p>
+<p>Describes using the OPath API provided in Wilson ORMapper to build and 
+execute OPath queries against a data store.</p>
+<p><a href="OPath%20Query%20Examples.htm">OPath Query Examples</a></p>
+<p>Contains a large number of example OPath query expressions and their resulting SELECT statements.</p>
+<h2>Credits</h2>
+<p>This document and related documents contain material 
+taken from help topics found in Microsoft's Longhorn SDK (Build 4074).&nbsp; The 
+material has been modified to add clarity and make it consistent with the 
+implementation provided in the Wilson ORMapper.</p>
+<p>&nbsp;</p>
+
+</body>
+
+</html>

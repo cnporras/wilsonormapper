@@ -1,0 +1,15 @@
+The WilsonORMapper v4.* includes support for .NET v2.0 features.
+  First, note you can run the .NET v1.1 version in .NET v2.0 as is.
+  But you will need the .NET v2.0 version of the WilsonORMapper.dll
+  if you want to take advantage of Generics and/or Nullable Types.
+  You can find the .NET v2.0 binaries in the marked bin folders,
+  and you can always differentiate the dlls by the descriptions.
+  You can also compile the source yourself, for .NET v1.1 or v2.0,
+  but you should use the version specific solution/project files.
+  Note that the compiled help file does not include the .NET v2.0
+  features since NDoc does not yet have a version for .NET v2.0.
+  There are also no examples, but the usage is very much the same
+  as for .NET v1.1 except you can use Generics and/or Nullables.
+  Finally, note .NET v2.0 support is based on the RTM as of v4.2.
+
+Thanks, Paul Wilson (mailto:Paul@WilsonDotNet.com)

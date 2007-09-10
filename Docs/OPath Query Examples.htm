@@ -1,0 +1,3038 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>OPath Query Examples</title>
+<link rel="stylesheet" type="text/css" href="OPath.css" />
+<style type="text/css">
+A.query:link, A.query:visited { color: #003399; text-decoration: none; font-family: 'courier new', courier, serif; }
+A.query:hover { color: #FF3300; text-decoration: underline; }
+DIV.sql { margin: 5px 10px 10px 5px; padding: 5px; background-color: #EEEEEE; font-family: 'courier new', courier, serif; }
+</style>
+<script languange="javascript">
+function Toggle(id)
+{
+	var elem = document.getElementById(id);
+	elem.style.display = (elem.style.display == 'none') ? 'block' : 'none';
+}
+function Over(evt)
+{
+	if( !evt ) evt = window.event;
+	var elem = (evt.target) ? evt.target : evt.srcElement;
+	elem.className = 'query on';
+}
+function Out(evt)
+{
+	if( !evt ) evt = window.event;
+	var elem = (evt.target) ? evt.target : evt.srcElement;
+	elem.className = 'query';
+}
+</script>
+</head>
+
+<body>
+
+<h1>OPath Query Examples</h1>
+<hr size="1" />
+<p>Jeff Lanning (<a href="mailto:jefflanning@gmail.com">jefflanning@gmail.com</a>)<br>
+October 11, 2005</p>
+<h2>Contents</h2>
+<ul>
+	<li><a href="#Summary">Summary</a></li>
+	<li><a href="#Empty Expressions">Empty Expressions</a></li>
+	<li><a href="#Relational Operators">Relational Operators</a></li>
+	<li><a href="#Literal Values">Literal Values</a></li>
+	<li><a href="#Negation/Subtraction">Negation/Subtraction</a></li>
+	<li><a href="#Conditional Operators">Conditional Operators</a></li>
+	<li><a href="#Mathematical Operators">Mathematical Operators</a></li>
+	<li><a href="#String Concatenation">String Concatenation</a></li>
+	<li><a href="#Parentheses">Parentheses</a></li>
+	<li><a href="#Logical Not Operator">Logical Not Operator</a></li>
+	<li><a href="#Relationship Traversals">Relationship Traversals</a></li>
+	<li><a href="#Filters">Filters</a></li>
+	<li><a href="#Functions">Functions</a></li>
+	<li><a href="#Parameters">Parameters</a></li>
+	<li><a href="#Parent Relationship Traversals">Parent Relationship Traversals</a></li>
+	<li><a href="#Sort Expressions">Sort Expressions</a></li>
+	<li><a href="#Relational Sort Expressions">Relational Sort Expressions</a></li>
+</ul>
+
+<h2>Summary<a name="Summary"></a></h2>
+<p>This document contains a large number of example OPath queries written for 
+SQL Server 2000's version of the Northwind database.&nbsp; Each example shows 
+the constructor portion of an <b>OPathQuery</b>.&nbsp; You can click on any of 
+the <b>OPathQuery</b> code fragments to show the SELECT statement that is 
+generated when that <b>OPathQuery</b> is executed.&nbsp; Only the T-SQL 
+statements for SQL Server are shown in this document.&nbsp; The OPath query 
+engine will produce slightly different SELECT statements when using Microsoft 
+Access or Oracle and can be configured to compatible statements for almost any 
+other type of database.</p>
+<p>The generic <b>OPathQuery&lt;T&gt;</b> class (available when using .NET Framework 
+2.0) was used in these examples to help streamline the code and highlight the 
+object type being queried and the OPath expression.&nbsp; For more details about 
+creating and executing queries, see <a href="OPath%20Query%20API.htm">OPath 
+Query API</a>.&nbsp; For details about the OPath language, see
+<a href="OPath%20Language.htm">OPath Language</a>.</p>
+<p><b>NOTE</b>&nbsp;&nbsp; The examples in this document were extracted from 
+test cases used to validate the OPath engine.&nbsp; Many of the examples 
+demonstrate important features of the OPath language but produce database 
+queries that have no practical meaning.</p>
+
+<div>
+
+<h2>Empty Expressions<a name="Empty Expressions"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q1')">OPathQuery&lt;Employee&gt;(null)</a></li>
+<div id="q1" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q2')">OPathQuery&lt;Employee&gt;(&quot;&quot;)</a></li>
+<div id="q2" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a;
+</div>
+
+</ul>
+
+
+<h2>Relational Operators<a name="Relational Operators"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q3')">OPathQuery&lt;Order&gt;(&quot;Freight = 50&quot;)</a></li>
+<div id="q3" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = 50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q4')">OPathQuery&lt;Order&gt;(&quot;Freight == 50&quot;)</a></li>
+<div id="q4" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = 50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q5')">OPathQuery&lt;Order&gt;(&quot;Freight != 50&quot;)</a></li>
+<div id="q5" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] != 50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q6')">OPathQuery&lt;Order&gt;(&quot;Freight &lt;&gt; 50&quot;)</a></li>
+<div id="q6" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] != 50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q7')">OPathQuery&lt;Order&gt;(&quot;Freight &gt;= 50&quot;)</a></li>
+<div id="q7" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt;= 50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q8')">OPathQuery&lt;Order&gt;(&quot;Freight &lt;= 50&quot;)</a></li>
+<div id="q8" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &lt;= 50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q9')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 50&quot;)</a></li>
+<div id="q9" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; 50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q10')">OPathQuery&lt;Order&gt;(&quot;Freight &lt; 50&quot;)</a></li>
+<div id="q10" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &lt; 50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+</ul>
+
+
+<h2>Literal Values<a name="Literal Values"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q11')">OPathQuery&lt;Product&gt;(&quot;Discontinued == true&quot;)</a></li>
+<div id="q11" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[Discontinued] = 1)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q12')">OPathQuery&lt;Product&gt;(&quot;Discontinued != True&quot;)</a></li>
+<div id="q12" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[Discontinued] != 1)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q13')">OPathQuery&lt;Product&gt;(&quot;Discontinued == TRUE&quot;)</a></li>
+<div id="q13" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[Discontinued] = 1)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q14')">OPathQuery&lt;Product&gt;(&quot;Discontinued == false&quot;)</a></li>
+<div id="q14" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[Discontinued] = 0)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q15')">OPathQuery&lt;Product&gt;(&quot;Discontinued != False&quot;)</a></li>
+<div id="q15" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[Discontinued] != 0)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q16')">OPathQuery&lt;Product&gt;(&quot;Discontinued == FALSE&quot;)</a></li>
+<div id="q16" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[Discontinued] = 0)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q17')">OPathQuery&lt;Product&gt;(&quot;Name == 'Elmo'&quot;)</a></li>
+<div id="q17" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[ProductName] = 'Elmo')<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q18')">OPathQuery&lt;Product&gt;(&quot;Name == 'Elmo''s Buddy'&quot;)</a></li>
+<div id="q18" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[ProductName] = 'Elmo''s Buddy')<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q19')">OPathQuery&lt;Product&gt;(&quot;Name == '''Elmo''s Buddy'''&quot;)</a></li>
+<div id="q19" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[ProductName] = '''Elmo''s Buddy''')<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q20')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock == 0&quot;)</a></li>
+<div id="q20" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitsInStock] = 0)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q21')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock &gt; 10&quot;)</a></li>
+<div id="q21" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitsInStock] &gt; 10)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q22')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock &gt; -10&quot;)</a></li>
+<div id="q22" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitsInStock] &gt; -10)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q23')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock &gt; 32767&quot;)</a></li>
+<div id="q23" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitsInStock] &gt; 32767)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q24')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock &gt; -32767&quot;)</a></li>
+<div id="q24" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitsInStock] &gt; -32767)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q25')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock &gt; 2147483647&quot;)</a></li>
+<div id="q25" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitsInStock] &gt; 2147483647)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q26')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock &gt; -2147483648&quot;)</a></li>
+<div id="q26" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitsInStock] &gt; -2147483648)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q27')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 50.0&quot;)</a></li>
+<div id="q27" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; 50.0)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q28')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; -50.00&quot;)</a></li>
+<div id="q28" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; -50.00)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q29')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 50.000000&quot;)</a></li>
+<div id="q29" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; 50.000000)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q30')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 50.999999&quot;)</a></li>
+<div id="q30" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; 50.999999)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q31')">OPathQuery&lt;Order&gt;(&quot;Freight &lt; -1.00&quot;)</a></li>
+<div id="q31" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &lt; -1.00)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q32')">OPathQuery&lt;Order&gt;(&quot;Freight != 123456789.123456789&quot;)</a></li>
+<div id="q32" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] != 123456789.123456789)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q33')">OPathQuery&lt;Employee&gt;(&quot;HireDate &gt;= #1/1/2000#&quot;)</a></li>
+<div id="q33" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[HireDate] &gt;= '2000-01-01 00:00:00');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q34')">OPathQuery&lt;Employee&gt;(&quot;HireDate &gt;= #12/31/2005 13:45:57#&quot;)</a></li>
+<div id="q34" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[HireDate] &gt;= '2005-12-31 13:45:57');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q35')">OPathQuery&lt;Employee&gt;(&quot;HireDate &gt;= #9/21/1945 1:45:57 PM#&quot;)</a></li>
+<div id="q35" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[HireDate] &gt;= '1945-09-21 13:45:57');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q36')">OPathQuery&lt;Employee&gt;(&quot;HireDate &gt;= #8/01/1990# &amp;&amp; HireDate &lt;= #8/31/2000#&quot;)</a></li>
+<div id="q36" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((a.[HireDate] &gt;= '1990-08-01 00:00:00') AND (a.[HireDate] &lt;= '2000-08-31 00:00:00'));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q37')">OPathQuery&lt;Employee&gt;(&quot;HireDate == #2005-08-31T23:45:19#&quot;)</a></li>
+<div id="q37" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[HireDate] = '2005-08-31 23:45:19');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q38')">OPathQuery&lt;Employee&gt;(&quot;HireDate == #2005-09-13T19:42:57.8794#&quot;)</a></li>
+<div id="q38" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[HireDate] = '2005-09-13 19:42:57');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q39')">OPathQuery&lt;Employee&gt;(&quot;HireDate &gt;= #2005-08-31T00:00:00# &amp;&amp; HireDate &gt;= #2005-08-31T23:59:59#&quot;)</a></li>
+<div id="q39" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((a.[HireDate] &gt;= '2005-08-31 00:00:00') AND (a.[HireDate] &gt;= '2005-08-31 23:59:59'));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q40')">OPathQuery&lt;Employee&gt;(&quot;{9EFE9A5F-C93D-4269-9326-5362CF34C6DA} == {00000000-0000-0000-0000-000000000000}&quot;)</a></li>
+<div id="q40" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ('{9efe9a5f-c93d-4269-9326-5362cf34c6da}' = '{00000000-0000-0000-0000-000000000000}');
+</div>
+
+</ul>
+
+
+<h2>Negation/Subtraction<a name="Negation/Subtraction"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q41')">OPathQuery&lt;Order&gt;(&quot;Freight == -50&quot;)</a></li>
+<div id="q41" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = -50)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q42')">OPathQuery&lt;Order&gt;(&quot;Freight == -50.2345&quot;)</a></li>
+<div id="q42" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = -50.2345)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q43')">OPathQuery&lt;Order&gt;(&quot;Freight == -50.1 + 100.2&quot;)</a></li>
+<div id="q43" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = (-50.1 + 100.2))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q44')">OPathQuery&lt;Order&gt;(&quot;Freight == 100 + -50&quot;)</a></li>
+<div id="q44" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = (100 + -50))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q45')">OPathQuery&lt;Order&gt;(&quot;Freight == 50 - -100&quot;)</a></li>
+<div id="q45" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = (50 - -100))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q46')">OPathQuery&lt;Order&gt;(&quot;Freight == 50--100&quot;)</a></li>
+<div id="q46" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = (50 - -100))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q47')">OPathQuery&lt;Order&gt;(&quot;Freight == -50 + -100&quot;)</a></li>
+<div id="q47" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = (-50 + -100))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q48')">OPathQuery&lt;Order&gt;(&quot;Freight == 100 - 50&quot;)</a></li>
+<div id="q48" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = (100 - 50))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q49')">OPathQuery&lt;Order&gt;(&quot;Freight == 100- 50 -10&quot;)</a></li>
+<div id="q49" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = ((100 - 50) - 10))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q50')">OPathQuery&lt;Order&gt;(&quot;Freight == 100-50-10&quot;)</a></li>
+<div id="q50" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = ((100 - 50) - 10))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q51')">OPathQuery&lt;Order&gt;(&quot;Freight == ? - 50&quot;)</a></li>
+<div id="q51" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] = (@P0 - 50))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q52')">OPathQuery&lt;Order&gt;(&quot;Freight - 10 == ? - 10&quot;)</a></li>
+<div id="q52" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE ((a.[Freight] - 10) = (@P0 - 10))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q53')">OPathQuery&lt;Order&gt;(&quot;-Freight == ?&quot;)</a></li>
+<div id="q53" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (-(a.[Freight]) = @P0)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q54')">OPathQuery&lt;Order&gt;(&quot;-Freight == ? - 10&quot;)</a></li>
+<div id="q54" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (-(a.[Freight]) = (@P0 - 10))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q55')">OPathQuery&lt;Order&gt;(&quot;-(Freight - 10) == -(? - 10)&quot;)</a></li>
+<div id="q55" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (-((a.[Freight] - 10)) = -((@P0 - 10)))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q56')">OPathQuery&lt;Order&gt;(&quot;-Freight * 10 == -? * 10&quot;)</a></li>
+<div id="q56" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE ((-(a.[Freight]) * 10) = (-(@P0) * 10))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+</ul>
+
+
+<h2>Conditional Operators<a name="Conditional Operators"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q57')">OPathQuery&lt;Order&gt;(&quot;ShipVia == 1 &amp;&amp; Freight &gt; 100&quot;)</a></li>
+<div id="q57" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE ((a.[ShipVia] = 1) AND (a.[Freight] &gt; 100))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q58')">OPathQuery&lt;Order&gt;(&quot;ShipVia == 1 AND Freight &gt; 100&quot;)</a></li>
+<div id="q58" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE ((a.[ShipVia] = 1) AND (a.[Freight] &gt; 100))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q59')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 10 &amp;&amp; Freight &gt; 100 &amp;&amp; Freight &gt; 1000&quot;)</a></li>
+<div id="q59" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (((a.[Freight] &gt; 10) AND (a.[Freight] &gt; 100)) AND (a.[Freight] &gt; 1000))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q60')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 10 AND Freight &gt; 100 AND Freight &gt; 1000&quot;)</a></li>
+<div id="q60" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (((a.[Freight] &gt; 10) AND (a.[Freight] &gt; 100)) AND (a.[Freight] &gt; 1000))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q61')">OPathQuery&lt;Order&gt;(&quot;ShipVia == 1 || ShipVia == 2&quot;)</a></li>
+<div id="q61" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE ((a.[ShipVia] = 1) OR (a.[ShipVia] = 2))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q62')">OPathQuery&lt;Order&gt;(&quot;ShipVia == 1 OR ShipVia == 2&quot;)</a></li>
+<div id="q62" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE ((a.[ShipVia] = 1) OR (a.[ShipVia] = 2))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q63')">OPathQuery&lt;Order&gt;(&quot;ShipVia == 1 || ShipVia == 2 || ShipVia == 3&quot;)</a></li>
+<div id="q63" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (((a.[ShipVia] = 1) OR (a.[ShipVia] = 2)) OR (a.[ShipVia] = 3))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q64')">OPathQuery&lt;Order&gt;(&quot;ShipVia == 1 OR ShipVia == 2 OR ShipVia == 3&quot;)</a></li>
+<div id="q64" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (((a.[ShipVia] = 1) OR (a.[ShipVia] = 2)) OR (a.[ShipVia] = 3))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q65')">OPathQuery&lt;Order&gt;(&quot;ShipVia == 1 &amp;&amp; Freight &gt; 100 || ShipVia == 2 &amp;&amp; Freight &gt; 1000&quot;)</a></li>
+<div id="q65" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (((a.[ShipVia] = 1) AND (a.[Freight] &gt; 100)) OR ((a.[ShipVia] = 2) AND (a.[Freight] &gt; 1000)))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q66')">OPathQuery&lt;Order&gt;(&quot;ShipVia == 1 || Freight &gt; 100 &amp;&amp; ShipVia == 2 || Freight &gt; 1000&quot;)</a></li>
+<div id="q66" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (((a.[ShipVia] = 1) OR ((a.[Freight] &gt; 100) AND (a.[ShipVia] = 2))) OR (a.[Freight] &gt; 1000))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q67')">OPathQuery&lt;Order&gt;(&quot;ShipVia==1||Freight&gt;100&amp;&amp;ShipVia==2||Freight&gt;1000&quot;)</a></li>
+<div id="q67" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (((a.[ShipVia] = 1) OR ((a.[Freight] &gt; 100) AND (a.[ShipVia] = 2))) OR (a.[Freight] &gt; 1000))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+</ul>
+
+
+<h2>Mathematical Operators<a name="Mathematical Operators"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q68')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 10 + 20&quot;)</a></li>
+<div id="q68" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (10 + 20))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q69')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 10 + 20 + 30&quot;)</a></li>
+<div id="q69" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((10 + 20) + 30))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q70')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 10 + 20 + 30 + 40&quot;)</a></li>
+<div id="q70" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((10 + 20) + 30) + 40))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q71')">OPathQuery&lt;Order&gt;(&quot;Freight&gt;10+20+30+40&quot;)</a></li>
+<div id="q71" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((10 + 20) + 30) + 40))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q72')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 50 - 3&quot;)</a></li>
+<div id="q72" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (50 - 3))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q73')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 - 30 - 20&quot;)</a></li>
+<div id="q73" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((100 - 30) - 20))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q74')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 - 30 - 20 - 10&quot;)</a></li>
+<div id="q74" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 - 30) - 20) - 10))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q75')">OPathQuery&lt;Order&gt;(&quot;Freight&gt;100-30-20-10&quot;)</a></li>
+<div id="q75" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 - 30) - 20) - 10))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q76')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 10 * 3&quot;)</a></li>
+<div id="q76" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (10 * 3))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q77')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 10 * 2 * 3&quot;)</a></li>
+<div id="q77" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((10 * 2) * 3))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q78')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 1 * 2 * 3 * 4&quot;)</a></li>
+<div id="q78" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((1 * 2) * 3) * 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q79')">OPathQuery&lt;Order&gt;(&quot;Freight&gt;1*2*3*4&quot;)</a></li>
+<div id="q79" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((1 * 2) * 3) * 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q80')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 / 3&quot;)</a></li>
+<div id="q80" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (100 / 3))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q81')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 / 3 / 2&quot;)</a></li>
+<div id="q81" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((100 / 3) / 2))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q82')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 / 3 / 2 / 3&quot;)</a></li>
+<div id="q82" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 / 3) / 2) / 3))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q83')">OPathQuery&lt;Order&gt;(&quot;Freight&gt;100/3/2/3&quot;)</a></li>
+<div id="q83" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 / 3) / 2) / 3))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q84')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 173 % 100&quot;)</a></li>
+<div id="q84" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (173 % 100))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q85')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 173 % 100 % 10&quot;)</a></li>
+<div id="q85" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((173 % 100) % 10))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q86')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 173 % 100 % 20 % 4&quot;)</a></li>
+<div id="q86" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((173 % 100) % 20) % 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q87')">OPathQuery&lt;Order&gt;(&quot;Freight&lt;173%100%20%4&quot;)</a></li>
+<div id="q87" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &lt; (((173 % 100) % 20) % 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q88')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 1 + 2 - 3 + 4&quot;)</a></li>
+<div id="q88" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((1 + 2) - 3) + 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q89')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 1 - 2 + 3 - 4&quot;)</a></li>
+<div id="q89" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((1 - 2) + 3) - 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q90')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 * 2 / 3 * 4&quot;)</a></li>
+<div id="q90" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 * 2) / 3) * 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q91')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 / 2 * 3 / 4&quot;)</a></li>
+<div id="q91" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 / 2) * 3) / 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q92')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 * 2 / 3 % 4&quot;)</a></li>
+<div id="q92" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 * 2) / 3) % 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q93')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 100 % 7 * 3 / 2&quot;)</a></li>
+<div id="q93" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 % 7) * 3) / 2))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q94')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock + UnitsOnOrder + 10 &lt; ReorderLevel * 0.90&quot;)</a></li>
+<div id="q94" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (((a.[UnitsInStock] + a.[UnitsOnOrder]) + 10) &lt; (a.[ReorderLevel] * 0.90))<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q95')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock * 1.05 + UnitsOnOrder * 0.85 &lt; ReorderLevel * 0.90&quot;)</a></li>
+<div id="q95" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (((a.[UnitsInStock] * 1.05) + (a.[UnitsOnOrder] * 0.85)) &lt; (a.[ReorderLevel] * 0.90))<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+</ul>
+
+
+<h2>String Concatenation<a name="String Concatenation"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q96')">OPathQuery&lt;Employee&gt;(&quot;FirstName == 'And' + 'rew'&quot;)</a></li>
+<div id="q96" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[FirstName] = ('And' + 'rew'));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q97')">OPathQuery&lt;Employee&gt;(&quot;FirstName == 'An' + 'dr' + 'ew'&quot;)</a></li>
+<div id="q97" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[FirstName] = (('An' + 'dr') + 'ew'));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q98')">OPathQuery&lt;Employee&gt;(&quot;FirstName == 'A' + 'n' + 'd' + 'r' + 'e' + 'w'&quot;)</a></li>
+<div id="q98" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[FirstName] = ((((('A' + 'n') + 'd') + 'r') + 'e') + 'w'));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q99')">OPathQuery&lt;Employee&gt;(&quot;FirstName + ' ' + LastName == 'Andrew Fuller'&quot;)</a></li>
+<div id="q99" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((a.[FirstName] + ' ') + a.[LastName]) = 'Andrew Fuller');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q100')">OPathQuery&lt;Employee&gt;(&quot;FirstName + ' ' + LastName == 'Andrew' + ' ' + 'Fuller'&quot;)</a></li>
+<div id="q100" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((a.[FirstName] + ' ') + a.[LastName]) = (('Andrew' + ' ') + 'Fuller'));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q101')">OPathQuery&lt;Employee&gt;(&quot;FirstName + ' ' + LastName == 'Andrew' + ?&quot;)</a></li>
+<div id="q101" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((a.[FirstName] + ' ') + a.[LastName]) = ('Andrew' + @P0));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q102')">OPathQuery&lt;Employee&gt;(&quot;FirstName + ? + LastName == ? + 'Fuller'&quot;)</a></li>
+<div id="q102" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((a.[FirstName] + @P0) + a.[LastName]) = (@P1 + 'Fuller'));
+</div>
+
+</ul>
+
+
+<h2>Parentheses<a name="Parentheses"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q103')">OPathQuery&lt;Employee&gt;(&quot;(FirstName == 'Andrew') &amp;&amp; (LastName == 'Fuller')&quot;)</a></li>
+<div id="q103" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((a.[FirstName] = 'Andrew') AND (a.[LastName] = 'Fuller'));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q104')">OPathQuery&lt;Employee&gt;(&quot;(FirstName == 'Jeff' || FirstName == 'Andrew') &amp;&amp; (LastName == 'Lanning' || LastName == 'Fuller')&quot;)</a></li>
+<div id="q104" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((a.[FirstName] = 'Jeff') OR (a.[FirstName] = 'Andrew')) AND ((a.[LastName] = 'Lanning') OR (a.[LastName] = 'Fuller')));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q105')">OPathQuery&lt;Employee&gt;(&quot;((FirstName == 'Jeff') || (FirstName == 'Andrew')) &amp;&amp; ((LastName == 'Lanning') || (LastName == 'Fuller'))&quot;)</a></li>
+<div id="q105" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((a.[FirstName] = 'Jeff') OR (a.[FirstName] = 'Andrew')) AND ((a.[LastName] = 'Lanning') OR (a.[LastName] = 'Fuller')));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q106')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; (100)&quot;)</a></li>
+<div id="q106" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; 100)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q107')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; (100 * 2 / 3 * 4)&quot;)</a></li>
+<div id="q107" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; (((100 * 2) / 3) * 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q108')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; ((100 * 2) / (3 * 4))&quot;)</a></li>
+<div id="q108" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((100 * 2) / (3 * 4)))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q109')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; (100 * (2 / 3) * 4)&quot;)</a></li>
+<div id="q109" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((100 * (2 / 3)) * 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q110')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; ((100 * (2 / 3)) * 4)&quot;)</a></li>
+<div id="q110" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((100 * (2 / 3)) * 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q111')">OPathQuery&lt;Order&gt;(&quot;((Freight) &gt; (((100) * ((2) / (3))) * (4)))&quot;)</a></li>
+<div id="q111" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((100 * (2 / 3)) * 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q112')">OPathQuery&lt;Order&gt;(&quot;((Freight)&gt;(((100)*((2)/(3)))*(4)))&quot;)</a></li>
+<div id="q112" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; ((100 * (2 / 3)) * 4))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q113')">OPathQuery&lt;Order&gt;(&quot;((((Freight &gt; ((((100))))))))&quot;)</a></li>
+<div id="q113" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[Freight] &gt; 100)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+</ul>
+
+
+<h2>Logical Not Operator<a name="Logical Not Operator"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q114')">OPathQuery&lt;Order&gt;(&quot;!(Freight &gt; 50)&quot;)</a></li>
+<div id="q114" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE NOT((a.[Freight] &gt; 50))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q115')">OPathQuery&lt;Order&gt;(&quot;NOT (Freight &gt; 50)&quot;)</a></li>
+<div id="q115" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE NOT((a.[Freight] &gt; 50))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q116')">OPathQuery&lt;Order&gt;(&quot;!(Freight == 50)&quot;)</a></li>
+<div id="q116" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE NOT((a.[Freight] = 50))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q117')">OPathQuery&lt;Employee&gt;(&quot;!(FirstName == 'Jeff' &amp;&amp; LastName == 'Lanning')&quot;)</a></li>
+<div id="q117" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE NOT(((a.[FirstName] = 'Jeff') AND (a.[LastName] = 'Lanning')));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q118')">OPathQuery&lt;Employee&gt;(&quot;NOT(FirstName == 'Jeff') &amp;&amp; LastName == 'Lanning'&quot;)</a></li>
+<div id="q118" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (NOT((a.[FirstName] = 'Jeff')) AND (a.[LastName] = 'Lanning'));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q119')">OPathQuery&lt;Employee&gt;(&quot;NOT(FirstName == 'Jeff') || NOT(LastName == 'Lanning')&quot;)</a></li>
+<div id="q119" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (NOT((a.[FirstName] = 'Jeff')) OR NOT((a.[LastName] = 'Lanning')));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q120')">OPathQuery&lt;Employee&gt;(&quot;!(FirstName == 'Jeff' + 'rey') || !(LastName == 'Lann' + 'ing')&quot;)</a></li>
+<div id="q120" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (NOT((a.[FirstName] = ('Jeff' + 'rey'))) OR NOT((a.[LastName] = ('Lann' + 'ing'))));
+</div>
+
+</ul>
+
+
+<h2>Relationship Traversals<a name="Relationship Traversals"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q121')">OPathQuery&lt;Order&gt;(&quot;Employee.FirstName == 'Jeff'&quot;)</a></li>
+<div id="q121" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[FirstName] = 'Jeff')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q122')">OPathQuery&lt;Product&gt;(&quot;Category.Name == 'Toys'&quot;)</a></li>
+<div id="q122" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Categories] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.[CategoryName] = 'Toys')<br>
+)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q123')">OPathQuery&lt;Category&gt;(&quot;Products.UnitPrice &gt; 100&quot;)</a></li>
+<div id="q123" class="sql" style="display: none">
+SELECT a.[CategoryID], a.[CategoryName], a.[Description], a.[Picture]<br>
+FROM [Categories] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.Discontinued = 0) AND (b.[UnitPrice] &gt; 100)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q124')">OPathQuery&lt;Customer&gt;(&quot;Orders.Freight &gt; 50&quot;)</a></li>
+<div id="q124" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (b.[Freight] &gt; 50)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q125')">OPathQuery&lt;Employee&gt;(&quot;Territories.RegionID == 1&quot;)</a></li>
+<div id="q125" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] c, [Territories] b<br>
+WHERE (a.[EmployeeID] = c.[EmployeeID]) AND (c.[TerritoryID] = b.[TerritoryID]) AND (b.[TerritoryDescription] &lt;&gt; 'Jeff') AND (b.[RegionID] = 1)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q126')">OPathQuery&lt;Employee&gt;(&quot;Territories.Region.ID == 1&quot;)</a></li>
+<div id="q126" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] c, [Territories] b<br>
+WHERE (a.[EmployeeID] = c.[EmployeeID]) AND (c.[TerritoryID] = b.[TerritoryID]) AND (b.[TerritoryDescription] &lt;&gt; 'Jeff') AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Region] d<br>
+WHERE (b.[RegionID] = d.[RegionID]) AND (d.[RegionID] = 1)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q127')">OPathQuery&lt;Territory&gt;(&quot;Employees.TitleOfCourtesy == 'Mr.'&quot;)</a></li>
+<div id="q127" class="sql" style="display: none">
+SELECT a.[TerritoryID], a.[TerritoryDescription], a.[RegionID]<br>
+FROM [Territories] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] c, [Employees] b<br>
+WHERE (a.[TerritoryID] = c.[TerritoryID]) AND (c.[EmployeeID] = b.[EmployeeID]) AND (b.[TitleOfCourtesy] = 'Mr.')<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q128')">OPathQuery&lt;OrderDetail&gt;(&quot;Order.Customer.ID == 'ALFKI'&quot;)</a></li>
+<div id="q128" class="sql" style="display: none">
+SELECT a.[OrderID], a.[ProductID], a.[UnitPrice], a.[Quantity], a.[Discount]<br>
+FROM [Order Details] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[OrderID] = b.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] c<br>
+WHERE (b.[CustomerID] = c.[CustomerID]) AND (c.[CustomerID] = 'ALFKI')<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q129')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details.Product.ID == 10&quot;)</a></li>
+<div id="q129" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] d<br>
+WHERE (c.[ProductID] = d.[ProductID]) AND (d.[ProductID] = 10)<br>
+)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q130')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details.Quantity &gt; 10&quot;)</a></li>
+<div id="q130" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (c.[Quantity] &gt; 10)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q131')">OPathQuery&lt;Customer&gt;(&quot;10 &lt;= Orders.Details.UnitPrice&quot;)</a></li>
+<div id="q131" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (10 &lt;= c.[UnitPrice])<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q132')">OPathQuery&lt;Order&gt;(&quot;Employee.Territories.Region.ID == 2&quot;)</a></li>
+<div id="q132" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] d, [Territories] c<br>
+WHERE (b.[EmployeeID] = d.[EmployeeID]) AND (d.[TerritoryID] = c.[TerritoryID]) AND (c.[TerritoryDescription] &lt;&gt; 'Jeff') AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Region] e<br>
+WHERE (c.[RegionID] = e.[RegionID]) AND (e.[RegionID] = 2)<br>
+)<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q133')">OPathQuery&lt;Order&gt;(&quot;Employee[TitleOfCourtesy != 'Mr.'].Territories.Region.ID == 1&quot;)</a></li>
+<div id="q133" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[TitleOfCourtesy] != 'Mr.') AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] d, [Territories] c<br>
+WHERE (b.[EmployeeID] = d.[EmployeeID]) AND (d.[TerritoryID] = c.[TerritoryID]) AND (c.[TerritoryDescription] &lt;&gt; 'Jeff') AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Region] e<br>
+WHERE (c.[RegionID] = e.[RegionID]) AND (e.[RegionID] = 1)<br>
+)<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q134')">OPathQuery&lt;Order&gt;(&quot;Employee[TitleOfCourtesy == 'Ms.' || City == 'London'].Territories.Region.ID == 1&quot;)</a></li>
+<div id="q134" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND ((b.[TitleOfCourtesy] = 'Ms.') OR (b.[City] = 'London')) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] d, [Territories] c<br>
+WHERE (b.[EmployeeID] = d.[EmployeeID]) AND (d.[TerritoryID] = c.[TerritoryID]) AND (c.[TerritoryDescription] &lt;&gt; 'Jeff') AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Region] e<br>
+WHERE (c.[RegionID] = e.[RegionID]) AND (e.[RegionID] = 1)<br>
+)<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q135')">OPathQuery&lt;Order&gt;(&quot;(Details.Product.UnitsInStock - 50) &gt; 0&quot;)</a></li>
+<div id="q135" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] b<br>
+WHERE (a.[OrderID] = b.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] c<br>
+WHERE (b.[ProductID] = c.[ProductID]) AND ((c.[UnitsInStock] - 50) &gt; 0)<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q136')">OPathQuery&lt;Order&gt;(&quot;0 &lt; (50 - Details.Product.UnitsInStock)&quot;)</a></li>
+<div id="q136" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] b<br>
+WHERE (a.[OrderID] = b.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] c<br>
+WHERE (b.[ProductID] = c.[ProductID]) AND (0 &lt; (50 - c.[UnitsInStock]))<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q137')">OPathQuery&lt;Order&gt;(&quot;Employee.FirstName == 'Jeff' &amp;&amp; Employee.FirstName == 'Bob'&quot;)</a></li>
+<div id="q137" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[FirstName] = 'Jeff')<br>
+) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] c<br>
+WHERE (a.[EmployeeID] = c.[EmployeeID]) AND (c.[FirstName] = 'Bob')<br>
+))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q138')">OPathQuery&lt;Order&gt;(&quot;'Jeff' != Employee.FirstName &amp;&amp; 'Bob' != Employee.FirstName&quot;)</a></li>
+<div id="q138" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND ('Jeff' != b.[FirstName])<br>
+) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] c<br>
+WHERE (a.[EmployeeID] = c.[EmployeeID]) AND ('Bob' != c.[FirstName])<br>
+))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q139')">OPathQuery&lt;Order&gt;(&quot;Employee.FirstName == 'Jeff' || Customer.ContactName == 'Jeff'&quot;)</a></li>
+<div id="q139" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[FirstName] = 'Jeff')<br>
+) OR EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] c<br>
+WHERE (a.[CustomerID] = c.[CustomerID]) AND (c.[ContactName] = 'Jeff')<br>
+))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q140')">OPathQuery&lt;Order&gt;(&quot;(Employee.FirstName == 'Jeff') &amp;&amp; (Customer.ContactName == 'Jeff')&quot;)</a></li>
+<div id="q140" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[FirstName] = 'Jeff')<br>
+) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] c<br>
+WHERE (a.[CustomerID] = c.[CustomerID]) AND (c.[ContactName] = 'Jeff')<br>
+))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q141')">OPathQuery&lt;Order&gt;(&quot;Employee[FirstName == 'Jeff'] &amp;&amp; Customer[ContactName == 'Jeff']&quot;)</a></li>
+<div id="q141" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[FirstName] = 'Jeff')<br>
+) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] c<br>
+WHERE (a.[CustomerID] = c.[CustomerID]) AND (c.[ContactName] = 'Jeff')<br>
+))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+</ul>
+
+
+<h2>Filters<a name="Filters"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q142')">OPathQuery&lt;Order&gt;(&quot;Employee[FirstName == 'Jeff']&quot;)</a></li>
+<div id="q142" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[FirstName] = 'Jeff')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q143')">OPathQuery&lt;Order&gt;(&quot;Employee[FirstName == 'Jeff' || FirstName == 'Bob']&quot;)</a></li>
+<div id="q143" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND ((b.[FirstName] = 'Jeff') OR (b.[FirstName] = 'Bob'))<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q144')">OPathQuery&lt;Order&gt;(&quot;Employee[FirstName == 'Jeff' &amp;&amp; LastName == 'Lanning']&quot;)</a></li>
+<div id="q144" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND ((b.[FirstName] = 'Jeff') AND (b.[LastName] = 'Lanning'))<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q145')">OPathQuery&lt;Category&gt;(&quot;Products[UnitsInStock &gt; (-10 + UnitsOnOrder)]&quot;)</a></li>
+<div id="q145" class="sql" style="display: none">
+SELECT a.[CategoryID], a.[CategoryName], a.[Description], a.[Picture]<br>
+FROM [Categories] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.Discontinued = 0) AND (b.[UnitsInStock] &gt; (-10 + b.[UnitsOnOrder]))<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q146')">OPathQuery&lt;Category&gt;(&quot;Products[UnitsInStock &gt; (10 + UnitsOnOrder)]&quot;)</a></li>
+<div id="q146" class="sql" style="display: none">
+SELECT a.[CategoryID], a.[CategoryName], a.[Description], a.[Picture]<br>
+FROM [Categories] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.Discontinued = 0) AND (b.[UnitsInStock] &gt; (10 + b.[UnitsOnOrder]))<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q147')">OPathQuery&lt;Category&gt;(&quot;Products[UnitsInStock &gt; (10 - UnitsOnOrder)]&quot;)</a></li>
+<div id="q147" class="sql" style="display: none">
+SELECT a.[CategoryID], a.[CategoryName], a.[Description], a.[Picture]<br>
+FROM [Categories] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.Discontinued = 0) AND (b.[UnitsInStock] &gt; (10 - b.[UnitsOnOrder]))<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q148')">OPathQuery&lt;Category&gt;(&quot;Products[UnitsInStock &gt; (10 * UnitsOnOrder)]&quot;)</a></li>
+<div id="q148" class="sql" style="display: none">
+SELECT a.[CategoryID], a.[CategoryName], a.[Description], a.[Picture]<br>
+FROM [Categories] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.Discontinued = 0) AND (b.[UnitsInStock] &gt; (10 * b.[UnitsOnOrder]))<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q149')">OPathQuery&lt;Category&gt;(&quot;Products[UnitsInStock &gt; (UnitsOnOrder / 10)]&quot;)</a></li>
+<div id="q149" class="sql" style="display: none">
+SELECT a.[CategoryID], a.[CategoryName], a.[Description], a.[Picture]<br>
+FROM [Categories] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.Discontinued = 0) AND (b.[UnitsInStock] &gt; (b.[UnitsOnOrder] / 10))<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q150')">OPathQuery&lt;Category&gt;(&quot;Products[UnitsInStock &gt; (UnitsOnOrder % 10)]&quot;)</a></li>
+<div id="q150" class="sql" style="display: none">
+SELECT a.[CategoryID], a.[CategoryName], a.[Description], a.[Picture]<br>
+FROM [Categories] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.Discontinued = 0) AND (b.[UnitsInStock] &gt; (b.[UnitsOnOrder] % 10))<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q151')">OPathQuery&lt;Customer&gt;(&quot;Orders[Details.Quantity &gt; 50]&quot;)</a></li>
+<div id="q151" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (c.[Quantity] &gt; 50)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q152')">OPathQuery&lt;Customer&gt;(&quot;Orders[Details[Quantity &gt; 50]]&quot;)</a></li>
+<div id="q152" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (c.[Quantity] &gt; 50)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q153')">OPathQuery&lt;Order&gt;(&quot;Employee[City = 'Seattle'] AND Freight &gt; 25&quot;)</a></li>
+<div id="q153" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[City] = 'Seattle')<br>
+) AND (a.[Freight] &gt; 25))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q154')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 25 &amp;&amp; Employee[City = 'Seattle']&quot;)</a></li>
+<div id="q154" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE ((a.[Freight] &gt; 25) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[City] = 'Seattle')<br>
+))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q155')">OPathQuery&lt;Order&gt;(&quot;Details[Quantity == Product.Supplier.ID]&quot;)</a></li>
+<div id="q155" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] b<br>
+WHERE (a.[OrderID] = b.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] c<br>
+WHERE (b.[ProductID] = c.[ProductID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Suppliers] d<br>
+WHERE (c.[SupplierID] = d.[SupplierID]) AND (b.[Quantity] = d.[SupplierID])<br>
+)<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q156')">OPathQuery&lt;Order&gt;(&quot;Details[Quantity == Product.UnitsInStock]&quot;)</a></li>
+<div id="q156" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] b<br>
+WHERE (a.[OrderID] = b.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] c<br>
+WHERE (b.[ProductID] = c.[ProductID]) AND (b.[Quantity] = c.[UnitsInStock])<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q157')">OPathQuery&lt;Order&gt;(&quot;Details[Product.UnitsInStock == (Quantity * 100)]&quot;)</a></li>
+<div id="q157" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] b<br>
+WHERE (a.[OrderID] = b.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] c<br>
+WHERE (b.[ProductID] = c.[ProductID]) AND (c.[UnitsInStock] = (b.[Quantity] * 100))<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q158')">OPathQuery&lt;Customer&gt;(&quot;Orders[Freight &gt; 10].Details.Quantity &gt; 50&quot;)</a></li>
+<div id="q158" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (b.[Freight] &gt; 10) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (c.[Quantity] &gt; 50)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q159')">OPathQuery&lt;Customer&gt;(&quot;Orders[Freight &gt; 10].Details[Quantity &gt; 50]&quot;)</a></li>
+<div id="q159" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (b.[Freight] &gt; 10) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (c.[Quantity] &gt; 50)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q160')">OPathQuery&lt;Order&gt;(&quot;(Customer[Country != 'USA'])&quot;)</a></li>
+<div id="q160" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (b.[Country] != 'USA')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q161')">OPathQuery&lt;Order&gt;(&quot;(Customer[!(Country = 'USA')])&quot;)</a></li>
+<div id="q161" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND NOT((b.[Country] = 'USA'))<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+</ul>
+
+
+<h2>Functions<a name="Functions"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q162')">OPathQuery&lt;Customer&gt;(&quot;isNull(ContactName)&quot;)</a></li>
+<div id="q162" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE (a.[ContactName] IS NULL);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q163')">OPathQuery&lt;Customer&gt;(&quot;!isNull(ContactName)&quot;)</a></li>
+<div id="q163" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE NOT((a.[ContactName] IS NULL));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q164')">OPathQuery&lt;Customer&gt;(&quot;ISNULL(ContactName) &amp;&amp; isnull(ContactTitle)&quot;)</a></li>
+<div id="q164" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE ((a.[ContactName] IS NULL) AND (a.[ContactTitle] IS NULL));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q165')">OPathQuery&lt;Customer&gt;(&quot;NOT ISNULL(ContactName) &amp;&amp; NOT isnull(ContactTitle)&quot;)</a></li>
+<div id="q165" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE (NOT((a.[ContactName] IS NULL)) AND NOT((a.[ContactTitle] IS NULL)));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q166')">OPathQuery&lt;Customer&gt;(&quot;ISNULL(ContactName) || isnull(ContactTitle)&quot;)</a></li>
+<div id="q166" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE ((a.[ContactName] IS NULL) OR (a.[ContactTitle] IS NULL));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q167')">OPathQuery&lt;Order&gt;(&quot;Details.Product[ISNULL(UnitPrice)]&quot;)</a></li>
+<div id="q167" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] b<br>
+WHERE (a.[OrderID] = b.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] c<br>
+WHERE (b.[ProductID] = c.[ProductID]) AND (c.[UnitPrice] IS NULL)<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q168')">OPathQuery&lt;Order&gt;(&quot;Details.Product[!ISNULL(UnitPrice)]&quot;)</a></li>
+<div id="q168" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] b<br>
+WHERE (a.[OrderID] = b.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] c<br>
+WHERE (b.[ProductID] = c.[ProductID]) AND NOT((c.[UnitPrice] IS NULL))<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q169')">OPathQuery&lt;Employee&gt;(&quot;TRIM(FirstName) == 'Jeff'&quot;)</a></li>
+<div id="q169" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LTRIM(RTRIM(a.[FirstName])) = 'Jeff');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q170')">OPathQuery&lt;Employee&gt;(&quot;Trim(Title) != Title&quot;)</a></li>
+<div id="q170" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LTRIM(RTRIM(a.[Title])) != a.[Title]);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q171')">OPathQuery&lt;Employee&gt;(&quot;trim(FirstName) != TRIM(LastName)&quot;)</a></li>
+<div id="q171" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LTRIM(RTRIM(a.[FirstName])) != LTRIM(RTRIM(a.[LastName])));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q172')">OPathQuery&lt;Order&gt;(&quot;Employee[TRIM(LastName) == 'Lanning']&quot;)</a></li>
+<div id="q172" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (LTRIM(RTRIM(b.[LastName])) = 'Lanning')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q173')">OPathQuery&lt;Order&gt;(&quot;Employee[TRIM(Title) != Title]&quot;)</a></li>
+<div id="q173" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (LTRIM(RTRIM(b.[Title])) != b.[Title])<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q174')">OPathQuery&lt;Employee&gt;(&quot;LEN(Title) &gt; 0&quot;)</a></li>
+<div id="q174" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LEN(a.[Title]) &gt; 0);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q175')">OPathQuery&lt;Employee&gt;(&quot;len(FirstName) &gt; 10&quot;)</a></li>
+<div id="q175" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LEN(a.[FirstName]) &gt; 10);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q176')">OPathQuery&lt;Employee&gt;(&quot;Len(FirstName) &lt; 10 &amp;&amp; LEN(LastName) &gt; 10&quot;)</a></li>
+<div id="q176" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((LEN(a.[FirstName]) &lt; 10) AND (LEN(a.[LastName]) &gt; 10));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q177')">OPathQuery&lt;Employee&gt;(&quot;LEN(FirstName) + LEN(LastName) &gt; 20&quot;)</a></li>
+<div id="q177" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((LEN(a.[FirstName]) + LEN(a.[LastName])) &gt; 20);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q178')">OPathQuery&lt;Employee&gt;(&quot;LEN(FirstName + ' ' + LastName) &gt; 20&quot;)</a></li>
+<div id="q178" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LEN(((a.[FirstName] + ' ') + a.[LastName])) &gt; 20);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q179')">OPathQuery&lt;Employee&gt;(&quot;LEN(FirstName) == LEN(LastName)&quot;)</a></li>
+<div id="q179" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LEN(a.[FirstName]) = LEN(a.[LastName]));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q180')">OPathQuery&lt;Order&gt;(&quot;Customer[LEN(Fax) == 0]&quot;)</a></li>
+<div id="q180" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (LEN(b.[Fax]) = 0)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q181')">OPathQuery&lt;Order&gt;(&quot;Customer[ISNULL(Fax) || LEN(Fax) == 0]&quot;)</a></li>
+<div id="q181" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND ((b.[Fax] IS NULL) OR (LEN(b.[Fax]) = 0))<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q182')">OPathQuery&lt;Customer&gt;(&quot;Orders[LEN(ShipCity) == 0]&quot;)</a></li>
+<div id="q182" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (LEN(b.[ShipCity]) = 0)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q183')">OPathQuery&lt;Employee&gt;(&quot;left(FirstName, 3) != 'And'&quot;)</a></li>
+<div id="q183" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LEFT(a.[FirstName], 3) != 'And');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q184')">OPathQuery&lt;Employee&gt;(&quot;LEFT(FirstName, 1 + 2) != 'And'&quot;)</a></li>
+<div id="q184" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LEFT(a.[FirstName], (1 + 2)) != 'And');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q185')">OPathQuery&lt;Employee&gt;(&quot;Left(FirstName, LEN(FirstName)) == 'Andrew'&quot;)</a></li>
+<div id="q185" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LEFT(a.[FirstName], LEN(a.[FirstName])) = 'Andrew');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q186')">OPathQuery&lt;Employee&gt;(&quot;LEFT(FirstName, 200) == 'Andrew'&quot;)</a></li>
+<div id="q186" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (LEFT(a.[FirstName], 200) = 'Andrew');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q187')">OPathQuery&lt;Order&gt;(&quot;Customer[LEFT(Phone, 5) = '(206)']&quot;)</a></li>
+<div id="q187" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (LEFT(b.[Phone], 5) = '(206)')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q188')">OPathQuery&lt;Order&gt;(&quot;Customer[LEFT(Phone, 5) LIKE '(___)']&quot;)</a></li>
+<div id="q188" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (LEFT(b.[Phone], 5) LIKE '(___)')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q189')">OPathQuery&lt;Employee&gt;(&quot;right(FirstName, 3) != 'rew'&quot;)</a></li>
+<div id="q189" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (RIGHT(a.[FirstName], 3) != 'rew');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q190')">OPathQuery&lt;Employee&gt;(&quot;RIGHT(FirstName, 1 + 2) != 'rew'&quot;)</a></li>
+<div id="q190" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (RIGHT(a.[FirstName], (1 + 2)) != 'rew');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q191')">OPathQuery&lt;Employee&gt;(&quot;RIGHT(FirstName, LEN(FirstName)) == 'Andrew'&quot;)</a></li>
+<div id="q191" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (RIGHT(a.[FirstName], LEN(a.[FirstName])) = 'Andrew');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q192')">OPathQuery&lt;Employee&gt;(&quot;RIGHT(FirstName, 200) == 'Andrew'&quot;)</a></li>
+<div id="q192" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (RIGHT(a.[FirstName], 200) = 'Andrew');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q193')">OPathQuery&lt;Employee&gt;(&quot;Right(Address, 1) == '.'&quot;)</a></li>
+<div id="q193" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (RIGHT(a.[Address], 1) = '.');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q194')">OPathQuery&lt;Order&gt;(&quot;Customer[RIGHT(Phone, 5) = '-7788']&quot;)</a></li>
+<div id="q194" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (RIGHT(b.[Phone], 5) = '-7788')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q195')">OPathQuery&lt;Order&gt;(&quot;Customer[RIGHT(Phone, 5) LIKE '-____']&quot;)</a></li>
+<div id="q195" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (RIGHT(b.[Phone], 5) LIKE '-____')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q196')">OPathQuery&lt;Order&gt;(&quot;Customer[LEFT(CompanyName, 1) = RIGHT(CompanyName, 1)]&quot;)</a></li>
+<div id="q196" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (LEFT(b.[CompanyName], 1) = RIGHT(b.[CompanyName], 1))<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q197')">OPathQuery&lt;Employee&gt;(&quot;substring(FirstName, 1, 4) != 'Andr'&quot;)</a></li>
+<div id="q197" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (SUBSTRING(a.[FirstName], 1, 4) != 'Andr');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q198')">OPathQuery&lt;Employee&gt;(&quot;SUBSTRING(FirstName, 5, 3) != 'rew'&quot;)</a></li>
+<div id="q198" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (SUBSTRING(a.[FirstName], 5, 3) != 'rew');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q199')">OPathQuery&lt;Employee&gt;(&quot;SubString(FirstName, 5) != 'rew'&quot;)</a></li>
+<div id="q199" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (SUBSTRING(a.[FirstName], 5, LEN(a.[FirstName])) != 'rew');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q200')">OPathQuery&lt;Territory&gt;(&quot;SUBSTRING(Description, LEN(Description) - 1, 1) == '.'&quot;)</a></li>
+<div id="q200" class="sql" style="display: none">
+SELECT a.[TerritoryID], a.[TerritoryDescription], a.[RegionID]<br>
+FROM [Territories] a<br>
+WHERE (SUBSTRING(a.[TerritoryDescription], (LEN(a.[TerritoryDescription]) - 1), 1) = '.');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q201')">OPathQuery&lt;Territory&gt;(&quot;SUBSTRING(Description, LEN(Description) - 1) == '.'&quot;)</a></li>
+<div id="q201" class="sql" style="display: none">
+SELECT a.[TerritoryID], a.[TerritoryDescription], a.[RegionID]<br>
+FROM [Territories] a<br>
+WHERE (SUBSTRING(a.[TerritoryDescription], (LEN(a.[TerritoryDescription]) - 1), LEN(a.[TerritoryDescription])) = '.');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q202')">OPathQuery&lt;Order&gt;(&quot;Customer[SUBSTRING(Phone, 2, 3) = '206']&quot;)</a></li>
+<div id="q202" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (SUBSTRING(b.[Phone], 2, 3) = '206')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q203')">OPathQuery&lt;Order&gt;(&quot;Customer[SUBSTRING(Phone, LEN(Phone) - 4) = '4444']&quot;)</a></li>
+<div id="q203" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (SUBSTRING(b.[Phone], (LEN(b.[Phone]) - 4), LEN(b.[Phone])) = '4444')<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q204')">OPathQuery&lt;Customer&gt;(&quot;ContactTitle LIKE 'Sales %'&quot;)</a></li>
+<div id="q204" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE (a.[ContactTitle] LIKE 'Sales %');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q205')">OPathQuery&lt;Customer&gt;(&quot;TRIM(ContactTitle) LIKE '% Manager'&quot;)</a></li>
+<div id="q205" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE (LTRIM(RTRIM(a.[ContactTitle])) LIKE '% Manager');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q206')">OPathQuery&lt;Product&gt;(&quot;Name like '%Anton''s%' || Name Like 'Rodney''s%'&quot;)</a></li>
+<div id="q206" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE ((a.[ProductName] LIKE '%Anton''s%') OR (a.[ProductName] LIKE 'Rodney''s%'))<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q207')">OPathQuery&lt;Customer&gt;(&quot;Phone LIKE '([0-9][0-9][0-9]) %'&quot;)</a></li>
+<div id="q207" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE (a.[Phone] LIKE '([0-9][0-9][0-9]) %');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q208')">OPathQuery&lt;Customer&gt;(&quot;LEFT(Phone, 5) LIKE '([0-9][0-9][0-9])'&quot;)</a></li>
+<div id="q208" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE (LEFT(a.[Phone], 5) LIKE '([0-9][0-9][0-9])');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q209')">OPathQuery&lt;Customer&gt;(&quot;LEFT(Address, 1) LIKE '[^0-9]'&quot;)</a></li>
+<div id="q209" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE (LEFT(a.[Address], 1) LIKE '[^0-9]');
+</div>
+
+<li><a class="query" href="javascript:Toggle('q210')">OPathQuery&lt;Order&gt;(&quot;Customer[Address like '% Rd.' || Address like '% Road']&quot;)</a></li>
+<div id="q210" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND ((b.[Address] LIKE '% Rd.') OR (b.[Address] LIKE '% Road'))<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q211')">OPathQuery&lt;Employee&gt;(&quot;Title Like '% Manager' AND Orders[Freight &gt; 25]&quot;)</a></li>
+<div id="q211" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((a.[Title] LIKE '% Manager') AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[Freight] &gt; 25)<br>
+));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q212')">OPathQuery&lt;Order&gt;(&quot;Freight &gt; 50 &amp;&amp; Employee[Title LIKE '% Representative' || City == 'London'].Territories.Region.ID == 1&quot;)</a></li>
+<div id="q212" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE ((a.[Freight] &gt; 50) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND ((b.[Title] LIKE '% Representative') OR (b.[City] = 'London')) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] d, [Territories] c<br>
+WHERE (b.[EmployeeID] = d.[EmployeeID]) AND (d.[TerritoryID] = c.[TerritoryID]) AND (c.[TerritoryDescription] &lt;&gt; 'Jeff') AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Region] e<br>
+WHERE (c.[RegionID] = e.[RegionID]) AND (e.[RegionID] = 1)<br>
+)<br>
+)<br>
+))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q213')">OPathQuery&lt;Order&gt;(&quot;EmployeeID IN (1)&quot;)</a></li>
+<div id="q213" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[EmployeeID] IN (1))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q214')">OPathQuery&lt;Order&gt;(&quot;EmployeeID IN (1, 2)&quot;)</a></li>
+<div id="q214" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[EmployeeID] IN (1, 2))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q215')">OPathQuery&lt;Order&gt;(&quot;EmployeeID IN (4, 5, 6)&quot;)</a></li>
+<div id="q215" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[EmployeeID] IN (4, 5, 6))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q216')">OPathQuery&lt;Order&gt;(&quot;EmployeeID IN (2 + 2, 5 - 1, 8 / 2)&quot;)</a></li>
+<div id="q216" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[EmployeeID] IN ((2 + 2), (5 - 1), (8 / 2)))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q217')">OPathQuery&lt;Order&gt;(&quot;EmployeeID IN (4 * 4, 5 / 2, 66 % 7)&quot;)</a></li>
+<div id="q217" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[EmployeeID] IN ((4 * 4), (5 / 2), (66 % 7)))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q218')">OPathQuery&lt;Order&gt;(&quot;EmployeeID IN (4+4,5+5,6+6)&quot;)</a></li>
+<div id="q218" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[EmployeeID] IN ((4 + 4), (5 + 5), (6 + 6)))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q219')">OPathQuery&lt;Order&gt;(&quot;EmployeeID IN (4+4,5-5,6+6)&quot;)</a></li>
+<div id="q219" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[EmployeeID] IN ((4 + 4), (5 - 5), (6 + 6)))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q220')">OPathQuery&lt;Order&gt;(&quot;ShipCountry IN ('USA', 'Canada', 'Mexico')&quot;)</a></li>
+<div id="q220" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (a.[ShipCountry] IN ('USA', 'Canada', 'Mexico'))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q221')">OPathQuery&lt;Order&gt;(&quot;Employee[ID IN (4, 5, 6)]&quot;)</a></li>
+<div id="q221" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[EmployeeID] IN (4, 5, 6))<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q222')">OPathQuery&lt;Order&gt;(&quot;Employee[ID IN (4, 5, 6)] AND Freight &gt; 25&quot;)</a></li>
+<div id="q222" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[EmployeeID] IN (4, 5, 6))<br>
+) AND (a.[Freight] &gt; 25))<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+</ul>
+
+
+<h2>Parameters<a name="Parameters"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q223')">OPathQuery&lt;Employee&gt;(&quot;ID = ?&quot;)</a></li>
+<div id="q223" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[EmployeeID] = @P0);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q224')">OPathQuery&lt;Employee&gt;(&quot;? = ID&quot;)</a></li>
+<div id="q224" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (@P0 = a.[EmployeeID]);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q225')">OPathQuery&lt;Employee&gt;(&quot;ID = ? || ID == ? || ID == ?&quot;)</a></li>
+<div id="q225" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((a.[EmployeeID] = @P0) OR (a.[EmployeeID] = @P1)) OR (a.[EmployeeID] = @P2));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q226')">OPathQuery&lt;Employee&gt;(&quot;ID=?||ID==?||ID==?&quot;)</a></li>
+<div id="q226" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((a.[EmployeeID] = @P0) OR (a.[EmployeeID] = @P1)) OR (a.[EmployeeID] = @P2));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q227')">OPathQuery&lt;Employee&gt;(&quot;?=ID||?==ID||?==ID&quot;)</a></li>
+<div id="q227" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((@P0 = a.[EmployeeID]) OR (@P1 = a.[EmployeeID])) OR (@P2 = a.[EmployeeID]));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q228')">OPathQuery&lt;Employee&gt;(&quot;FirstName == ?&quot;)</a></li>
+<div id="q228" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[FirstName] = @P0);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q229')">OPathQuery&lt;Product&gt;(&quot;Discontinued == ?&quot;)</a></li>
+<div id="q229" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[Discontinued] = @P0)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q230')">OPathQuery&lt;Product&gt;(&quot;Discontinued == ?&quot;)</a></li>
+<div id="q230" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[Discontinued] = @P0)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q231')">OPathQuery&lt;Product&gt;(&quot;UnitPrice &gt; ?&quot;)</a></li>
+<div id="q231" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitPrice] &gt; @P0)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q232')">OPathQuery&lt;Product&gt;(&quot;UnitPrice &gt; ?&quot;)</a></li>
+<div id="q232" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitPrice] &gt; @P0)<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q233')">OPathQuery&lt;Employee&gt;(&quot;FirstName = ? &amp;&amp; LastName == ?&quot;)</a></li>
+<div id="q233" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((a.[FirstName] = @P0) AND (a.[LastName] = @P1));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q234')">OPathQuery&lt;Employee&gt;(&quot;? == FirstName &amp;&amp; ? == LastName&quot;)</a></li>
+<div id="q234" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((@P0 = a.[FirstName]) AND (@P1 = a.[LastName]));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q235')">OPathQuery&lt;Employee&gt;(&quot;LastName LIKE ?&quot;)</a></li>
+<div id="q235" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (a.[LastName] LIKE @P0);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q236')">OPathQuery&lt;Employee&gt;(&quot;SUBSTRING(City, ?, ?) = ?&quot;)</a></li>
+<div id="q236" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (SUBSTRING(a.[City], @P0, @P1) = @P2);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q237')">OPathQuery&lt;Product&gt;(&quot;UnitPrice &lt; ? &amp;&amp; Category.Name == ? &amp;&amp; Discontinued == ?&quot;)</a></li>
+<div id="q237" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (((a.[UnitPrice] &lt; @P0) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Categories] b<br>
+WHERE (a.[CategoryID] = b.[CategoryID]) AND (b.[CategoryName] = @P1)<br>
+)) AND (a.[Discontinued] = @P2))<br>
+ORDER BY ProductName, UnitPrice DESC, ProductID;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q238')">OPathQuery&lt;Employee&gt;(&quot;Orders[Freight &gt; ?] || City == ?&quot;)</a></li>
+<div id="q238" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[Freight] &gt; @P0)<br>
+) OR (a.[City] = @P1));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q239')">OPathQuery&lt;Employee&gt;(&quot;City == ? || Orders[Freight &gt; ?]&quot;)</a></li>
+<div id="q239" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((a.[City] = @P0) OR EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[Freight] &gt; @P1)<br>
+));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q240')">OPathQuery&lt;Employee&gt;(&quot;Orders[Freight &gt; ?] OR Title Like ?&quot;)</a></li>
+<div id="q240" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[Freight] &gt; @P0)<br>
+) OR (a.[Title] LIKE @P1));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q241')">OPathQuery&lt;Employee&gt;(&quot;Title Like ? OR Orders[Freight &gt; ?]&quot;)</a></li>
+<div id="q241" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE ((a.[Title] LIKE @P0) OR EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[EmployeeID] = b.[EmployeeID]) AND (b.[Freight] &gt; @P1)<br>
+));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q242')">OPathQuery&lt;Employee&gt;(&quot;ID = ? &amp;&amp; ReportsTo[ID = ? &amp;&amp; ReportsTo[ID = ?]] &amp;&amp; ID = ? &amp;&amp; ReportsTo[ID = ? &amp;&amp; ReportsTo[ID = ?]] &amp;&amp; ID = ?&quot;)</a></li>
+<div id="q242" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((((a.[EmployeeID] = @P0) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[ReportsTo] = b.[EmployeeID]) AND ((b.[EmployeeID] = @P1) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] c<br>
+WHERE (b.[ReportsTo] = c.[EmployeeID]) AND (c.[EmployeeID] = @P2)<br>
+))<br>
+)) AND (a.[EmployeeID] = @P3)) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] d<br>
+WHERE (a.[ReportsTo] = d.[EmployeeID]) AND ((d.[EmployeeID] = @P4) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] e<br>
+WHERE (d.[ReportsTo] = e.[EmployeeID]) AND (e.[EmployeeID] = @P5)<br>
+))<br>
+)) AND (a.[EmployeeID] = @P6));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q243')">OPathQuery&lt;Employee&gt;(&quot;ID = ? &amp;&amp; ReportsTo[ID = ? &amp;&amp; ReportsTo[Country = ?]] &amp;&amp; ID = ? &amp;&amp; ReportsTo[ID = ? &amp;&amp; ReportsTo[Country = ?]] &amp;&amp; ID = ?&quot;)</a></li>
+<div id="q243" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((((a.[EmployeeID] = @P0) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[ReportsTo] = b.[EmployeeID]) AND ((b.[EmployeeID] = @P1) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] c<br>
+WHERE (b.[ReportsTo] = c.[EmployeeID]) AND (c.[Country] = @P2)<br>
+))<br>
+)) AND (a.[EmployeeID] = @P3)) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] d<br>
+WHERE (a.[ReportsTo] = d.[EmployeeID]) AND ((d.[EmployeeID] = @P4) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] e<br>
+WHERE (d.[ReportsTo] = e.[EmployeeID]) AND (e.[Country] = @P5)<br>
+))<br>
+)) AND (a.[EmployeeID] = @P6));
+</div>
+
+<li><a class="query" href="javascript:Toggle('q244')">OPathQuery&lt;Employee&gt;(&quot;FirstName = ? &amp;&amp; ReportsTo[FirstName = ? &amp;&amp; ReportsTo[BirthDate = ?]] &amp;&amp; FirstName = ? &amp;&amp; ReportsTo[FirstName = ? &amp;&amp; ReportsTo[BirthDate = ?]] &amp;&amp; FirstName = ?&quot;)</a></li>
+<div id="q244" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+WHERE (((((a.[FirstName] = @P0) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] b<br>
+WHERE (a.[ReportsTo] = b.[EmployeeID]) AND ((b.[FirstName] = @P1) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] c<br>
+WHERE (b.[ReportsTo] = c.[EmployeeID]) AND (c.[BirthDate] = @P2)<br>
+))<br>
+)) AND (a.[FirstName] = @P3)) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] d<br>
+WHERE (a.[ReportsTo] = d.[EmployeeID]) AND ((d.[FirstName] = @P4) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] e<br>
+WHERE (d.[ReportsTo] = e.[EmployeeID]) AND (e.[BirthDate] = @P5)<br>
+))<br>
+)) AND (a.[FirstName] = @P6));
+</div>
+
+</ul>
+
+
+<h2>Parent Relationship Traversals<a name="Parent Relationship Traversals"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q245')">OPathQuery&lt;Customer&gt;(&quot;Orders[^.City == ?]&quot;)</a></li>
+<div id="q245" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (a.[City] = @P0)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q246')">OPathQuery&lt;Customer&gt;(&quot;Orders['Seattle' == ^.City]&quot;)</a></li>
+<div id="q246" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND ('Seattle' = a.[City])<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q247')">OPathQuery&lt;Customer&gt;(&quot;Orders[SUBSTRING(^.City, 4) == 'don']&quot;)</a></li>
+<div id="q247" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (SUBSTRING(a.[City], 4, LEN(a.[City])) = 'don')<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q248')">OPathQuery&lt;Customer&gt;(&quot;Orders[SUBSTRING(^.City, ?) == ?]&quot;)</a></li>
+<div id="q248" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (SUBSTRING(a.[City], @P0, LEN(a.[City])) = @P1)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q249')">OPathQuery&lt;Customer&gt;(&quot;Orders[^.City LIKE ?]&quot;)</a></li>
+<div id="q249" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (a.[City] LIKE @P0)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q250')">OPathQuery&lt;Customer&gt;(&quot;Orders[LEN(^.City) == 6]&quot;)</a></li>
+<div id="q250" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND (LEN(a.[City]) = 6)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q251')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details[^.Freight &gt; ?]&quot;)</a></li>
+<div id="q251" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (b.[Freight] &gt; @P0)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q252')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details[50 &lt; ^.Freight]&quot;)</a></li>
+<div id="q252" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (50 &lt; b.[Freight])<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q253')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details[^.^.City == ?]&quot;)</a></li>
+<div id="q253" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (a.[City] = @P0)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q254')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details[? == ^.^.City ]&quot;)</a></li>
+<div id="q254" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (@P0 = a.[City])<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q255')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details[^.Freight &gt; (UnitPrice * Quantity)]&quot;)</a></li>
+<div id="q255" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND (b.[Freight] &gt; (c.[UnitPrice] * c.[Quantity]))<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q256')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details[(UnitPrice * Quantity) &gt; ^.Freight]&quot;)</a></li>
+<div id="q256" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND ((c.[UnitPrice] * c.[Quantity]) &gt; b.[Freight])<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q257')">OPathQuery&lt;Customer&gt;(&quot;Orders.Employee[^.^.City == ^.ShipCity AND ^.^.City != City]&quot;)</a></li>
+<div id="q257" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] c<br>
+WHERE (b.[EmployeeID] = c.[EmployeeID]) AND ((a.[City] = b.[ShipCity]) AND (a.[City] != c.[City]))<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q258')">OPathQuery&lt;Customer&gt;(&quot;Orders.Employee[^.^.City != City AND SUBSTRING(^.^.City, LEN(^.^.City) - 1, 1) == SUBSTRING(^.ShipCity, LEN(^.ShipCity) - 1, 1)]&quot;)</a></li>
+<div id="q258" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] c<br>
+WHERE (b.[EmployeeID] = c.[EmployeeID]) AND ((a.[City] != c.[City]) AND (SUBSTRING(a.[City], (LEN(a.[City]) - 1), 1) = SUBSTRING(b.[ShipCity], (LEN(b.[ShipCity]) - 1), 1)))<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q259')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details.Product[^.^.^.Country == 'USA' &amp;&amp; ^.^.Freight &gt; 50 &amp;&amp; ^.Quantity &gt; 10 &amp;&amp; Discontinued == false]&quot;)</a></li>
+<div id="q259" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] d<br>
+WHERE (c.[ProductID] = d.[ProductID]) AND ((((a.[Country] = 'USA') AND (b.[Freight] &gt; 50)) AND (c.[Quantity] &gt; 10)) AND (d.[Discontinued] = 0))<br>
+)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q260')">OPathQuery&lt;Customer&gt;(&quot;Orders.Details.Product[^.^.^.Country == ? &amp;&amp; ^.^.Freight &gt; ? &amp;&amp; ^.Quantity &gt; ? &amp;&amp; Discontinued == ?]&quot;)</a></li>
+<div id="q260" class="sql" style="display: none">
+SELECT a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]<br>
+FROM [Customers] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Orders] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Order Details] c<br>
+WHERE (b.[OrderID] = c.[OrderID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Products] d<br>
+WHERE (c.[ProductID] = d.[ProductID]) AND ((((a.[Country] = @P0) AND (b.[Freight] &gt; @P1)) AND (c.[Quantity] &gt; @P2)) AND (d.[Discontinued] = @P3))<br>
+)<br>
+)<br>
+);
+</div>
+
+<li><a class="query" href="javascript:Toggle('q261')">OPathQuery&lt;Order&gt;(&quot;Customer[City == ^.Employee.City]&quot;)</a></li>
+<div id="q261" class="sql" style="display: none">
+SELECT a.[OrderID], a.[CustomerID], a.[EmployeeID], a.[OrderDate], a.[RequiredDate], a.[ShippedDate], a.[ShipVia], a.[Freight], a.[ShipName], a.[ShipAddress], a.[ShipCity], a.[ShipRegion], a.[ShipPostalCode], a.[ShipCountry]<br>
+FROM [Orders] a<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Customers] b<br>
+WHERE (a.[CustomerID] = b.[CustomerID]) AND EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [Employees] c<br>
+WHERE (a.[EmployeeID] = c.[EmployeeID]) AND (b.[City] = c.[City])<br>
+)<br>
+)<br>
+ORDER BY OrderDate, OrderID;
+</div>
+
+</ul>
+
+
+<h2>Sort Expressions<a name="Sort Expressions"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q262')">OPathQuery&lt;Product&gt;(null, &quot;Name&quot;)</a></li>
+<div id="q262" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q263')">OPathQuery&lt;Product&gt;(null, &quot;Name ASC&quot;)</a></li>
+<div id="q263" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q264')">OPathQuery&lt;Product&gt;(null, &quot;Name DESC&quot;)</a></li>
+<div id="q264" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] DESC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q265')">OPathQuery&lt;Product&gt;(null, &quot;Name, CategoryID&quot;)</a></li>
+<div id="q265" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] ASC, a.[CategoryID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q266')">OPathQuery&lt;Product&gt;(null, &quot;Name ASC, CategoryID ASC&quot;)</a></li>
+<div id="q266" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] ASC, a.[CategoryID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q267')">OPathQuery&lt;Product&gt;(null, &quot;Name DESC, CategoryID DESC&quot;)</a></li>
+<div id="q267" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] DESC, a.[CategoryID] DESC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q268')">OPathQuery&lt;Product&gt;(null, &quot;Name, CategoryID, ID&quot;)</a></li>
+<div id="q268" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] ASC, a.[CategoryID] ASC, a.[ProductID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q269')">OPathQuery&lt;Product&gt;(null, &quot;Name ASC, CategoryID DESC, ID ASC&quot;)</a></li>
+<div id="q269" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] ASC, a.[CategoryID] DESC, a.[ProductID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q270')">OPathQuery&lt;Product&gt;(null, &quot;Name DESC, ReorderLevel ASC, ID DESC&quot;)</a></li>
+<div id="q270" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+ORDER BY a.[ProductName] DESC, a.[ReorderLevel] ASC, a.[ProductID] DESC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q271')">OPathQuery&lt;Product&gt;(&quot;UnitsInStock &gt; 10&quot;, &quot;Name, CategoryID&quot;)</a></li>
+<div id="q271" class="sql" style="display: none">
+SELECT a.[ProductID], a.[ProductName], a.[SupplierID], a.[CategoryID], a.[QuantityPerUnit], a.[UnitPrice], a.[UnitsInStock], a.[UnitsOnOrder], a.[ReorderLevel], a.[Discontinued]<br>
+FROM [Products] a<br>
+WHERE (a.[UnitsInStock] &gt; 10)<br>
+ORDER BY a.[ProductName] ASC, a.[CategoryID] ASC;
+</div>
+
+</ul>
+
+
+<h2>Relational Sort Expressions<a name="Relational Sort Expressions"></a></h2>
+<ul>
+
+<li><a class="query" href="javascript:Toggle('q272')">OPathQuery&lt;OrderDetail&gt;(null, &quot;Order.ShipVia&quot;)</a></li>
+<div id="q272" class="sql" style="display: none">
+SELECT a.[OrderID], a.[ProductID], a.[UnitPrice], a.[Quantity], a.[Discount]<br>
+FROM [Order Details] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Orders] b ON (a.[OrderID] = b.[OrderID])<br>
+ORDER BY b.[ShipVia] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q273')">OPathQuery&lt;OrderDetail&gt;(null, &quot;Order.ShipVia ASC&quot;)</a></li>
+<div id="q273" class="sql" style="display: none">
+SELECT a.[OrderID], a.[ProductID], a.[UnitPrice], a.[Quantity], a.[Discount]<br>
+FROM [Order Details] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Orders] b ON (a.[OrderID] = b.[OrderID])<br>
+ORDER BY b.[ShipVia] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q274')">OPathQuery&lt;OrderDetail&gt;(null, &quot;Order.ShipVia DESC&quot;)</a></li>
+<div id="q274" class="sql" style="display: none">
+SELECT a.[OrderID], a.[ProductID], a.[UnitPrice], a.[Quantity], a.[Discount]<br>
+FROM [Order Details] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Orders] b ON (a.[OrderID] = b.[OrderID])<br>
+ORDER BY b.[ShipVia] DESC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q275')">OPathQuery&lt;OrderDetail&gt;(null, &quot;Quantity, Order.ShipVia, Order.Freight DESC&quot;)</a></li>
+<div id="q275" class="sql" style="display: none">
+SELECT a.[OrderID], a.[ProductID], a.[UnitPrice], a.[Quantity], a.[Discount]<br>
+FROM [Order Details] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Orders] b ON (a.[OrderID] = b.[OrderID])<br>
+ORDER BY a.[Quantity] ASC, b.[ShipVia] ASC, b.[Freight] DESC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q276')">OPathQuery&lt;OrderDetail&gt;(null, &quot;Order.ShipVia DESC, Order.Freight ASC, Order.ShipRegion, UnitPrice DESC&quot;)</a></li>
+<div id="q276" class="sql" style="display: none">
+SELECT a.[OrderID], a.[ProductID], a.[UnitPrice], a.[Quantity], a.[Discount]<br>
+FROM [Order Details] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Orders] b ON (a.[OrderID] = b.[OrderID])<br>
+ORDER BY b.[ShipVia] DESC, b.[Freight] ASC, b.[ShipRegion] ASC, a.[UnitPrice] DESC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q277')">OPathQuery&lt;OrderDetail&gt;(null, &quot;Order.ShipVia DESC, Order.ShipRegion ASC, Product.Category.Name DESC, Product.Category.ID&quot;)</a></li>
+<div id="q277" class="sql" style="display: none">
+SELECT a.[OrderID], a.[ProductID], a.[UnitPrice], a.[Quantity], a.[Discount]<br>
+FROM [Order Details] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Orders] b ON (a.[OrderID] = b.[OrderID])<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Products] c ON (a.[ProductID] = c.[ProductID])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;LEFT OUTER JOIN [Categories] d ON (c.[CategoryID] = d.[CategoryID])<br>
+ORDER BY b.[ShipVia] DESC, b.[ShipRegion] ASC, d.[CategoryName] DESC, d.[CategoryID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q278')">OPathQuery&lt;OrderDetail&gt;(null, &quot;Order.ShipVia DESC, Order.Employee.LastName ASC, Order.Employee.FirstName ASC, Product.Name DESC, Product.Category.Name DESC, Product.Category.ID&quot;)</a></li>
+<div id="q278" class="sql" style="display: none">
+SELECT a.[OrderID], a.[ProductID], a.[UnitPrice], a.[Quantity], a.[Discount]<br>
+FROM [Order Details] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Orders] b ON (a.[OrderID] = b.[OrderID])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;LEFT OUTER JOIN [Employees] c ON (b.[EmployeeID] = c.[EmployeeID])<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Products] d ON (a.[ProductID] = d.[ProductID])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;LEFT OUTER JOIN [Categories] e ON (d.[CategoryID] = e.[CategoryID])<br>
+ORDER BY b.[ShipVia] DESC, c.[LastName] ASC, c.[FirstName] ASC, d.[ProductName] DESC, e.[CategoryName] DESC, e.[CategoryID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q279')">OPathQuery&lt;Employee&gt;(&quot;Territories.RegionID == 1&quot;, &quot;ReportsTo.ID&quot;)</a></li>
+<div id="q279" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Employees] b ON (a.[ReportsTo] = b.[EmployeeID])<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] d, [Territories] c<br>
+WHERE (a.[EmployeeID] = d.[EmployeeID]) AND (d.[TerritoryID] = c.[TerritoryID]) AND (c.[TerritoryDescription] &lt;&gt; 'Jeff') AND (c.[RegionID] = 1)<br>
+)<br>
+ORDER BY b.[EmployeeID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q280')">OPathQuery&lt;Employee&gt;(&quot;Territories.RegionID == 1&quot;, &quot;ReportsTo.ReportsTo.ID&quot;)</a></li>
+<div id="q280" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Employees] b ON (a.[ReportsTo] = b.[EmployeeID])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;LEFT OUTER JOIN [Employees] c ON (b.[ReportsTo] = c.[EmployeeID])<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] e, [Territories] d<br>
+WHERE (a.[EmployeeID] = e.[EmployeeID]) AND (e.[TerritoryID] = d.[TerritoryID]) AND (d.[TerritoryDescription] &lt;&gt; 'Jeff') AND (d.[RegionID] = 1)<br>
+)<br>
+ORDER BY c.[EmployeeID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q281')">OPathQuery&lt;Employee&gt;(&quot;Territories.RegionID == 1&quot;, &quot;ReportsTo.ReportsTo.ReportsTo.ID&quot;)</a></li>
+<div id="q281" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Employees] b ON (a.[ReportsTo] = b.[EmployeeID])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;LEFT OUTER JOIN [Employees] c ON (b.[ReportsTo] = c.[EmployeeID])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEFT OUTER JOIN [Employees] d ON (c.[ReportsTo] = d.[EmployeeID])<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] f, [Territories] e<br>
+WHERE (a.[EmployeeID] = f.[EmployeeID]) AND (f.[TerritoryID] = e.[TerritoryID]) AND (e.[TerritoryDescription] &lt;&gt; 'Jeff') AND (e.[RegionID] = 1)<br>
+)<br>
+ORDER BY d.[EmployeeID] ASC;
+</div>
+
+<li><a class="query" href="javascript:Toggle('q282')">OPathQuery&lt;Employee&gt;(&quot;Territories.RegionID == 1&quot;, &quot;ReportsTo.ID, ReportsTo.ReportsTo.ID, ReportsTo.ReportsTo.ReportsTo.ID&quot;)</a></li>
+<div id="q282" class="sql" style="display: none">
+SELECT a.[EmployeeID], a.[LastName], a.[FirstName], a.[Title], a.[TitleOfCourtesy], a.[BirthDate], a.[HireDate], a.[Address], a.[City], a.[Region], a.[PostalCode], a.[Country], a.[HomePhone], a.[Extension], a.[Photo], a.[Notes], a.[ReportsTo], a.[PhotoPath]<br>
+FROM [Employees] a<br>
+&nbsp;&nbsp;LEFT OUTER JOIN [Employees] b ON (a.[ReportsTo] = b.[EmployeeID])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;LEFT OUTER JOIN [Employees] c ON (b.[ReportsTo] = c.[EmployeeID])<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LEFT OUTER JOIN [Employees] d ON (c.[ReportsTo] = d.[EmployeeID])<br>
+WHERE EXISTS<br>
+(<br>
+SELECT *<br>
+FROM [EmployeeTerritories] f, [Territories] e<br>
+WHERE (a.[EmployeeID] = f.[EmployeeID]) AND (f.[TerritoryID] = e.[TerritoryID]) AND (e.[TerritoryDescription] &lt;&gt; 'Jeff') AND (e.[RegionID] = 1)<br>
+)<br>
+ORDER BY b.[EmployeeID] ASC, c.[EmployeeID] ASC, d.[EmployeeID] ASC;
+</div>
+
+</div>
+
+<p>&nbsp;</p>
+
+</body>
+</html>

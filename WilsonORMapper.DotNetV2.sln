@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wilson.ORMapper.DotNetV2", "Wilson.ORMapper\Wilson.ORMapper.DotNetV2.csproj", "{A5023F45-094E-4D38-A69C-3754A94051F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wilson.ORHelper.DotNetV2", "Wilson.ORHelper\Wilson.ORHelper.DotNetV2.csproj", "{DC4259DC-35E6-4BD7-8091-54E0B2122994}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5023F45-094E-4D38-A69C-3754A94051F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5023F45-094E-4D38-A69C-3754A94051F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5023F45-094E-4D38-A69C-3754A94051F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5023F45-094E-4D38-A69C-3754A94051F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC4259DC-35E6-4BD7-8091-54E0B2122994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC4259DC-35E6-4BD7-8091-54E0B2122994}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC4259DC-35E6-4BD7-8091-54E0B2122994}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC4259DC-35E6-4BD7-8091-54E0B2122994}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

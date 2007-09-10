@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>OPath Language</title>
+<link rel="stylesheet" type="text/css" href="OPath.css" />
+</head>
+
+<body>
+
+<h1>OPath Language</h1>
+<hr size="1" />
+<p>Jeff Lanning (<a href="mailto:jefflanning@gmail.com">jefflanning@gmail.com</a>)<br>
+October 11, 2005</p>
+<h2>Contents</h2>
+<ul>
+	<li><a href="#intro">Introduction</a></li>
+	<li><a href="#syntax">Familiar Visual Basic and C# Syntax</a></li>
+	<li><a href="#literals">OPath Literals</a></li>
+	<li><a href="#operators">OPath Operators and Keywords</a></li>
+	<li><a href="#predicates">OPath Predicates</a></li>
+	<li><a href="#functions">OPath Functions</a></li>
+	<li><a href="#precedence">Operator Precedence</a></li>
+	<li><a href="#case">Case Sensitivity</a></li>
+	<li><a href="#escapekeywords">Escaping OPath Keywords</a></li>
+	<li><a href="#parentrel">Parent Relationship Traversal Operator</a></li>
+	<li><a href="#usingbrackets">Grouping Clauses with Brackets</a></li>
+</ul>
+<h2>Introduction<a name="intro"></a></h2>
+<p>The Object Path Language (OPath) is a query language developed by Microsoft which 
+allows you to query for objects stored in relational databases using standard object-oriented 
+syntax.&nbsp; The OPath language is loosely based on
+<a href="http://www.w3.org/TR/xpath">XML Path Language (XPath)</a> and contains 
+elements familiar to both Visual Basic .NET and C# developers.&nbsp; OPath includes 
+several operators for complex value comparisons and enables you to traverse object 
+relationships like you would using standard application code.</p>
+<p>This document provides 
+specific details about the OPath language as implemented in Wilson ORMapper 4.0.&nbsp; 
+Some syntax elements found in Microsoft's specifications are not currently 
+supported and have been noted as such in this document.&nbsp; For information about executing 
+expressions written in the OPath language, see <a href="OPath%20Query%20API.htm">OPath Query 
+API</a>.</p>
+<h2>Familiar Visual Basic and C# Syntax<a name="syntax"></a></h2>
+<p>The OPath language supports syntax that is familiar to both Visual Basic .NET 
+and C# developers.&nbsp;The following code examples show equivalent OPath expressions. The first uses 
+syntax similar to Visual Basic .NET while the second uses syntax similar to C#. 
+Both expressions return all Customer objects other than those with an ID property 
+equal to 3 and a Name property equal to &quot;Bob&quot;.</p>
+<p>OPath expression similar to Visual Basic .NET syntax:</p>
+<span></span>
+<pre class="clsCode">not (ID = 3 and Name = &#39;Bob&#39;)</pre>
+<span></span>OPath expression similar to C# syntax:<p></p>
+<span></span>
+<pre class="clsCode">!(ID == 3 &amp;&amp; Name == &#39;Bob&#39;)</pre>
+<p>The <a href="#operators">OPath Operators and Keywords</a> table contains a 
+number of additional 
+operators which are interchangeable like the examples above.&nbsp; It is recommended, but not required, 
+that you use the set of operators that most closely match your development 
+language.</p>
+<h2>OPath Literals<a name="literals"></a></h2>
+<p>The following table lists the types of literal values allowed within OPath 
+expressions and gives examples.</p>
+<table class="clsStd" id="table1">
+	<tr>
+		<th>Type</th>
+		<th>Delimiter</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><b>String</b> </td>
+		<td>&#39;</td>
+		<td>String comparison values.<p>Quotes within a <b>String</b> value can be escaped 
+		by including an additional quote. For example, <span class="clsLiteral">
+		O&#39;&#39;Donnell</span> resolves to <span class="clsLiteral">O&#39;Donnell</span> 
+		for comparisons.</p>
+		<p>Examples: <span class="clsLiteral">&#39;Seattle, WA&#39;</span>,
+		<span class="clsLiteral">&#39;Chicago O&#39;&#39;Hare&#39;</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Numeric</b> </td>
+		<td>(none)</td>
+		<td>Numeric comparison values (e.g. Int32, Decimal, etc.).<p>Examples:
+		<span class="clsLiteral">348</span>, <span class="clsLiteral">-972</span>,
+		<span class="clsLiteral">12.345</span>, <span class="clsLiteral">-0.001</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td><b>DateTime</b></td>
+		<td>#</td>
+		<td>Date and time comparison values.<b> DateTime</b> values may only be compared 
+		to properties and literals of the same type.<p>Examples:
+		<span class="clsLiteral">#7/13/2005#</span>, <span class="clsLiteral">#12/31/1999 
+		12:59:59 PM#</span>, <span class="clsLiteral">#2005-05-16 23:59:59#</span>.</p>
+		<p><b>IMPORTANT</b>&nbsp;&nbsp; Formatting information derived from the 
+		application's current culture is used to 
+		interpret <b>DateTime</b> values.&nbsp; Be sure to use a culture-neutral format 
+		or one appropriate for 
+		your application's target culture when specifying values for this data type.</p>
+		</td>
+	</tr>
+	<tr>
+		<td><b>TimeSpan</b></td>
+		<td>#</td>
+		<td>Duration-of-time values. A <b>TimeSpan</b> may only be added to or subtracted 
+		from a <b>DateTime</b> or another <b>TimeSpan</b>.<p>
+		<font color="#FF0000">This data type is not currently supported.</font></p>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Guid</b> </td>
+		<td>{}</td>
+		<td><b>Guid</b> comparison values. A <b>Guid</b> can only be used with equality 
+		or inequality relational operators.<p>Example: <span class="clsLiteral">
+		{9EFE9A5F-C93D-4269-9326-5362CF34C6DA}</span></p>
+		</td>
+	</tr>
+</table>
+<h2>OPath Operators and Keywords<a name="operators"></a></h2>
+<p>The following table describes the OPath operators and keywords, and gives examples 
+of their usage.</p>
+<table class="clsStd" ID="Table2">
+	<tr>
+		<th>Operator</th>
+		<th>Description</th>
+		<th>Sample Expression</th>
+	</tr>
+	<tr>
+		<td><b>Primary</b> </td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>.</td>
+		<td>Indicates a relationship traversal or property access.</td>
+		<td><span class="clsLiteral">Order.Details.Quantity &gt; 50</span></td>
+	</tr>
+	<tr>
+		<td>^</td>
+		<td>Refers to the parent in a parent-child relationship.&nbsp; See
+		<a href="#parentrel">Parent Relationship Traversal Operator</a> for more 
+		details.</td>
+		<td><span class="clsLiteral">Customer.Orders[^.City != 'Seattle']</span></td>
+	</tr>
+	<tr>
+		<td>?</td>
+		<td>Parameter placeholder.</td>
+		<td><span class="clsLiteral">Employee.ID == ?</span></td>
+	</tr>
+	<tr>
+		<td>[]</td>
+		<td>Provides a context for applying filter conditions to parent objects.&nbsp; 
+		Also provides a means for applying multiple filtering conditions to 
+		single objects.&nbsp; See <a href="#usingbrackets">Grouping Clauses with 
+		Brackets</a> for more details.</td>
+		<td><span class="clsLiteral">Orders[Freight &gt; 10].Details.Quantity &gt; 50</span></td>
+	</tr>
+	<tr>
+		<td>()</td>
+		<td>Groups operations to explicitly establish precedence.</td>
+		<td><span class="clsLiteral">(SubTotal + Freight) * SalesTax</span>&nbsp;</td>
+	</tr>
+	<tr>
+		<td><b>Unary</b> </td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>-</td>
+		<td>Negates the value of a numeric expression.</td>
+		<td><span class="clsLiteral">-(Freight * 10) == ?</span></td>
+	</tr>
+	<tr>
+		<td>!, not</td>
+		<td>Performs a logical NOT operation on Boolean expressions.</td>
+		<td><span class="clsLiteral">!(Customer[Country == &#39;USA&#39;])</span><p>
+		<span class="clsLiteral">NOT (Customer[Country = &#39;USA&#39;])</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td>IsNull()</td>
+		<td>Tests an expression for NULL and returns a Boolean 
+		indicating the result.</td>
+		<td><span class="clsLiteral">StartDate &lt;= ? &amp;&amp; (ISNULL(EndDate) || EndDate 
+		&gt; ?)</span> </td>
+	</tr>
+	<tr>
+		<td>Exists()</td>
+		<td>Includes an indeterminate value in the results for multiset properties.<p>
+		<font color="#FF0000">This operator is not currently supported.</font></p>
+		</td>
+		<td><span class="clsLiteral">EXISTS(Product[Price &gt; 10])</span></td>
+	</tr>
+	<tr>
+		<td><b>Additive</b> </td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>+</td>
+		<td>Adds two values or concatenates two strings.</td>
+		<td><span class="clsLiteral">Product[Price &gt; (Tax + 10)]</span><p>
+		<span class="clsLiteral">Employee[FirstName + &#39; &#39; + LastName == &#39;Andrew 
+		Fuller&#39;]</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td>-</td>
+		<td>Subtracts values.</td>
+		<td><span class="clsLiteral">Product[Price &gt; (Tax - 10)]</span></td>
+	</tr>
+	<tr>
+		<td><b>Multiplicative</b> </td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td><b>*</b> </td>
+		<td>Multiplies two values.</td>
+		<td><span class="clsLiteral">Product[Price &gt; (Tax * 10)]</span></td>
+	</tr>
+	<tr>
+		<td>/</td>
+		<td>Divides two values.</td>
+		<td><span class="clsLiteral">Product[Price &gt; (Tax / 10)]</span></td>
+	</tr>
+	<tr>
+		<td>%</td>
+		<td>Provides the modulus of two values.</td>
+		<td><span class="clsLiteral">Product[Price &gt; (Tax % 10)]</span></td>
+	</tr>
+	<tr>
+		<td><b>Conditional</b> </td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&amp;&amp;, and</td>
+		<td>Performs a conditional junction.</td>
+		<td><span class="clsLiteral">Order[ShipVia == 1 &amp;&amp; Freight &gt; 100]</span><p>
+		<span class="clsLiteral">Order[ShipVia == 1 AND Freight &gt; 100]</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td>||, or</td>
+		<td>Performs a conditional disjunction.</td>
+		<td><span class="clsLiteral">Order[ShipVia == 1 || ShipVia == 2]</span><p>
+		<span class="clsLiteral">Order[ShipVia == 1 OR ShipVia == 2]</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td>?:,
+		IIf()</td>
+		<td>Tests a Boolean property or expression and returns one of two values 
+		depending on the result.&nbsp; See <a href="#functions">OPath Functions</a> 
+		for more details.<p><font color="#FF0000">This operator is not currently supported.</font></p>
+		</td>
+		<td><span class="clsLiteral">(Gender == &#39;M&#39; ? 67 : 72) &lt; Age</span><p>
+		<span class="clsLiteral">IIF(Gender = &#39;M&#39;, 67, 72) &lt; Age<br>
+		</span>&nbsp;</p>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Equality</b> </td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td><b>=</b>, ==</td>
+		<td>Compares one value to another to determine if they are equal. Note that this 
+		is not an assignment operator.</td>
+		<td><span class="clsLiteral">Employee.FirstName = &#39;Sean&#39;</span><p>
+		<span class="clsLiteral">Employee.FirstName == &#39;Sean&#39;</span> </p>
+		</td>
+	</tr>
+	<tr>
+		<td>!=, &lt;&gt;</td>
+		<td>Compares one value to another to determine if they are not equal.</td>
+		<td><span class="clsLiteral">Employee.FirstName != &#39;Jeff&#39;</span><p>
+		<span class="clsLiteral">Employee.FirstName &lt;&gt; &#39;Jeff&#39;</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Relational</b> </td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&lt;</td>
+		<td>Checks whether the left operand is less than the right operand.</td>
+		<td><span class="clsLiteral">LastPrintedOn &lt; #11/12/1999#</span></td>
+	</tr>
+	<tr>
+		<td>&gt;</td>
+		<td>Checks whether the left operand is greater than the right operand.</td>
+		<td><span class="clsLiteral">LastPrintedOn &gt; #11/12/1999#</span></td>
+	</tr>
+	<tr>
+		<td>&lt;= </td>
+		<td>Checks whether the left operand is less than or equal to the right operand.</td>
+		<td><span class="clsLiteral">LastPrintedOn &lt;= #11/12/1999#</span> </td>
+	</tr>
+	<tr>
+		<td>&gt;= </td>
+		<td>Checks whether the left operand is greater than or equal to the right 
+		operand.</td>
+		<td><span class="clsLiteral">LastPrintedOn &gt;= #11/12/1999#</span></td>
+	</tr>
+	<tr>
+		<td>in</td>
+		<td>Determines if a given value matches any value in a list. See
+		<a href="#predicates">OPath Predicates</a> for more details on usage.</td>
+		<td><span class="clsLiteral">ItemKey in (- 1500, -1501, -1502)</span>
+		</td>
+	</tr>
+	<tr>
+		<td>like</td>
+		<td>Matches strings expressions against a specified pattern.&nbsp; See
+		<a href="#predicates">OPath Predicates</a> for more details on usage.</td>
+		<td><span class="clsLiteral">DisplayName like &#39;S%&#39;</span></td>
+	</tr>
+	<tr>
+		<td>escape</td>
+		<td>Used in Like expressions to indicate the character used to 
+		escape with special wildcard characters.<p>
+		<font color="#FF0000">This operator is not currently supported.</font></p>
+		</td>
+		<td><span class="clsLiteral">Title LIKE &#39;Plus 10%% Off&#39; ESCAPE &#39;%'</span><p>
+		<span class="clsLiteral">Title LIKE &#39;% Plus 10!% Off%&#39; ESCAPE &#39;!'</span></p></td>
+	</tr>
+	<tr>
+		<td><b>Bitwise</b> </td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&amp;</td>
+		<td>Bitwise AND.<p><font color="#FF0000">This operator is not currently 
+		supported.</font></p>
+		</td>
+		<td><span class="clsLiteral">(EditingTime &amp; 4)= 1</span></td>
+	</tr>
+	<tr>
+		<td>|</td>
+		<td>Bitwise OR.<p><font color="#FF0000">This operator is not currently supported.</font></p>
+		</td>
+		<td><span class="clsLiteral">(EditingTime | 4)= 1</span></td>
+	</tr>
+	<tr>
+		<td>^</td>
+		<td>Bitwise XOR.<p><font color="#FF0000">This operator is not currently 
+		supported.</font></p>
+		</td>
+		<td><span class="clsLiteral">(EditingTime ^ 4)= 1</span></td>
+	</tr>
+	<tr>
+		<td>~</td>
+		<td>Bitwise NOT.<p><font color="#FF0000">This operator is not currently 
+		supported.</font></p>
+		</td>
+		<td><span class="clsLiteral">(EditingTime ~ 4)= 1</span></td>
+	</tr>
+</table>
+<h2>OPath Predicates<a name="predicates"></a></h2>
+<p>The following table lists the predicates recognized by OPath.</p>
+<table class="clsStd" ID="Table3">
+	<tr>
+		<th>Predicate</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><b>IsNull</b> </td>
+		<td>Checks whether a property value is <b>null</b>. For example:<p>
+		<span class="clsLiteral">StartDate &lt;= ? &amp;&amp; (ISNULL(EndDate) || EndDate &gt; 
+		?)</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td><b>In</b> </td>
+		<td>Returns matches found in the supplied list. For example:
+		<p><span class="clsLiteral">Address[State In (&#39;WA&#39;, &#39;OR&#39;, &#39;ID&#39;)]</span></p>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Like</b> </td>
+		<td>Returns matches of string values against a specified pattern. 
+		Patterns can contain the following characters to describe valid matches.<ul>
+			<li>% matches zero or more characters. For example:<p>
+			<span class="clsLiteral">Customer[Name Like &#39;J%&#39;]</span></p>
+			returns all customers with a name that begins with &#39;J&#39;.</p>
+			<p><span class="clsLiteral">Product[Name Like &#39;%camcorder%&#39;]</span></p>
+			<span></span>
+			<p>returns all products that include &#39;camcorder&#39; in the name.</p>
+			</li>
+			<li>_ matches a single character.<span class="clsLiterl"> For example:</span><p>
+			<span class="clsLiteral">Customer.Address[State Like &#39;C_&#39;]</span></p>
+			<p>returns all customers that have an address in the States &#39;CA&#39;, &#39;CO&#39; 
+			and &#39;CT&#39;.;.</p>
+			</li>
+			<li>[] identifies a range of characters. For example:<pre class="clsCode"><span class="clsCode">Customer[LastName Like &#39;[A-C]%&#39;]</span></pre>
+			<span></span>
+			<p>returns all customers where the last name begins with &#39;A&#39;, &#39;B&#39; or 
+			&#39;C&#39;.</p>
+			</li>
+			<li>^ excludes a range or set of characters. <span>&nbsp;For example:</span><pre class="clsCode"><span class="clsCode">Customer[LastName Like &#39;[^A-C]%&#39;]</span></pre>
+			<span></span>
+			<p>returns all customers where the last name does not begin with &#39;A&#39;, 
+			&#39;B&#39; or &#39;C&#39;.</p>
+			</li>
+		</ul>
+		</td>
+	</tr>
+	</table>
+<p><b>IMPORTANT</b>&nbsp;&nbsp; OPath does not currently support property 
+references delimited with a dot (.) in functions or predicates. To refer to a related property in a function or predicate, 
+use brackets ([]) to delimit the related property reference. For example, the following 
+OPath syntax is not supported at this time.</p>
+<pre class="clsCode">Customer.Address.State LIKE &#39;W%&#39;</pre>
+<p>Replace the previous OPath expression with the following.</p>
+<pre class="clsCode">Customer.Address[State LIKE &#39;W%&#39;]</pre>
+<h2>OPath Functions<a name="functions"></a></h2>
+<p>The following table lists the functions supplied by OPath.</p>
+<table class="clsStd" ID="Table4">
+	<tr>
+		<th>Function</th>
+		<th>Description</th>
+	</tr>
+	<tr>
+		<td><b>Trim (</b>String s<b>)</b> </td>
+		<td>Removes all occurrences of white space characters from the beginning 
+		and end of the supplied <b>string</b>. For example: <span></span>
+		<pre class="clsCode">Trim(LastName) = &#39;Jones&#39;</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Len (</b>String s<b>)</b></td>
+		<td>Returns the number of characters in the supplied <b>string</b>. For 
+		example: 
+		<pre class="clsCode">Len(LastName) &gt; 10</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Left (</b>String s, Int32 length<b>)</b></td>
+		<td>Returns a specified number of characters from the left of a supplied
+		<b>string</b>. 
+		For example: 
+		<pre class="clsCode">Left(LastName, 1) == 'J'</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Right (</b>String s, Int32 length<b>)</b></td>
+		<td>Returns a specified number of characters from the right of a 
+		supplied <b>string</b>. 
+		For example: 
+		<pre class="clsCode">Right(LastName, 4) == ' Jr.'</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Substring (</b>String s<b>,&nbsp; </b>Int32 start<b>, </b>Int32 length<b>)</b>
+		<p><b>Substring (</b>String s<b>, </b>Int32 start<b>)</b></p>
+		</td>
+		<td>Returns a portion of the supplied <b>string</b>, starting at the 
+		specified <b>start</b> index with the specified <b>length</b>. If no <b>length</b> 
+		is provided, the substring continues to the end of the supplied <b>string</b>. 
+		For example: <span></span>
+		<pre class="clsCode"><span class="clsCode">Substring(Name, 1, 5) = &#39;Bob S&#39;
+Substring(Name, 3) = &#39;b Smith&#39;</span></pre>
+		<p><span class="clsCode"><b>IMPORTANT</b>&nbsp; The start index of the 
+		string is one-base, meaning the first character of a <b>string</b> 
+		has index 1.&nbsp; While this is consistent with most database substring 
+		functions, it is inconsistent with the String.Substring() function found 
+		in the .NET Framework.</span></td>
+	</tr>
+	<tr>
+		<td><b>Upper (</b>String s<b>)</b></td>
+		<td>Returns the supplied <b>string</b> after converting lowercase characters to 
+		uppercase.
+		<p>For 
+		example: </p>
+		<pre class="clsCode">Uper(LastName) == 'SMITH'</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b>Lower (</b>String s<b>)</b></td>
+		<td>Returns the supplied <b>string</b> after converting uppercase characters to lowercase.
+		<pre class="clsCode">Lower(LastName) == 'smith'</pre>
+		</td>
+	</tr>
+	<tr>
+		<td><b>IIF (</b>Boolean condition<b>,</b> Object truePart<b>,</b> Object 
+		falsePart<b>)</b> </td>
+		<td>Evaluates the supplied <b>condition</b>. If <b>true</b>, returns the
+		<b>truePart</b>. If <b>false</b>, returns the <b>falsePart</b>. For example:
+		<span></span>
+		<pre class="clsCode">IIF(Gender = &#39;M&#39;, 67, 72) - Age &lt; Term</pre>
+		<p><font color="#FF0000">This function is not currently supported</font></p>
+		</td>
+	</tr>
+</table>
+<h2>Operator Precedence<a name="precedence"></a></h2>
+	When an expression contains multiple operators, the precedence of the 
+	operators controls the order in which the elements of the expression are 
+	evaluated.<p>The following table summarizes the operators in precedence from highest 
+	to lowest:
+</p>
+<table class="clsStd" id="table5">
+	<tr>
+		<th>Operation type</th>
+		<th>Syntax</th>
+	</tr>
+	<tr>
+		<td>Primary</td>
+		<td>. , [], ()</td>
+	</tr>
+	<tr>
+		<td>Unary</td>
+		<td>!, not</td>
+	</tr>
+	<tr>
+		<td>Multiplicative</td>
+		<td>*, /, %</td>
+	</tr>
+	<tr>
+		<td>Additive</td>
+		<td>+, -</td>
+	</tr>
+	<tr>
+		<td>Relational</td>
+		<td>&lt;, &gt;, &lt;=, &gt;=</td>
+	</tr>
+	<tr>
+		<td>Equality</td>
+		<td>=, ==, !=, &lt;&gt;</td>
+	</tr>
+	<tr>
+		<td>Conditional AND</td>
+		<td>and, &amp;&amp;</td>
+	</tr>
+	<tr>
+		<td>Conditional OR</td>
+		<td>or, ||</td>
+	</tr>
+</table>
+<p>When an operand occurs between two operators with the same precedence, the 
+associativity of the operators controls the order in which the operations are 
+performed. All operators are left associative except the conditional operator 
+(?:), meaning that operations are performed from left to right. For example,
+<span class="clsLiteral">x + y + z</span> is evaluated as
+<span class="clsLiteral">(x + y) + z</span>.</p>
+<h2>Case Sensitivity<a name="case"></a></h2>
+<p>Property and relationship names and are case sensitive. OPath operators and 
+keywords are not case sensitive. The 
+case sensitivity of values depends on the data source used. For example, if the 
+data source is configured to perform case-sensitive string comparisons, all 
+string comparisons in OPath expression will also be case-sensitive.</p>
+<h2>Escaping OPath Keywords<a name="escapekeywords"></a></h2>
+<p>If the property name of an object is also an OPath keyword, then you can escape 
+the property name by prefixing it with an <span class="clsLiteral">@</span> sign. 
+For example, the OPath query, <span class="clsLiteral">@AND = &#39;Value&#39;</span> will 
+interpret <span class="clsLiteral">@AND</span> as the property named &quot;AND&quot;, not 
+the OPath logical operator <span class="clsLiteral">AND</span>.</p>
+<h2>Parent Traversal Operator<a name="parentrel"></a></h2>
+<p>The caret (^) character is used to refer to the parent in a parent-child relationship. 
+The parent operator can only be used within brackets and is provided to allow 
+access to parent objects in expressions written in the context of a child. The 
+parent operator can be applied successively to navigate multiple parent relationships. 
+For example, the following OPath expression compares the City property of the Customer 
+to the ShipCity property of their Orders.</p>
+<pre class="clsCode"><span class="clsCode">Customer.Orders[^.City != ShipCity]</span></pre>
+<p>This OPath expression compares the City property of the Customer to both the ShipCity of their Orders and the City property of the Employee.</p>
+<pre class="clsCode"><span class="clsCode">Customer.</span>Orders.Employee[^.^.City == ^.ShipCity AND ^.^.City != City]</pre>
+<h2>Grouping Clauses with Brackets<a name="usingbrackets"></a></h2>
+<p>When an OPath query is executed, the query engine processes the expression 
+and uses the object mappings information from the ObjectSpace instance to 
+generate a SELECT statement. When a query traverses an object relationship, 
+the query engine implicitly adds an EXISTS clause for each relationship 
+traversal found in the expression.&nbsp; Because of this behavior, it is important to use brackets to ensure that 
+your query returns the intended results.</p>
+<p>For example, consider the following query for objects of type Customer where 
+related Order objects are linked using the Orders relationship of the Customer object.</p>
+<span></span>
+<pre class="clsCode">Orders.OrderDate = #5/1/1998# &amp;&amp; Orders.Freight = 100</pre>
+<span></span>
+<p>You might expect the query to return all customers that have an order 
+with an OrderDate of 5/1/1998 and where the freight of that order is $100. However, because 
+of the implicit addition of the EXISTS clause on each relationship traversal, the query returns all of the customers 
+where an order exists with an OrderDate of 5/1/1998 and where an order exists with 
+a Freight of $100. The results could differ dramatically between the two queries. 
+To search for all customers that have an order with both an OrderDate of 5/1/1998 
+and a Freight of $100, you would include brackets and construct the query as 
+follows.</p>
+<span></span>
+<pre class="clsCode">Orders[OrderDate = #5/1/1998# &amp;&amp; Freight = 100]</pre>
+
+</body>
+
+</html>

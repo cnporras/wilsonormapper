@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>OPath Query API</title>
+<link rel="stylesheet" type="text/css" href="Opath.css" />
+</head>
+
+<body>
+
+<h1>OPath Query API</h1>
+<hr size="1" />
+<p>Jeff Lanning (<a href="mailto:jefflanning@gmail.com">jefflanning@gmail.com</a>)<br>
+May 16, 2005</p>
+<h2>Contents</h2>
+<ul>
+	<li><a href="#Summary">Summary</a></li>
+	<li><a href="#Creating_OPath_Queries">Creating OPath Queries</a></li>
+	<li><a href="#Executing_OPath_Queries">Executing OPath Queries</a></li>
+	<li><a href="#Using_Parameters">Using Parameters</a></li>
+	<li><a href="#Sorting_Query_Results">Sorting Query Results</a></li>
+	<li><a href="#Naming_Relationships_for_OPath">Naming Relationships for OPath</a></li>
+</ul>
+<h2><a name="Summary">Summary</a></h2>
+<p>Queries written in the OPath language can be executed using the OPath Query 
+API.&nbsp; The OPath Query API in the Wilson ORMapper is based on the API found in the 
+December CTP (Build 4074) of the Windows &quot;Longhorn&quot; SDK.</p>
+<p>This section details creating and executing queries written in the OPath 
+language using the implementation provided in Wilson ORMapper.&nbsp; For details 
+about the OPath language, see <a href="OPath%20Language.htm">OPath Language</a>.</p>
+<h2><a name="Creating_OPath_Queries">Creating OPath Queries</a></span></h2>
+<p>OPath queries can be used to retrieve objects from a data 
+source and are specified by using the <b>OPathQuery</b> class.&nbsp; An <b>OPathQuery</b> 
+object is constructed by passing an object type and an OPath query expression to 
+the <b>OPathQuery</b> constructor.</p>
+<p>For example, the following <b>OPathQuery</b> finds all objects of type Customer where the State property of the Customer object 
+is equal to &quot;WA&quot;.</p>
+<pre class="clsCode">OPathQuery query = new OPathQuery(typeof(Customer), &quot;State = &#39;WA&#39;&quot;);</pre>
+<p>To return all of the objects of a particular type, specify null or use an empty 
+string as your OPath query as seen in the following example.</p>
+<pre class="clsCode">OPathQuery query = new OPathQuery(typeof(Customer), &quot;&quot;);</pre>
+<p>You can traverse relationships to related objects using OPath. For example, you can query for all Customer objects 
+that have a related Order object with a Freight value greater than $80. Because 
+Customer has a relationship named &quot;Orders&quot;, which relates Order objects to Customer 
+objects, the following OPath query can be used.&nbsp; For more details about 
+naming relationships for use in OPath expressions, see
+<a href="#Naming_Relationships_for_OPath">Naming Relationships for OPath</a>.</p>
+<pre class="clsCode">OPathQuery query = new OPathQuery(typeof(Customer), &quot;Orders.Freight &gt; 80&quot;);</pre>
+<p>The OPath language also supports <b>parameters</b> to provide flexibility and 
+protect against SQL Injection attacks. For more details on using parameters, 
+see <a href="#Using_Parameters">Using Parameters</a>. The previous query 
+can modified as follows to replace the hard-coded freight amount with a 
+parameter.</p>
+<pre class="clsCode">OPathQuery query = new OPathQuery(typeof(Customer), &quot;Orders.Freight &gt; ?&quot;);</pre>
+You can also apply filter conditions to objects within the relationship 
+traversal path using brackets.&nbsp; For more information about using brackets, 
+see <a href="OPath%20Language.htm#usingbrackets">Grouping Clauses with Brackets</a>.&nbsp; The 
+following example returns all Customer 
+objects where the Quantity of one of the items ordered is greater than 50, but only 
+for Order objects where the Freight is greater than 10.<p></p>
+<pre class="clsCode">OPathQuery query = new OPathQuery(typeof(Customer), &quot;Orders[Freight &gt; 10].Details.Quantity &gt; 50&quot;);</pre>
+<p>Every OPath query is converted to a database-specific SELECT statement when 
+executed.&nbsp; The previous query would be converted to the following T-SQL statement when executed 
+against a SQL Server database.</p>
+<pre class="clsCode">
+SELECT
+    a.[CustomerID], a.[CompanyName], a.[ContactName], a.[ContactTitle], a.[Address], 
+    a.[City], a.[Region], a.[PostalCode], a.[Country], a.[Phone], a.[Fax]
+FROM [Customers] AS a
+WHERE EXISTS
+(
+    SELECT *
+    FROM [Orders] AS b
+    WHERE (a.[CustomerID] = b.[CustomerID]) AND (b.[Freight] &gt; 10) 
+    AND EXISTS
+    (
+        SELECT *
+        FROM [Order Details] AS c
+        WHERE (b.[OrderID] = c.[OrderID]) AND (c.[Quantity] &gt; 50)
+    )
+);</pre>
+<p>Notice that an EXISTS block was added for each relationship traversal and the 
+criteria within the brackets was correctly applied to the Orders table.&nbsp;
+For a large number of OPath query expressions and there equivalent database 
+SELECT statements, see <a href="OPath%20Query%20Examples.htm">OPath Query Examples</a>.</p>
+<h2><a name="Executing_OPath_Queries">Executing OPath Queries</a></h2>
+<p><b>OPathQuery</b> objects are executed within the context of an <b>
+ObjectSpace</b> instance, which defines the data store and the object mappings 
+to use when evaluating the OPath query expression.&nbsp; For example, the 
+following code gets an <b>ObjectSet</b> filled with Customer objects having a 
+Name that starts with &quot;B&quot;.</p>
+<pre class="clsCode">ObjectSpace os = new ObjectSpace(...);
+OPathQuery query = new OPathQuery(typeof(Customer), &quot;Name LIKE 'B%'&quot;);
+ObjectSet customers = os.GetObjectSet(query);</pre>
+<p>When using parameters in an OPath expression, the values for the parameter 
+must be passed during the call to execute the query.&nbsp; The following example 
+passed &quot;B%&quot; as the value for the parameter in the expression.&nbsp; For more 
+details about parameters, see <a href="#Using_Parameters">Using Parameters</a>.</p>
+<pre class="clsCode">ObjectSpace os = new ObjectSpace(...);
+OPathQuery query = new OPathQuery(typeof(Customer), &quot;Name LIKE ?'&quot;);
+ObjectSet customers = os.GetObjectSet(query, 'B%');</pre>
+<p>If you are using .NET Framework 2.0, you can take advantage of the generic 
+<b>OPathQuery&lt;T&gt; </b>class which contains methods that return strongly-typed 
+results in formats not offered via the <b>ObjectSpace</b> class.&nbsp; For example, the following code gets an array 
+filled with 
+Customer objects.</p>
+<pre class="clsCode">ObjectSpace os = new ObjectSpace(...);
+OPathQuery&lt;Customer&gt; query = new OPathQuery&lt;Customer&gt;(&quot;Name LIKE ?&quot;);
+Customer[] customers = query.GetArray(os, &quot;B%&quot;);</pre>
+<p>Combining the last two lines above produces a single line that is still 
+relatively clear.</p>
+<pre class="clsCode">ObjectSpace os = new ObjectSpace(...);
+Customer[] customers = new OPathQuery&lt;Customer&gt;(&quot;Name LIKE ?&quot;).GetArray(os, &quot;B%&quot;);</pre>
+<p>OPath queries can also be pre-compiled and cached for a performance gain in situations 
+where queries might need to be executed a large number of times.&nbsp; The <b>
+CompiledQuery</b> is used to store <b>OPathQuery</b> objects that have been 
+pre-compiled.&nbsp; You can create a <b>CompiledQuery</b> 
+object by using the <b>Compile</b> method of the <b>OPathQuery</b>.&nbsp; 
+For example, the following two code blocks create a <b>CompiledQuery</b> from a <b>
+OPathQuery</b> and a generic <b>CompiledQuery&lt;T&gt;</b> from a generic <b>
+OPathQuery&lt;T&gt;</b>.</p>
+<pre class="clsCode">    [.NET 1.1]
+
+ObjectSpace os = new ObjectSpace(...);
+OPathQuery query = new OPathQuery(typeof(Customer), &quot;ID &gt; ?&quot;);
+CompiledQuery cq = query.Compile(os);</pre>
+<pre class="clsCode">    [.NET 2.0]
+
+ObjectSpace os = new ObjectSpace(...);
+OPathQuery query = new OPathQuery&lt;Customer&gt;(&quot;ID &gt; ?&quot;);
+CompiledQuery&lt;Customer&gt; cq = query.Compile(os);</pre>
+<p><b>IMPORTANT</b>&nbsp;&nbsp; While pre-compiled queries can be used 
+to avoid repeated compilation of expressions, you should conduct a performance 
+test before deciding if an application would benefit from using them.&nbsp; In many cases, it will not.&nbsp; The 
+performance gain using pre-compiled queries is usually negligible after 
+factoring in the time required to execute queries against the data store and build result sets.</p>
+<h2><a name="Using_Parameters">Using Parameters</a></h2>
+<p>You can identify parameters in OPath queries using a question-mark (?) as 
+a placeholder. For example, consider the following OPath query that includes parameter 
+placeholders.</p>
+<pre class="clsCode">Name Like ? AND Orders[Freight &gt; ?]</pre>
+<p>Parameter values are supplied during the execution of the query.&nbsp; The 
+order in which the parameter values are supplied is very important and must 
+match the left-to-right order in which the parameters appear in the expression.&nbsp; 
+The following example demonstrates how to pass parameter values when executing a 
+query.</p>
+<pre class="clsCode">ObjectSpace os = new ObjectSpace(...);
+OPathQuery query = new OPathQuery(typeof(Customer), &quot;Name Like ? AND Orders.Freight &gt; ?&quot;);
+ObjectSet results = os.GetObjectSet(query, &quot;B%&quot;, 100);</pre>
+<h2><a name="Sorting_Query_Results">Sorting Query Results</a></h2>
+<p>By default, no sort order is imposed on the results from an OPath query.&nbsp; 
+The 
+order of the objects in the result set will be the order in which they were returned from the 
+database. You can identify the sort order for query results by using one of the <b>
+OPathQuery</b> constructor overloads that accepts a sort expression string.&nbsp; This 
+sort expression is a comma delimited string listing the property names by which 
+to sort.&nbsp; For example:</p>
+<pre class="clsCode">OPathQuery query = new OPathQuery(typeof(Customer), &quot;&quot;, &quot;LastName, FirstName DESC, ID ASC&quot;);</pre>
+<p>An <span class="clsLiteral">ASC</span> or
+<span class="clsLiteral">DESC</span> keyword can be included after the property 
+name to identify whether the sort is ascending or descending, respectively. If 
+neither keyword is specified, the <b>OPathQuery</b> defaults to ascending order. 
+If the sort expression passed is a null or empty string, no sort order is imposed 
+on the result set.</p>
+<p>Starting in Version 4.2, relationship traversals can be specified in sort 
+expressions. This allows sorting objects based on values in related objects.&nbsp; 
+The following example returns all orders sorted by the customer's Region and 
+City.</p>
+<pre class="clsCode">OPathQuery query = new OPathQuery(typeof(Order), &quot;&quot;, &quot;Customer.Region ASC, Customer.City ASC&quot;);</pre>
+<p>Please note that only ManyToOne relationships can be used in sort 
+expressions.&nbsp; This ensures duplicate records are not return when the 
+database executes the query and joins the underlying tables. </p>
+<h2><a name="Naming_Relationships_for_OPath">Naming Relationships for OPath</a></h2>
+<p>In order to make use of object relationships within OPath queries, you need 
+to provide a name in the mapping file for each relationship you use.&nbsp; You 
+accomplish this by adding an <span class="clsLiteral">alias</span> attribute to 
+relationship nodes in the entity mapping file.&nbsp; The name of each 
+relationship should be, but is not required to be, the same as the name of the 
+public member used by the entity class to represent that relationship.&nbsp; The 
+following Customer entity map specifies &quot;Orders&quot; and &quot;Demographics&quot; as the names 
+for the two relationships.</p>
+<pre class="clsCode">&lt;entity type=&quot;Customer&quot; table=&quot;Customers&quot; keyType=&quot;User&quot; keyMember=&quot;_id&quot;&gt;
+  &lt;attribute field=&quot;CustomerID&quot; alias=&quot;ID&quot; member=&quot;_id&quot; /&gt;
+  &lt;attribute field=&quot;CompanyName&quot; alias=&quot;CompanyName&quot; member=&quot;_companyName&quot; /&gt;
+  &lt;attribute field=&quot;ContactName&quot; alias=&quot;ContactName&quot; member=&quot;_contactName&quot; /&gt;
+  &lt;attribute field=&quot;ContactTitle&quot; alias=&quot;ContactTitle&quot; member=&quot;_contactTitle&quot; /&gt;
+  &lt;attribute field=&quot;Address&quot; alias=&quot;Address&quot; member=&quot;_address&quot; /&gt;
+  &lt;attribute field=&quot;City&quot; alias=&quot;City&quot; member=&quot;_city&quot; /&gt;
+  &lt;attribute field=&quot;Region&quot; alias=&quot;Region&quot; member=&quot;_region&quot; /&gt;
+  &lt;attribute field=&quot;PostalCode&quot; alias=&quot;PostalCode&quot; member=&quot;_postalCode&quot; /&gt;
+  &lt;attribute field=&quot;Country&quot; alias=&quot;Country&quot; member=&quot;_country&quot; /&gt;
+  &lt;attribute field=&quot;Phone&quot; alias=&quot;Phone&quot; member=&quot;_phone&quot; /&gt;
+  &lt;attribute field=&quot;Fax&quot; alias=&quot;Fax&quot; member=&quot;_fax&quot; /&gt;
+  &lt;relation alias=&quot;Orders&quot; type=&quot;Order&quot; relationship=&quot;OneToMany&quot; 
+            field=&quot;CustomerID&quot; member=&quot;_orderList&quot; ... /&gt;
+  &lt;relation alias=&quot;Demographics&quot; type=&quot;CustomerDemographic&quot; relationship=&quot;ManyToMany&quot; 
+            member=&quot;_customerDemographicList&quot; table=&quot;CustomerCustomerDemo&quot; ... /&gt;
+&lt;/entity&gt;</pre>
+<p>The following query makes use of the &quot;Orders&quot; relationship from the entity 
+map above in a relationship traversal:</p>
+<pre class="clsCode">OPathQuery query = new OPathQuery(typeof(Customer), &quot;Orders.Freight &gt; 80&quot;);</pre>
+<p>When no <span class="clsLiteral">alias</span> attribute is specified for a 
+relationship, the <span class="clsLiteral">member</span> attribute is used for 
+the name.&nbsp; Depending on how your entity classes are constructed, the
+<span class="clsLiteral">alias</span> attribute may not be required to make 
+OPath expressions meaningful.&nbsp; However, the relationship names in the the 
+entity map above would default to &quot;_orderList&quot; and &quot;_customerDemographicList&quot; 
+respectively if the <span class="clsLiteral">alias</span> attributes were 
+removed.&nbsp; This would require you to use internal implementation details 
+within OPath 
+expressions, which is not recommended.</p>
+
+</body>
+
+</html>
