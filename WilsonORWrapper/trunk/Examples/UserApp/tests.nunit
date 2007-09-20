@@ -1,0 +1,9 @@
+﻿<NUnitProject>
+  <Settings activeconfig="Debug" />
+  <Config name="Debug" appbase="UserApp.Tests\bin\Debug" configfile="UserApp.Tests.dll.config" binpathtype="Auto">
+    <assembly path="UserApp.Tests.dll" />
+  </Config>
+  <Config name="Release" binpathtype="Auto">
+    <assembly path="UserApp.Tests\bin\Release\UserApp.Tests.dll" />
+  </Config>
+</NUnitProject>

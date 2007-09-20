@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Contacts>
+
+	<Contacts
+	  id="409-56-7008"
+	  lname="Bennet"
+	  fname="Abraham"
+	  phone="415 658-9932"
+	  address="6223 Bateman St."
+	  city="Berkeley"
+	  state="CA"
+	  zip="94705"
+	  contract="true" />
+
+	<Contacts
+	  id="648-92-1872"
+	  lname="Blotchet-Halls"
+	  fname="Reginald"
+	  phone="503 745-6402"
+	  address="55 Hillsdale Bl."
+	  city="Corvallis"
+	  state="OR"
+	  zip="97330"
+	  contract="true" />
+
+	<Contacts
+	  id="722-51-5454"
+	  lname="DeFrance"
+	  fname="Michel"
+	  phone="219 547-9982"
+	  address="3 Balding Pl."
+	  city="Gary"
+	  state="IN"
+	  zip="46403"
+	  contract="true" />
+
+	<Contacts
+	  id="238-95-7766"
+	  lname="Carson"
+	  fname="Cheryl"
+	  phone="415 548-7723"
+	  address="589 Darwin Ln."
+	  city="Berkeley"
+	  state="CA"
+	  zip="94705"
+	  contract="true" />
+
+	<Contacts
+	  id="712-45-1867"
+	  lname="del Castillo"
+	  fname="Innes"
+	  phone="615 996-8275"
+	  address="2286 Cram Pl. #86"
+	  city="Ann Arbor"
+	  state="MI"
+	  zip="48105"
+	  contract="true" />
+
+	<Contacts
+	  id="427-17-2319"
+	  lname="Dull"
+	  fname="Ann"
+	  phone="415 836-7128"
+	  address="3410 Blonde St."
+	  city="Palo Alto"
+	  state="CA"
+	  zip="94301"
+	  contract="true" />
+
+	<Contacts
+	  id="213-46-8915"
+	  lname="Green"
+	  fname="Marjorie"
+	  phone="415 986-7020"
+	  address="309 63rd St. #411"
+	  city="Oakland"
+	  state="CA"
+	  zip="94618"
+	  contract="true" />
+
+	<Contacts
+	  id="527-72-3246"
+	  lname="Greene"
+	  fname="Morningstar"
+	  phone="615 297-2723"
+	  address="22 Graybar House Rd."
+	  city="Nashville"
+	  state="TN"
+	  zip="37215"
+	  contract="false" />
+
+	<Contacts
+	  id="472-27-2349"
+	  lname="Gringlesby"
+	  fname="Burt"
+	  phone="707 938-6445"
+	  address="PO Box 792"
+	  city="Covelo"
+	  state="CA"
+	  zip="95428"
+	  contract="true" />
+
+	<Contacts
+	  id="846-92-7186"
+	  lname="Hunter"
+	  fname="Sheryl"
+	  phone="415 836-7128"
+	  address="3410 Blonde St."
+	  city="Palo Alto"
+	  state="CA"
+	  zip="94301"
+	  contract="true" />
+
+	<Contacts
+	  id="756-30-7391"
+	  lname="Karsen"
+	  fname="Livia"
+	  phone="415 534-9219"
+	  address="5720 McAuley St."
+	  city="Oakland"
+	  state="CA"
+	  zip="94609"
+	  contract="true" />
+
+	<Contacts
+	  id="486-29-1786"
+	  lname="Locksley"
+	  fname="Charlene"
+	  phone="415 585-4620"
+	  address="18 Broadway Av."
+	  city="San Francisco"
+	  state="CA"
+	  zip="94130"
+	  contract="true" />
+
+	<Contacts
+	  id="724-80-9391"
+	  lname="MacFeather"
+	  fname="Stearns"
+	  phone="415 354-7128"
+	  address="44 Upland Hts."
+	  city="Oakland"
+	  state="CA"
+	  zip="94612"
+	  contract="true" />
+
+	<Contacts
+	  id="893-72-1158"
+	  lname="McBadden"
+	  fname="Heather"
+	  phone="707 448-4982"
+	  address="301 Putnam"
+	  city="Vacaville"
+	  state="CA"
+	  zip="95688"
+	  contract="false" />
+
+	<Contacts
+	  id="267-41-2394"
+	  lname="O'Leary"
+	  fname="Michael"
+	  phone="408 286-2428"
+	  address="22 Cleveland Av. #14"
+	  city="San Jose"
+	  state="CA"
+	  zip="95128"
+	  contract="true" />
+
+	<Contacts
+	  id="807-91-6654"
+	  lname="Panteley"
+	  fname="Sylvia"
+	  phone="301 946-8853"
+	  address="1956 Arlington Pl."
+	  city="Rockville"
+	  state="MD"
+	  zip="20853"
+	  contract="true" />
+
+	<Contacts
+	  id="998-72-3567"
+	  lname="Ringer"
+	  fname="Albert"
+	  phone="801 826-0752"
+	  address="67 Seventh Av."
+	  city="Salt Lake City"
+	  state="UT"
+	  zip="84152"
+	  contract="true" />
+
+	<Contacts
+	  id="899-46-2035"
+	  lname="Ringer"
+	  fname="Anne"
+	  phone="801 826-0752"
+	  address="67 Seventh Av."
+	  city="Salt Lake City"
+	  state="UT"
+	  zip="84152"
+	  contract="true" />
+
+	<Contacts
+	  id="341-22-1782"
+	  lname="Smith"
+	  fname="Meander"
+	  phone="913 843-0462"
+	  address="10 Mississippi Dr."
+	  city="Lawrence"
+	  state="KS"
+	  zip="66044"
+	  contract="false" />
+
+	<Contacts
+	  id="274-80-9391"
+	  lname="Straight"
+	  fname="Dean"
+	  phone="415 834-2919"
+	  address="5420 College Av."
+	  city="Oakland"
+	  state="CA"
+	  zip="94609"
+	  contract="true" />
+
+	<Contacts
+	  id="724-08-9931"
+	  lname="Stringer"
+	  fname="Dirk"
+	  phone="415 843-2991"
+	  address="5420 Telegraph Av."
+	  city="Oakland"
+	  state="CA"
+	  zip="94609"
+	  contract="false" />
+
+	<Contacts
+	  id="172-32-1176"
+	  lname="White"
+	  fname="Johnson"
+	  phone="408 496-7223"
+	  address="10932 Bigge Rd."
+	  city="Menlo Park"
+	  state="CA"
+	  zip="94025"
+	  contract="true" />
+
+	<Contacts
+	  id="672-71-3249"
+	  lname="Yokomoto"
+	  fname="Akiko"
+	  phone="415 935-4228"
+	  address="3 Silver Ct."
+	  city="Walnut Creek"
+	  state="CA"
+	  zip="94595"
+	  contract="true" />
+
+</Contacts>

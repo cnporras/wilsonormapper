@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<project name="WilsonORWrapper" default="build" basedir=".">
+	<description>WilsonORWrapper Build</description>
+	<property name="debug" value="true" />
+	<property name="build.dir" value="bin\" />
+	<echo message="build.dir: ${build.dir}" />
+	<echo message="debug: ${debug}" />
+	
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+	</target>
+	
+	<target name="clean" description="remove all generated files" depends="init">
+		<delete>
+			<fileset basedir="${build.dir}">
+				<include name="*.*" />
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="build" description="debug build (default)" depends="clean">
+		<csc target="library" 
+			output="${build.dir}WilsonORWrapper.dll" 
+			debug="${debug}"
+			doc="${build.dir}WilsonORWrapper.xml">
+			<sources basedir="WilsonORWrapper">
+				<include name="**/*.cs" />
+			</sources>
+			<references basedir="References">
+				<include name="System.dll" />
+				<include name="WilsonORMapper.dll" />
+			</references>
+		</csc>
+		<csc target="library" 
+			output="${build.dir}WilsonORWrapper.Logging.Log4Net.dll" 
+			debug="${debug}"
+			doc="${build.dir}WilsonORWrapper.Logging.Log4Net.xml">
+			<sources basedir="WilsonORWrapper.Logging.Log4Net">
+				<include name="**/*.cs" />
+			</sources>
+			<references basedir="References">
+				<include name="System.dll" />
+				<include name="System.Configuration.dll" />
+				<include name="System.Data.dll" />
+				<include name="log4net.dll" />
+				<include name="WilsonORMapper.dll" />
+				<include name="..\${build.dir}WilsonORWrapper.dll" />
+			</references>
+		</csc>
+		<csc target="library" 
+			output="${build.dir}WilsonORWrapper.Logging.NLog.dll" 
+			debug="${debug}"
+			doc="${build.dir}WilsonORWrapper.Logging.NLog.xml">
+			<sources basedir="WilsonORWrapper.Logging.NLog">
+				<include name="**/*.cs" />
+			</sources>
+			<references basedir="References">
+				<include name="System.dll" />
+				<include name="System.Data.dll" />
+				<include name="NLog.dll" />
+				<include name="WilsonORMapper.dll" />
+				<include name="..\${build.dir}WilsonORWrapper.dll" />
+			</references>
+		</csc>
+		<csc target="library" 
+			output="${build.dir}WilsonORWrapper.Caching.Memcached.dll" 
+			debug="${debug}"
+			doc="${build.dir}WilsonORWrapper.Caching.Memcached.xml">
+			<sources basedir="WilsonORWrapper.Caching.Memcached">
+				<include name="**/*.cs" />
+			</sources>
+			<references basedir="References">
+				<include name="System.dll" />
+				<include name="System.Data.dll" />
+				<include name="Memcached.ClientLibrary.dll" />
+				<include name="WilsonORMapper.dll" />
+				<include name="..\${build.dir}WilsonORWrapper.dll" />
+			</references>
+		</csc>
+		<copy todir="${build.dir}">
+			<fileset basedir="References">
+				<include name="*.dll" />
+				<include name="*.xml" />
+			</fileset>
+		</copy>
+	</target>
+
+</project>

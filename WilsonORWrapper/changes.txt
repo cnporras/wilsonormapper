@@ -1,0 +1,10 @@
+
+CHANGE LOG
+==========
+
+For detailed change log, view the Subversion repository log, or view the project site.
+
+Google Code Project Site:
+	http://code.google.com/p/wilsonormapper/
+Subversion Repository:
+	https://wilsonormapper.googlecode.com/svn/trunk/

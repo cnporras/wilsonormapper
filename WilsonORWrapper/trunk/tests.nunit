@@ -1,0 +1,7 @@
+﻿<NUnitProject>
+  <Settings activeconfig="Debug" />
+  <Config name="Debug" appbase="WilsonORWrapper.Tests\bin\Debug" configfile="WilsonORWrapper.Tests.dll.config" binpathtype="Auto">
+    <assembly path="WilsonORWrapper.Tests.dll" />
+  </Config>
+  <Config name="Release" binpathtype="Auto" />
+</NUnitProject>

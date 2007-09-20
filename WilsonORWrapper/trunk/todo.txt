@@ -1,0 +1,40 @@
+
+CODESMITH
+=========
+
+* Debug handling of adding references? re-running templates tends to add 
+	multiple invalid references
+* App.config or Web.config -- autogenerate and add to existing project
+* Automatic validation attribute generation:
+		* ValidateNonEmpty for not null?
+		* Validate_type_ based on data type?
+* Option to add [AutoTrack] attribute via mappings file.
+
+
+WILSONORWRAPPER
+===============
+
+* Refactor Save(Collection) to perform "smart save" -- insert new objects, update
+	existing objects.
+
+* Add AutoResync option to automatically resync objects after saving.
+
+* Implement O/R mapper caching features.
+ 
+* Allow retrieving a collection of objects using RetrieveByKey() method when
+	passing an object referencing the one side of a one-to-many relationship.
+		e.g. Team 1-to-many Player
+			PlayerService.RetrieveByKey(team) returns collection of Players
+	This should also allow sorting, which allows the retrieval of child objects
+	while sorting.
+		e.g. team.Players <-- returns unsorted collection
+			 PlayerService.RetrieveByKey(team, "lastname asc") <-- returns sorted 
+			 collection
+
+* Allow retrieving a collection of child objects (many side of one-to-many 
+	relationship) using a custom collection which allows filtering and sorting.
+		e.g. Team one-to-many Player
+			 team.Players.OrderBy(...)
+			 team.Players.Where(...)
+	Can also be combined:
+		e.g. team.Players.Where(...).OrderBy(...)

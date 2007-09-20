@@ -1,0 +1,109 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B9B7DD5C-E218-443D-B17D-6EEB17545D3A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WilsonORWrapper.Tests</RootNamespace>
+    <AssemblyName>WilsonORWrapper.Tests</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework, Version=2.2.9.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WilsonORMapper, Version=4.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\WilsonORMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="WilsonXmlDbClient, Version=1.0.0.0, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\References\WilsonXmlDbClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConfigurationSettingsTests.cs" />
+    <Compile Include="Contact.cs" />
+    <Compile Include="CacheFactoryTests.cs" />
+    <Compile Include="AbstractLoggerTests.cs" />
+    <Compile Include="AbstractCacheTests.cs" />
+    <Compile Include="Contact2.cs" />
+    <Compile Include="EntityTests.cs" />
+    <Compile Include="MemcachedCacheTests.cs" />
+    <Compile Include="Log4NetLoggerTests.cs" />
+    <Compile Include="DataProviderTests.cs" />
+    <Compile Include="EventLoggerTests.cs" />
+    <Compile Include="LoggerFactoryTests.cs" />
+    <Compile Include="LogProviderTests.cs" />
+    <Compile Include="MappingsProviderTests.cs" />
+    <Compile Include="MappingsReaderTests.cs" />
+    <Compile Include="NLogLoggerTests.cs" />
+    <Compile Include="NullLoggerTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RetrieveTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\WilsonORWrapper.Caching.Memcached\WilsonORWrapper.Caching.Memcached.csproj">
+      <Project>{F89FA17F-6462-4E3C-B48D-C4ABCB3BF3F7}</Project>
+      <Name>WilsonORWrapper.Caching.Memcached</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WilsonORWrapper.Logging.Log4Net\WilsonORWrapper.Logging.Log4Net.csproj">
+      <Project>{391E8C90-1E99-4C60-B08B-76D5C4951D07}</Project>
+      <Name>WilsonORWrapper.Logging.Log4Net</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WilsonORWrapper.Logging.NLog\WilsonORWrapper.Logging.NLog.csproj">
+      <Project>{FB0E0978-FE6D-442D-89CA-AEAE5C331F67}</Project>
+      <Name>WilsonORWrapper.Logging.NLog</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WilsonORWrapper\WilsonORWrapper.csproj">
+      <Project>{29BF6A2B-33B3-44CE-9CF7-B69B68C8BA30}</Project>
+      <Name>WilsonORWrapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="FileSystemMappings.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <EmbeddedResource Include="Mappings.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="TestData.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
