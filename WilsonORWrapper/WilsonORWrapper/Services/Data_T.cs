@@ -853,7 +853,7 @@ namespace WilsonORWrapper.Services
 		}
         private static int InnerGetObjectCount(string whereClause)
         {
-            return DataProvider.ObjectSpace.GetObjectCount<T>(String.Empty);
+            return DataProvider.ObjectSpace.GetObjectCount<T>(whereClause);
         }
 		#endregion
 
