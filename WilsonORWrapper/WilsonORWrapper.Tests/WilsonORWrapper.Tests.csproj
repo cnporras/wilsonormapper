@@ -36,9 +36,9 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="WilsonORMapper, Version=4.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Wilson.ORMapper, Version=4.2.2.0, Culture=en-US, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\References\WilsonORMapper.dll</HintPath>
+      <HintPath>..\References\Wilson.ORMapper.dll</HintPath>
     </Reference>
     <Reference Include="WilsonXmlDbClient, Version=1.0.0.0, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>

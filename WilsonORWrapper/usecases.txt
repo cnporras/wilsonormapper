@@ -3,8 +3,8 @@ ACTIVE RECORD
 Entity classes know about their persistence state and know how to manipulate
 themselves in the data layer.
 
-Create:		User user = new User();		// new, +tracking if AutoTrackOnNew
-			User user = User.Create();		// new + tracking
+Create:		User user = new User();		// new, +tracking if [AutoTrack] present
+			User user = User.Create();	// new, +tracking if [AutoTrack] present
 Track:		user.Track();
 			User.Track(user);
 Load:		User user = User.Retrieve...

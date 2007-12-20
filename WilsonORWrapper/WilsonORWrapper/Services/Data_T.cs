@@ -138,13 +138,12 @@ namespace WilsonORWrapper.Services
 
 		#region Create/Track
 		/// <summary>
-		/// Initializes a new entity object and begins O/R mapper tracking.
+		/// Initializes a new entity object by calling the object's constructor.
 		/// </summary>
 		/// <returns>The object created.</returns>
 		public static T Create()
 		{
 			T obj = new T();
-			DataProvider.ObjectSpace.StartTracking(obj, InitialState.Inserted);
 
 			return obj;
 		}
