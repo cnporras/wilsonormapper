@@ -28,7 +28,7 @@
 			</sources>
 			<references basedir="References">
 				<include name="System.dll" />
-				<include name="WilsonORMapper.dll" />
+				<include name="Wilson.ORMapper.dll" />
 			</references>
 		</csc>
 		<csc target="library" 
@@ -43,7 +43,7 @@
 				<include name="System.Configuration.dll" />
 				<include name="System.Data.dll" />
 				<include name="log4net.dll" />
-				<include name="WilsonORMapper.dll" />
+				<include name="Wilson.ORMapper.dll" />
 				<include name="..\${build.dir}WilsonORWrapper.dll" />
 			</references>
 		</csc>
@@ -58,7 +58,7 @@
 				<include name="System.dll" />
 				<include name="System.Data.dll" />
 				<include name="NLog.dll" />
-				<include name="WilsonORMapper.dll" />
+				<include name="Wilson.ORMapper.dll" />
 				<include name="..\${build.dir}WilsonORWrapper.dll" />
 			</references>
 		</csc>
@@ -73,7 +73,7 @@
 				<include name="System.dll" />
 				<include name="System.Data.dll" />
 				<include name="Memcached.ClientLibrary.dll" />
-				<include name="WilsonORMapper.dll" />
+				<include name="Wilson.ORMapper.dll" />
 				<include name="..\${build.dir}WilsonORWrapper.dll" />
 			</references>
 		</csc>
