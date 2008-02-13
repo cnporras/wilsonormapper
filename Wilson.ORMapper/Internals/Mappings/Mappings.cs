@@ -91,15 +91,15 @@ namespace Wilson.ORMapper.Internals {
 			Debug.WriteLine("========== Mappings Start Here ===========");
 #endif
 
-			this.ParseMappings(xmlMappings, null);
+			this.ParseMappings(xmlMappings, null, null, null);
 
 #if DEBUG_MAPPER
 			Debug.WriteLine("========== Mappings End Here ===========");
 #endif
 		}
 
-		// <mappings [version="4.2"] [defaultNamespace="Namespace"] />
-		private void ParseMappings(XmlDocument mappings, string outerDefaultNamespace) {
+		// <mappings [version="4.2"] [defaultNamespace="Namespace"] [defaultSchema="DB.User"] [defaultHint="tableHint"] />
+		private void ParseMappings(XmlDocument mappings, string outerDefaultNamespace, string outerDefaultSchema, string outerDefaultHint) {
 			XmlNode root = mappings.SelectSingleNode("mappings");
 			if (root == null) {
 				throw new MappingException("Mappings: Root mappings is Missing");
@@ -116,20 +116,28 @@ namespace Wilson.ORMapper.Internals {
 			if (defaultNamespace == null || defaultNamespace.Trim().Length == 0) {
 				defaultNamespace = outerDefaultNamespace;
 			}
+			string defaultSchema = this.GetValue(root, "defaultSchema", null);
+			if (defaultSchema == null || defaultSchema.Trim().Length == 0) {
+				defaultSchema = outerDefaultSchema;
+			}
+			string defaultHint = this.GetValue(root, "defaultHint", null);
+			if (defaultHint == null || defaultHint.Trim().Length == 0) {
+				defaultHint = outerDefaultHint;
+			}
 
 			foreach (XmlNode entityNode in root.SelectNodes("entity")) {
-				this.ParseEntity(entityNode, defaultNamespace);
+				this.ParseEntity(entityNode, defaultNamespace, defaultSchema, defaultHint);
 			}
 			foreach (XmlNode subEntityNode in root.SelectNodes("subEntity")) {
-				this.ParseSubEntity(subEntityNode, defaultNamespace);
+				this.ParseSubEntity(subEntityNode, defaultNamespace, defaultSchema, defaultHint);
 			}
 			foreach (XmlNode subFileNode in root.SelectNodes("file")) {
-				this.ParseFile(subFileNode, defaultNamespace);
+				this.ParseFile(subFileNode, defaultNamespace, defaultSchema, defaultHint);
 			}
 		}
 
 		// <file path="file|path|resource" [embedded="bool"] />
-		private void ParseFile(XmlNode fileNode, string defaultNamespace) {
+		private void ParseFile(XmlNode fileNode, string defaultNamespace, string defaultSchema, string defaultHint) {
 			string path = this.GetValue(fileNode, "path");
 			bool embedded; // Default embedded is False
 			switch (this.GetValue(fileNode, "embedded", "FALSE").ToUpper()) {
@@ -152,12 +160,12 @@ namespace Wilson.ORMapper.Internals {
 #if DEBUG_MAPPER
 			Debug.WriteLine("----- File = " + path + " -----");
 #endif
-			this.ParseMappings(mappings, defaultNamespace);
+			this.ParseMappings(mappings, defaultNamespace, defaultSchema, defaultHint);
 		}
 
-		private void ParseEntity(XmlNode entityNode, string defaultNamespace) {
-			string type = this.GetNamespacedValue(entityNode, "type", defaultNamespace);
-			string table = this.GetValue(entityNode, "table");
+		private void ParseEntity(XmlNode entityNode, string defaultNamespace, string defaultSchema, string defaultHint) {
+			string type = this.GetTypeName(entityNode, "type", defaultNamespace);
+			string table = this.GetTableName(entityNode, "table", defaultSchema);
 			string keyMember = this.GetValue(entityNode, "keyMember");
 			KeyType keyType; // Default keyType is Auto
 			switch (this.GetValue(entityNode, "keyType", "AUTO").ToUpper()) {
@@ -188,11 +196,12 @@ namespace Wilson.ORMapper.Internals {
 				default: autoTrack = true; break;
 			}
 
+			string hint = this.GetValue(entityNode, "hint", defaultHint);
 			string typeField = this.GetValue(entityNode, "typeField", null);
 			string typeValue = this.GetValue(entityNode, "typeValue", null);
 
 			EntityMap entity = new EntityMap(
-				type, table, keyMember, keyType, sortOrder, readOnly, changesOnly, autoTrack, typeField, typeValue);
+				type, table, keyMember, keyType, sortOrder, readOnly, changesOnly, autoTrack, hint, typeField, typeValue);
 			// Stored Procedures are Optional but Supported
 			string insertSP = this.GetValue(entityNode, "insertSP");
 			string updateSP = this.GetValue(entityNode, "updateSP");
@@ -202,10 +211,10 @@ namespace Wilson.ORMapper.Internals {
 				this.ParseAttribute(entity, attributeNode);
 			}
 			foreach (XmlNode attributeNode in entityNode.SelectNodes("lookup")) {
-				this.ParseLookup(entity, attributeNode);
+				this.ParseLookup(entity, attributeNode, defaultSchema);
 			}
 			foreach (XmlNode attributeNode in entityNode.SelectNodes("relation")) {
-				this.ParseRelation(entity, attributeNode, defaultNamespace);
+				this.ParseRelation(entity, attributeNode, defaultNamespace, defaultSchema);
 			}
 #if DEBUG_MAPPER
 			Debug.WriteLine("Entity = " + type + " : "
@@ -238,9 +247,9 @@ namespace Wilson.ORMapper.Internals {
 		}
 
 		// <subEntity type="typeName" inherits="baseTypeName" typeValue="typeDiscriminatorValue" />
-		private void ParseSubEntity(XmlNode subEntityNode, string defaultNamespace) {
-			string type = this.GetNamespacedValue(subEntityNode, "type", defaultNamespace);
-			string inherits = this.GetNamespacedValue(subEntityNode, "inherits", defaultNamespace);
+		private void ParseSubEntity(XmlNode subEntityNode, string defaultNamespace, string defaultSchema, string defaultHint) {
+			string type = this.GetTypeName(subEntityNode, "type", defaultNamespace);
+			string inherits = this.GetTypeName(subEntityNode, "inherits", defaultNamespace);
 			string typeValue = this.GetValue(subEntityNode, "typeValue");
 			EntityMap subEntity = new EntityMap(type, this[inherits], typeValue);
 
@@ -248,10 +257,10 @@ namespace Wilson.ORMapper.Internals {
 				this.ParseAttribute(subEntity, attributeNode);
 			}
 			foreach (XmlNode attributeNode in subEntityNode.SelectNodes("lookup")) {
-				this.ParseLookup(subEntity, attributeNode);
+				this.ParseLookup(subEntity, attributeNode, defaultSchema);
 			}
 			foreach (XmlNode attributeNode in subEntityNode.SelectNodes("relation")) {
-				this.ParseRelation(subEntity, attributeNode, defaultNamespace);
+				this.ParseRelation(subEntity, attributeNode, defaultNamespace, defaultSchema);
 			}
 #if DEBUG_MAPPER
 			Debug.WriteLine("SubEntity = " + type + " : "
@@ -296,12 +305,12 @@ namespace Wilson.ORMapper.Internals {
 			entity.AddField(member, field, nullValue, alias, parameter, persistType, this.provider);
 		}
 
-		private void ParseLookup(EntityMap entity, XmlNode attributeNode) {
+		private void ParseLookup(EntityMap entity, XmlNode attributeNode, string defaultSchema) {
 			string member = this.GetValue(attributeNode, "member");
 			string field = this.GetValue(attributeNode, "field");
 			string nullValue = this.GetValue(attributeNode, "nullValue", null);
 			string alias = this.GetValue(attributeNode, "alias", member);
-			string table = this.GetValue(attributeNode, "table");
+			string table = this.GetTableName(attributeNode, "table", defaultSchema);
 			string source = this.GetValue(attributeNode, "foreignKey");
 			string dest = this.GetValue(attributeNode, "lookupKey");
 			string parameter = this.GetValue(attributeNode, "parameter");
@@ -309,7 +318,7 @@ namespace Wilson.ORMapper.Internals {
 			entity.AddLookup(member, field, nullValue, alias, parameter, table, source, dest, this.provider);
 		}
 
-		private void ParseRelation(EntityMap entity, XmlNode attributeNode, string defaultNamespace) {
+		private void ParseRelation(EntityMap entity, XmlNode attributeNode, string defaultNamespace, string defaultSchema) {
 			Relationship relationship;
 			switch (this.GetValue(attributeNode, "relationship").ToUpper()) {
 				case "ONETOMANY": relationship = Relationship.Child; break;
@@ -320,7 +329,7 @@ namespace Wilson.ORMapper.Internals {
 
 			string member = this.GetValue(attributeNode, "member");
 			string field = this.GetValue(attributeNode, "field");
-			string type = this.GetNamespacedValue(attributeNode, "type", defaultNamespace);
+			string type = this.GetTypeName(attributeNode, "type", defaultNamespace);
 			// Jeff Lanning (jefflanning@gmail.com): Added optional "alias" attribute for use in OPath queries (and to help code generators build entity classes)
 			string alias = this.GetValue(attributeNode, "alias", member);
 
@@ -359,21 +368,22 @@ namespace Wilson.ORMapper.Internals {
 			}
 
 			string filter = this.GetValue(attributeNode, "filter");
+			string sortOrder = this.GetValue(attributeNode, "sortOrder");
 			string selectSP = this.GetValue(attributeNode, "selectSP");
 
 			if (relationship == Relationship.Child) {
-				entity.AddChild(member, field, type, alias, queryOnly, lazyLoad, cascadeDelete, filter, selectSP, this.provider);
+				entity.AddChild(member, field, type, alias, queryOnly, lazyLoad, cascadeDelete, filter, sortOrder, selectSP, this.provider);
 			}
 			else if (relationship == Relationship.Parent) {
-				entity.AddParent(member, field, type, alias, queryOnly, lazyLoad, cascadeDelete, filter, selectSP, this.provider);
+				entity.AddParent(member, field, type, alias, queryOnly, lazyLoad, cascadeDelete, filter, sortOrder, selectSP, this.provider);
 			}
 			else {
-				string table = this.GetValue(attributeNode, "table");
+				string table = this.GetTableName(attributeNode, "table", defaultSchema);
 				string source = this.GetValue(attributeNode, "sourceField");
 				string dest = this.GetValue(attributeNode, "destField");
 				string insertSP = this.GetValue(attributeNode, "insertSP");
 				string deleteSP = this.GetValue(attributeNode, "deleteSP");
-				entity.AddMany(member, field, type, alias, table, source, dest, queryOnly, lazyLoad, cascadeDelete, filter, selectSP, insertSP, deleteSP, this.provider);
+				entity.AddMany(member, field, type, alias, table, source, dest, queryOnly, lazyLoad, cascadeDelete, filter, sortOrder, selectSP, insertSP, deleteSP, this.provider);
 			}
 		}
 
@@ -385,13 +395,39 @@ namespace Wilson.ORMapper.Internals {
 			return (node.Attributes[name] == null ? defaultValue : node.Attributes[name].Value);
 		}
 
-		private string GetNamespacedValue(XmlNode node, string name, string defaultNamespace) {
-			string value = this.GetValue(node, name);
-			if (defaultNamespace != null && value.IndexOf('.') < 0) {
-				value = defaultNamespace + "." + value;
+		private string GetTableName(XmlNode node, string name, string defaultSchema) {
+			string tableName = this.GetValue(node, name);
+			if (defaultSchema != null && tableName.IndexOf('.') < 0) {
+				return defaultSchema + "." + tableName;
 			}
+			else {
+				return tableName;
+			}
+		}
 
-			return value;
+		private string GetTypeName(XmlNode node, string name, string defaultNamespace) {
+			string typeName = this.GetValue(node, name);
+
+			if (typeName.IndexOf(',') > 0) {
+				string[] typeParts = typeName.Split(new char[] { ',' }, 2);
+				typeName = FullTypeName(typeParts[0], defaultNamespace);
+				if (typeParts.Length > 1) {
+					EntityMap.GetType(typeName, typeParts[1]);
+				}
+				return typeName;
+			}
+			else {
+				return FullTypeName(typeName, defaultNamespace);
+			}
+		}
+
+		private string FullTypeName(string typeName, string defaultNamespace) {
+			if (defaultNamespace != null && typeName.IndexOf('.') < 0) {
+				return defaultNamespace + "." + typeName;
+			}
+			else {
+				return typeName;
+			}
 		}
 
 		static internal void LoadAssemblies() {

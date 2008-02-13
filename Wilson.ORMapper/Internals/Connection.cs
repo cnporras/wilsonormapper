@@ -359,96 +359,53 @@ namespace Wilson.ORMapper.Internals
 			dbParameter.ParameterName = this.provider.GetParameterName(parameter.Name);
 			dbParameter.Direction = parameter.Direction;
 
-#if DOTNETV2 && V2BETA2
-			if (parameter.Value is INullableValue) {
-				INullableValue nullable = (INullableValue) parameter.Value;
-				if (nullable.HasValue) {
-					if (this.provider.UseDateTimeString && nullable.Value is DateTime) {
-						dbParameter.Value = nullable.Value.ToString();
-					}
-					else {
-						dbParameter.Value = nullable.Value;
-					}
-				}
-				else {
-					dbParameter.Value = DBNull.Value;
-				}
-
-				// Improved Parameter Typing necessary for some Providers that Do Not Check
-				if (parameter.Type != null) {
-					if (parameter.Type == typeof(byte?[])) dbParameter.DbType = DbType.Binary;
-					else if (parameter.Type == typeof(bool?)) dbParameter.DbType = DbType.Boolean;
-					else if (parameter.Type == typeof(byte?)) dbParameter.DbType = DbType.Byte;
-					else if (parameter.Type == typeof(DateTime?)) dbParameter.DbType = DbType.DateTime;
-					else if (parameter.Type == typeof(decimal?)) dbParameter.DbType = DbType.Decimal;
-					else if (parameter.Type == typeof(double?)) dbParameter.DbType = DbType.Double;
-					else if (parameter.Type == typeof(Guid?)) dbParameter.DbType = DbType.Guid;
-					else if (parameter.Type == typeof(short?)) dbParameter.DbType = DbType.Int16;
-					else if (parameter.Type == typeof(int?)) dbParameter.DbType = DbType.Int32;
-					else if (parameter.Type == typeof(long?)) dbParameter.DbType = DbType.Int64;
-					else if (parameter.Type == typeof(sbyte?)) dbParameter.DbType = DbType.SByte;
-					else if (parameter.Type == typeof(float?)) dbParameter.DbType = DbType.Single;
-					else if (parameter.Type == typeof(TimeSpan?)) dbParameter.DbType = DbType.Time;
-					else if (parameter.Type == typeof(ushort?)) dbParameter.DbType = DbType.UInt16;
-					else if (parameter.Type == typeof(uint?)) dbParameter.DbType = DbType.UInt32;
-					else if (parameter.Type == typeof(ulong?)) dbParameter.DbType = DbType.UInt64;
-					else if (parameter.Type.IsEnum) dbParameter.DbType = DbType.Int32; // Jason Shigley
-					// Allow Provider Default -- Oracle uses AnsiString
-					// else dbParameter.DbType = DbType.String;
-				}
+			if (parameter.Value == null) {
+				dbParameter.Value = DBNull.Value;
 			}
 			else {
-#endif
-			if (parameter.Value == null) {
-					dbParameter.Value = DBNull.Value;
-				}
-				else {
-					// DateTime provider-specific min/max from Marc Brooks (http://musingmarc.blogspot.com)
-					if (parameter.Value is DateTime) {
-						DateTime dateValue = (DateTime)parameter.Value;
-						if (dateValue == DateTime.MinValue) {
-							dateValue = this.provider.MinimumDate;
-						}
-						else if (dateValue == DateTime.MaxValue) {
-							dateValue = this.provider.MaximumDate;
-						}
-						if (this.provider.UseDateTimeString) {
-							dbParameter.Value = dateValue.ToString();
-						}
-						else {
-							dbParameter.Value = dateValue;
-						}
+				// DateTime provider-specific min/max from Marc Brooks (http://musingmarc.blogspot.com)
+				if (parameter.Value is DateTime) {
+					DateTime dateValue = (DateTime)parameter.Value;
+					if (dateValue == DateTime.MinValue) {
+						dateValue = this.provider.MinimumDate;
+					}
+					else if (dateValue == DateTime.MaxValue) {
+						dateValue = this.provider.MaximumDate;
+					}
+					if (this.provider.UseDateTimeString) {
+						dbParameter.Value = dateValue.ToString();
 					}
 					else {
-						dbParameter.Value = parameter.Value;
+						dbParameter.Value = dateValue;
 					}
 				}
-
-				// Improved Parameter Typing necessary for some Providers that Do Not Check
-				if (parameter.Type != null) {
-					if (parameter.Type == typeof(byte[])) dbParameter.DbType = DbType.Binary;
-					else if (parameter.Type == typeof(bool)) dbParameter.DbType = DbType.Boolean;
-					else if (parameter.Type == typeof(byte)) dbParameter.DbType = DbType.Byte;
-					else if (parameter.Type == typeof(DateTime)) dbParameter.DbType = DbType.DateTime;
-					else if (parameter.Type == typeof(decimal)) dbParameter.DbType = DbType.Decimal;
-					else if (parameter.Type == typeof(double)) dbParameter.DbType = DbType.Double;
-					else if (parameter.Type == typeof(Guid)) dbParameter.DbType = DbType.Guid;
-					else if (parameter.Type == typeof(short)) dbParameter.DbType = DbType.Int16;
-					else if (parameter.Type == typeof(int)) dbParameter.DbType = DbType.Int32;
-					else if (parameter.Type == typeof(long)) dbParameter.DbType = DbType.Int64;
-					else if (parameter.Type == typeof(sbyte)) dbParameter.DbType = DbType.SByte;
-					else if (parameter.Type == typeof(float)) dbParameter.DbType = DbType.Single;
-					else if (parameter.Type == typeof(TimeSpan)) dbParameter.DbType = DbType.Time;
-					else if (parameter.Type == typeof(ushort)) dbParameter.DbType = DbType.UInt16;
-					else if (parameter.Type == typeof(uint)) dbParameter.DbType = DbType.UInt32;
-					else if (parameter.Type == typeof(ulong)) dbParameter.DbType = DbType.UInt64;
-					else if (parameter.Type.IsEnum) dbParameter.DbType = DbType.Int32; // Jason Shigley
-					// Allow Provider Default -- Oracle uses AnsiString
-					// else dbParameter.DbType = DbType.String;
+				else {
+					dbParameter.Value = parameter.Value;
 				}
-#if DOTNETV2 && V2BETA2
 			}
-#endif
+
+			// Improved Parameter Typing necessary for some Providers that Do Not Check
+			if (parameter.Type != null) {
+				if (parameter.Type == typeof(byte[])) dbParameter.DbType = DbType.Binary;
+				else if (parameter.Type == typeof(bool)) dbParameter.DbType = DbType.Boolean;
+				else if (parameter.Type == typeof(byte)) dbParameter.DbType = DbType.Byte;
+				else if (parameter.Type == typeof(DateTime)) dbParameter.DbType = DbType.DateTime;
+				else if (parameter.Type == typeof(decimal)) dbParameter.DbType = DbType.Decimal;
+				else if (parameter.Type == typeof(double)) dbParameter.DbType = DbType.Double;
+				else if (parameter.Type == typeof(Guid)) dbParameter.DbType = DbType.Guid;
+				else if (parameter.Type == typeof(short)) dbParameter.DbType = DbType.Int16;
+				else if (parameter.Type == typeof(int)) dbParameter.DbType = DbType.Int32;
+				else if (parameter.Type == typeof(long)) dbParameter.DbType = DbType.Int64;
+				else if (parameter.Type == typeof(sbyte)) dbParameter.DbType = DbType.SByte;
+				else if (parameter.Type == typeof(float)) dbParameter.DbType = DbType.Single;
+				else if (parameter.Type == typeof(TimeSpan)) dbParameter.DbType = DbType.Time;
+				else if (parameter.Type == typeof(ushort)) dbParameter.DbType = DbType.UInt16;
+				else if (parameter.Type == typeof(uint)) dbParameter.DbType = DbType.UInt32;
+				else if (parameter.Type == typeof(ulong)) dbParameter.DbType = DbType.UInt64;
+				else if (parameter.Type.IsEnum) dbParameter.DbType = DbType.Int32; // Jason Shigley
+				// Allow Provider Default -- Oracle uses AnsiString
+				// else dbParameter.DbType = DbType.String;
+			}
 			return dbParameter;
 		}
 

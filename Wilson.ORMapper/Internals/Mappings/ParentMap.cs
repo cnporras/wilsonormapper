@@ -15,7 +15,7 @@ namespace Wilson.ORMapper.Internals
 	// Note: selectSP Parameters - field
 	internal class ParentMap : RelationMap
 	{
-		internal ParentMap(string member, string field, string type, string alias, bool queryOnly, bool lazy, bool cascade, string filter, string selectSP, CustomProvider provider)
-			: base(Relationship.Parent, member, field, type, alias, queryOnly, lazy, cascade, filter, selectSP, provider) {}
+		internal ParentMap(string member, string field, string type, string alias, bool queryOnly, bool lazy, bool cascade, string filter, string sortOrder, string selectSP, CustomProvider provider)
+			: base(Relationship.Parent, member, field, type, alias, queryOnly, lazy, cascade, filter, sortOrder, selectSP, provider) {}
 	}
 }

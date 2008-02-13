@@ -17,8 +17,9 @@ namespace Wilson.ORMapper.Internals
 	}
 
 	// <relation relationship="OneToMany|ManyToOne|ManyToMany" member="memberName" field="fieldName"
-	//		type="typeName" [alias="aliasName"] [queryOnly="bool"] [lazyLoad="bool"] [cascadeDelete="bool"]
-	//		[table="tableName" sourceField="sourceField" destField="destField"] [filter="whereClause"]
+	//		type="typeName" [alias="aliasName"] [queryOnly="bool"] [lazyLoad="bool"]
+	//		[cascadeDelete="bool"] [filter="whereClause"] [sortOrder="sortClause"]
+	//		[table="tableName" sourceField="sourceField" destField="destField"]
 	//    [selectSP="selectSPName"] [insertSP="insertSPName" deleteSP="deleteSPName"] />
 	internal abstract class RelationMap : AttributeMap
 	{
@@ -30,6 +31,7 @@ namespace Wilson.ORMapper.Internals
 		private bool lazy = true;
 		private bool cascade = false;
 		private string filter;
+		private string sortOrder;
 		private string selectSP;
 
 		public string[] Fields {
@@ -64,12 +66,16 @@ namespace Wilson.ORMapper.Internals
 			get { return this.filter; }
 		}
 
+		public string SortOrder {
+			get { return this.sortOrder; }
+		}
+
 		public string SelectSP {
 			get { return this.selectSP; }
 		}
 
 		internal RelationMap(Relationship relationship, string member, string field, string type, string alias, bool queryOnly,
-			bool lazy, bool cascade, string filter, string selectSP, CustomProvider provider) : base(member, field)
+			bool lazy, bool cascade, string filter, string sortOrder, string selectSP, CustomProvider provider) : base(member, field)
 		{
 			if (type == null || type.Length == 0) {
 				throw new MappingException("Mapping: Relation type was Missing");
@@ -86,6 +92,7 @@ namespace Wilson.ORMapper.Internals
 			this.lazy = lazy;
 			this.cascade = cascade;
 			this.filter = filter;
+			this.sortOrder = sortOrder;
 			this.selectSP = selectSP;
 			if (selectSP != null && selectSP.Length > 0) {
 				for (int index = 0; index < this.fields.Length; index++) {
