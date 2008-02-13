@@ -28,8 +28,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 // Version Information
-[assembly: AssemblyVersion("4.2.2.1")]
-[assembly: AssemblyFileVersion("4.2.2.1")]
+[assembly: AssemblyVersion("4.2.2.2")]
+[assembly: AssemblyFileVersion("4.2.2.2")]
 [assembly: CLSCompliant(true)]
 [assembly: Guid("164a12ab-a08d-4b78-9207-373baecc23ad")]
 
