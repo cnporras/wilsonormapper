@@ -182,22 +182,11 @@ namespace Wilson.ORMapper.Internals
 			return dataSet;
 		}
 
-
-		public IDbTransaction GetTransaction(IsolationLevel isolationLevel) {
+		internal IDbConnection GetConnection()
+		{
 			IDbConnection connection = ProviderFactory.GetConnection(this.connection, this.provider);
 			connection.Open();
-			try {
-				if (isolationLevel == IsolationLevel.ReadCommitted) {
-					return connection.BeginTransaction();
-				}
-				else {
-					return connection.BeginTransaction(isolationLevel);
-				}
-			}
-			catch (Exception ex) {
-				System.Diagnostics.Debug.WriteLine(ex.Message);
-				throw;
-			}
+			return connection;
 		}
 
 		public object TransactionScalar(Guid transactionId, Type entityType, CommandInfo commandInfo, IDbTransaction transaction, string sqlStatement, params Parameter[] parameters) {

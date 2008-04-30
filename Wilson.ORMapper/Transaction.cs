@@ -48,8 +48,8 @@ namespace Wilson.ORMapper
 
 		internal Transaction(Context context, IsolationLevel isolationLevel) {
 			this.context = context;
-			this.transaction = this.context.Connection.GetTransaction(isolationLevel);
-			this.connection = this.transaction.Connection;
+			this.connection = this.context.Connection.GetConnection();
+			this.transaction = this.connection.BeginTransaction(isolationLevel);
 			this.context.Connection.InterceptCommand(this.id, null, CommandInfo.BeginTran, null);
 		}
 

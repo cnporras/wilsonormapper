@@ -130,21 +130,21 @@ namespace WilsonORWrapper.Providers
 					string connectionString = ConnectionStringSettings.ConnectionString;
 
 					#region Parse providername to get _objectSpace
-					switch (providerName)
+					switch (providerName.ToLower())
 					{
-						case "System.Data.SqlClient":
+						case "system.data.sqlclient":
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, Provider.Sql2005, 20, 5);
 							break;
-						case "System.Data.OleDb":
+						case "system.data.oledb":
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, Provider.OleDb, 20, 5);
 							break;
-						case "System.Data.Odbc":
+						case "system.data.odbc":
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, Provider.Odbc, 20, 5);
 							break;
-						case "System.Data.OracleClient":
+						case "system.data.oracleclient":
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, Provider.Oracle, 20, 5);
 							break;
-						case "MySql.Data":
+						case "mysql.data":
 							provider = new CustomProvider(
 								"MySql.Data",
 								"MySql.Data.MySqlClient.MySqlConnection",
@@ -156,7 +156,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = "SELECT * LIMIT {0} OFFSET {1}";
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "ByteFX.MySqlClient":
+						case "bytefx.mysqlclient":
 							provider = new CustomProvider(
 								"ByteFX.MySqlClient",
 								"ByteFX.Data.MySqlClient.MySqlConnection",
@@ -167,7 +167,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = "SELECT * LIMIT {0} OFFSET {1}";
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "CoreLab.MySql":
+						case "corelab.mysql":
 							provider = new CustomProvider(
 								"CoreLab.MySql",
 								"CoreLab.MySql.MySqlConnection",
@@ -178,7 +178,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = "SELECT * LIMIT {0} OFFSET {1}";
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "Npgsql":
+						case "npgsql":
 							provider = new CustomProvider(
 								"Npgsql",
 								"Npgsql.NpgsqlConnection",
@@ -190,7 +190,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = "SELECT * LIMIT {0} OFFSET {1}";
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "Finisar.SQLite":
+						case "finisar.sqlite":
 							provider = new CustomProvider(
 								"Finisar.SQLite",
 								"Finisar.SQLite.SQLiteConnection",
@@ -201,7 +201,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = "SELECT * LIMIT {0} OFFSET {1}";
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "FirebirdSql.Data.Firebird":
+						case "firebirdsql.data.firebird":
 							provider = new CustomProvider(
 								"FirebirdSql.Data.Firebird",
 								"FirebirdSql.Data.Firebird.FbConnection",
@@ -212,7 +212,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = "SELECT FIRST {0} SKIP {1} *";
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "IBM.Data.DB2":
+						case "ibm.data.db2":
 							provider = new CustomProvider(
 								"IBM.Data.DB2",
 								"IBM.Data.DB2.DB2Connection",
@@ -223,7 +223,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = null;
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "VistaDB":
+						case "vistadb":
 							provider = new CustomProvider(
 								"VistaDB.Provider",
 								"VistaDB.VistaDBConnection",
@@ -234,7 +234,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = "SELECT TOP {2}, {0} *";
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "Sybase.Data.AseClient":
+						case "sybase.data.aseclient":
 							provider = new CustomProvider(
 								"Sybase.Data.AseClient",
 								"Sybase.Data.AseClient.AseConnection",
@@ -245,7 +245,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = null;
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "Mono.Data.SybaseClient":
+						case "mono.data.sybaseclient":
 							provider = new CustomProvider(
 								"Mono.Data.SybaseClient",
 								"Mono.Data.SybaseClient.SybaseConnection",
@@ -256,7 +256,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = null;
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "Wilson.XmlDbClient":
+						case "wilson.xmldbclient":
 							provider = new CustomProvider(
 								"WilsonXmlDbClient",
 								"Wilson.XmlDbClient.XmlDbConnection",
@@ -267,7 +267,7 @@ namespace WilsonORWrapper.Providers
 							provider.SelectPageQuery = "SELECT * LIMIT {0} OFFSET {1}";
 							_objectSpace = new ObjectSpace(mappingsFile, connectionString, provider, 20, 5);
 							break;
-						case "System.Data.SqlServerCe":
+						case "system.data.sqlserverce":
 							provider = new CustomProvider(
 								"System.Data.SqlServerCe",
 								"System.Data.SqlServerCe.SqlCeConnection",
