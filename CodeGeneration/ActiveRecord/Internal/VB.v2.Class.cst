@@ -1,0 +1,873 @@
+<%@ CodeTemplate 
+	Language="vb" 
+	TargetLanguage="vb" 
+	Description="This Template Generates Visual Basic Business Objects for the ORMapper" 
+	Debug="true" %>
+	
+<%@ Import Namespace="System.IO" %>
+<%@ Import Namespace="System.Xml" %>
+<%@ Import Namespace="System.Text" %>
+<%@ Import Namespace="System.Text.RegularExpressions" %>
+<%@ Import Namespace="System.Collections" %>
+<%@ Import Namespace="System.Collections.Specialized" %>
+
+<script runat="template">
+	Private Const _prefix As String = "_"
+	
+	Private members As StringBuilder
+	Private propties As StringBuilder
+	Private getHelper As StringBuilder
+	Private setHelper As StringBuilder
+
+	Private _tableName As String
+ 
+	Private _className As String
+	Private _namespace As String
+    Private _implementHelper As Boolean = True 
+	Private _entityNode As XmlElement
+ 	Private _defaultMethods as Boolean = False
+	Private _singletonName as string
+	Private _explicateNamespace as Boolean = False
+	
+	Private primaryKeys As NameValueCollection = New NameValueCollection
+	
+	Private _keywords() As String = _
+	{ _
+	 "ADDHANDLER", "ADDRESSOF", "ALIAS", "AND", "ANDALSO", "ANSI", "AS", "ASSEMBLY", "AUTO", _
+	 "BOOLEAN", "BYREF", "BYTE", "BYVAL", _
+	 "CALL", "CASE", "CATCH", "CBOOL", "CBYTE", "CCHAR", "CDATE", "CDEC", "CDBL", "CHAR", "CINT", "CLASS", "CLNG", "COBJ", "CONST", "CSHORT", "CSNG", "CSTR", "CTYPE", _
+	 "DATE", "DECIMAL", "DECLARE", "DEFAULT", "DELEGATE", "DIM", "DIRECTCAST", "DO", "DOUBLE", _
+	 "EACH", "ELSE", "ELSEIF", "END", "ENUM", "ERASE", "ERROR", "EVENT", "EXIT", "EXTERNALSOURCE", _
+	 "FALSE", "FINALLY", "FOR", "FRIEND", "FUNCTION", _
+	 "GET", "GETTYPE", "GOSUB", "GOTO", _
+	 "HANDLES", _
+	 "IF", "IMPLEMENTS", "IMPORTS", "IN", "INHERITS", "INTEGER", "INTERFACE", "IS", _
+	 "LET", "LIB", "LIKE", "LONG", "LOOP", _
+	 "ME", "MOD", "MODULE", "MUSTINHERIT", "MUSTOVERRIDE", "MYBASE", "MYCLASS", _
+	 "NAMESPACE", "NEW", "NEXT", "NOT", "NOTHING", "NOTINHERITABLE", "NOTOVERRIDABLE", _
+	 "OBJECT", "ON", "OPTION", "OPTIONAL", "OR", "ORELSE", "OVERLOADS", "OVERRIDABLE", "OVERRIDES", _
+	 "PARAMARRAY", "PARTIAL", "PRESERVE", "PRIVATE", "PROPERTY", "PROTECTED", "PUBLIC", _
+	 "RAISEEVENT", "READONLY", "REDIM", "REGION", "REM", "REMOVEHANDLER", "RESUME", "RETURN", _
+	 "SELECT", "SET", "SHADOWS", "SHARED", "SHORT", "SINGLE", "STATIC", "STEP", "STOP", "STRING", "STRUCTURE", "SUB", "SYNCLOCK", _
+	 "THEN", "THROW", "TO", "TRUE", "TRY", "TYPEOF", _
+	 "UNICODE", "UNTIL", _
+	 "VARIANT", _
+	 "WHEN", "WHILE", "WITH", "WITHEVENTS", "WRITEONLY", _
+	 "XOR" _
+	}
+	
+	Public Property EntityNode() As XmlElement
+		Get 
+			 Return _entityNode
+		End Get
+		Set (ByVal Value As XmlElement) 
+        	 _entityNode = value
+		End Set
+	End Property
+ 
+	Public Property [Namespace]() As String
+		Get 
+        	 Return _namespace
+		End Get
+		Set (ByVal Value As String) 
+        	 _namespace = value
+		End Set
+	End Property
+	
+  	Public Property ExplicateNamespace() As Boolean
+    	Get 
+        	 Return _explicateNamespace
+    	End Get
+    	Set (ByVal Value As Boolean) 
+        	 _explicateNamespace = value
+    	End Set
+    End Property
+	
+    Public Property ClassName() As String
+    	Get 
+        	 Return _className
+    	End Get
+    	Set (ByVal Value As String) 
+        	 _className = value
+    	End Set
+    End Property
+ 
+	Public Property SingletonName() As String
+    	Get 
+        	 Return _singletonName
+    	End Get
+    	Set (ByVal Value As String) 
+        	 _singletonName = value
+    	End Set
+    End Property
+	
+    Public Property ImplementHelper() As Boolean
+    	Get 
+        	 Return _implementHelper
+    	End Get
+    	Set (ByVal Value As Boolean) 
+        	 _implementHelper = value
+    	End Set
+    End Property
+ 
+	Public Property DefaultMethods() As Boolean
+		Get
+			Return _defaultMethods
+		End Get
+		Set
+			_defaultMethods = value
+		End Set
+	End Property
+	
+	<Browsable(False)> _ 
+	Public ReadOnly Property TableName() As String
+		Get 
+			 Return _entityNode.Attributes("table").Value
+		End Get
+	End Property
+
+	<Browsable(False)> _ 
+	Public ReadOnly Property KeyMember() As String
+		Get 
+			 Return _entityNode.Attributes("keyMember").Value
+		End Get
+	End Property
+
+	<Browsable(False)> _ 
+	Public ReadOnly Property KeyType() As String
+		Get 
+			 Return _entityNode.Attributes("keyType").Value
+		End Get
+	End Property
+
+	<Browsable(False)> _ 
+	Public ReadOnly Property EntityType() As String
+		Get 
+			 Return _entityNode.Attributes("type").Value
+		End Get
+	End Property
+	
+	<Browsable(False)> _ 
+	Public ReadOnly Property IsReadOnly() As Boolean
+		Get
+			Dim temp As String = SafeAttributeRead(_entityNode, "readOnly")
+			If temp.ToLower = "true" Then
+				Return True
+			Else
+				Return False
+			End If
+		End Get
+	End Property
+	
+	Public Function EscapeKeywordName(ByVal name As String) As String
+		Dim location As Integer = Array.BinarySearch(_keywords, name.ToUpper())
+		If (location >= 0) Then
+			return "[" & name & "]"
+		End If
+		return name
+	End Function
+	
+	Public Function CamelCase(ByVal name As String) As String
+		Return Char.ToLower(name.Chars(0)) + name.Substring(1)
+	End Function
+
+	Public Function PascalCase(ByVal name As String) As String
+		Return Char.ToUpper(name.Chars(0)) + name.Substring(1)
+	End Function
+	
+	Public Function SafeAttributeRead(ByVal attributeNode As XmlElement, ByVal name As String) As String
+		Return SafeAttributeRead(attributeNode, name, False)
+	End Function
+	
+	Public Function SafeAttributeRead(ByVal attributeNode As XmlElement, ByVal name As String, ByVal asNull As Boolean) As String
+		Dim node As XmlNode = attributeNode.Attributes(name)
+		If Not (node Is Nothing) Then
+			Return node.Value
+		End If
+		
+		If asNull Then
+			Return Nothing
+		Else
+			Return String.Empty
+		End If
+	End Function
+	
+	Public Function GetObjectProperty(ByVal member As String) As String
+		Dim output As String =  member.Substring(_prefix.Length) 
+		Return PascalCase(output)
+	End Function
+
+	Public Function GetClassName(ByVal name As String) As String
+        Dim namespaces() As String =  name.Split(New Char() {"."c})
+        Return namespaces(namespaces.Length-1)
+	End Function
+	
+	Public Function GetPrimaryKeyArguments() As String
+		Dim sb As StringBuilder = New StringBuilder
+		
+		For x as Integer = 0 To primaryKeys.Count - 1
+			Dim propertyName As String = primaryKeys.Keys(x)
+			Dim dataType As String = primaryKeys.Item(x)
+			
+			sb.AppendFormat("ByVal {0} As {1}", CamelCase(propertyName), dataType)
+			If x < primaryKeys.Count - 1 Then
+				sb.Append(", ")
+			End If			
+		Next
+		
+		Return sb.ToString
+	End Function
+
+	Public Function GetPrimaryKeyWhere(ByVal helperName As String, ByVal whereName As String) As String
+		Dim code As StringBuilder = New StringBuilder
+		
+		For x as Integer = 0 To primaryKeys.Count - 1
+			Dim propertyName As String = primaryKeys.Keys(x)
+			Dim parameter As String = CamelCase(propertyName)
+			Dim dataType As String = primaryKeys.Item(x)
+			
+			If x > 0 Then
+				code.Append(vbTab, 2)
+				code.Append(whereName)
+				code.Append(" += ")
+			End If
+			
+			code.Append(helperName)
+			code.Append(".GetExpression(""")
+			code.Append(ClassName)
+			code.Append(".")
+			code.Append(propertyName)
+			code.Append(""", ")
+			code.Append(parameter)
+			code.Append(")")
+			code.Append(Environment.NewLine)
+			
+			If x < primaryKeys.Count - 1 Then
+				code.Append(vbTab, 2)
+				code.Append(whereName)
+				code.Append(" += ")
+				code.Append(""" and """)
+				code.Append(Environment.NewLine)
+			End If
+			
+		Next
+		
+		Return code.ToString
+	End Function
+
+	Public Function IsPrimaryKey(ByVal name As String) As Boolean
+		Dim keys As ArrayList = New ArrayList(KeyMember.Split(New Char() {","C, " "C}))
+		Return keys.Contains(name)
+	End Function
+	
+	Public Function GetNullValue(ByVal type As String, ByVal value As String) As String
+		Select type
+			Case "String"
+				Return """" + value + """"
+			Case "Char"
+				Return "'" + value + "'"
+			Case "DateTime"
+				If value = DateTime.MinValue.ToString Then
+					Return "DateTime.MinValue"
+				Else
+					Return String.Format("DateTime.Parse(""{0}"")", value)
+				End If
+			Case "Guid"
+				If value = Guid.Empty.ToString Then
+					Return "Guid.Empty"
+				Else
+					Return String.Format("new Guid(""{0}"")", value)
+				End If
+			Case "Byte()"
+				Return "{0}"
+			Case Else
+				Return value
+		End Select
+	End Function
+
+	Public Function IsNullableType(ByVal nativeType As String) As Boolean
+		If nativeType.StartsWith("System.") Then
+			Dim myType As Type = Type.GetType(nativeType, False)
+			If Not (myType Is Nothing) Then
+				Return myType.IsValueType
+			End If
+		End If
+		Return False
+	End Function
+
+    Public Sub Generate()
+		
+		primaryKeys = new NameValueCollection
+        members = New StringBuilder
+        propties = New StringBuilder
+        getHelper = New StringBuilder
+        setHelper = New StringBuilder
+
+        Dim attributeList As XmlNodeList = _entityNode.SelectNodes("attribute")
+
+        For Each attributeNode As XmlElement In attributeList
+
+            Dim columnName As String = SafeAttributeRead(attributeNode, "field")
+			Dim memberName As String = SafeAttributeRead(attributeNode, "member")
+			Dim propertyName As String = SafeAttributeRead(attributeNode, "alias")
+			propertyName = EscapeKeywordName(propertyName)			
+			Dim nativeType As String = SafeAttributeRead(attributeNode, "type")
+			Dim dataType As String = nativeType
+			Dim persistType As String = SafeAttributeRead(attributeNode, "persistType")
+			Dim nullValue As String = SafeAttributeRead(attributeNode, "nullValue", True)
+			Dim nullable As String = SafeAttributeRead(attributeNode, "nullable", True)
+			
+			If dataType.StartsWith("System.") Then
+				dataType = dataType.Substring(7)
+			End If
+			
+			' fix array issue
+			if dataType.EndsWith("[]") then 
+				dataType = dataType.Replace("[]", "()")
+			end if
+			
+			If nullValue Is Nothing _
+				AndAlso Not (nullable Is Nothing) _
+				AndAlso String.Compare(nullable, "True", True) = 0 _
+				AndAlso IsNullableType(nativeType) Then
+				
+				dataType = String.Format("Nullable(Of {0})", dataType)
+			End If
+			
+            members.Append(vbTab)
+			members.AppendFormat("Private {0} as {1}", memberName, dataType)
+			If Not (nullValue is Nothing) Then
+				members.AppendFormat(" = {0}", GetNullValue(dataType, nullValue))
+			End If
+            members.Append(vbNewLine)
+						
+			propties.Append(vbTab)
+			propties.AppendFormat("'''<summary>Database mapping to column {0}.{1}</summary>", TableName, columnName)
+			propties.Append(vbNewLine)
+			
+            If IsPrimaryKey(memberName) Then
+                propties.Append(vbTab)			
+				propties.Append("'''<remarks>This is a Primary Key</remarks>")
+				propties.Append(vbNewLine)
+				
+				primaryKeys.Add(propertyName, dataType) ' save primary key type
+            End If
+
+            Dim isIdentity As Boolean = False			
+			If KeyMember = memberName AndAlso KeyType.ToLower() = "auto" Then
+				isIdentity = True
+			End IF
+            
+			Dim myReadOnly as Boolean = True
+			If (Not (KeyMember = memberName) _
+				OrElse  Not (KeyType.ToLower = "auto")) _
+				AndAlso Not (persistType = "ReadOnly") _
+				AndAlso Not (persistType = "Concurrent") Then 
+				myReadOnly = False
+			Else
+				myReadOnly = True
+			End if
+			
+			propties.Append(vbTab)
+			propties.Append("Public ")
+            If myReadOnly Then
+                propties.Append("ReadOnly ")
+            End If
+            propties.Append("Property ")
+            propties.Append(propertyName)
+            propties.Append("() as ")
+            propties.Append(dataType)
+            propties.Append(vbNewLine)
+			
+			propties.Append(vbTab)
+			propties.Append(vbTab)
+			propties.Append("Get")
+            propties.Append(vbNewLine)
+			
+			propties.Append(vbTab)
+			propties.Append(vbTab)
+			propties.Append(vbTab)
+			propties.Append("Return ")
+            propties.Append(memberName)
+            propties.Append(vbNewLine)
+            
+			propties.Append(vbTab)
+			propties.Append(vbTab)
+			propties.Append("End Get")
+			propties.Append(vbNewLine)
+			
+            If Not myReadOnly Then
+                propties.Append(vbTab)
+				propties.Append(vbTab)
+				propties.Append("Set(ByVal value As ")
+                propties.Append(dataType)
+                propties.Append(")")
+                propties.Append(vbNewLine)
+				
+				propties.Append(vbTab)
+				propties.Append(vbTab)
+				propties.Append(vbTab)
+			    propties.Append(memberName)
+                propties.Append(" = value")
+                propties.Append(vbNewLine)
+				
+				propties.Append(vbTab)
+				propties.Append(vbTab)
+				propties.Append("End Set")
+				propties.Append(vbNewLine)
+            End If
+
+            propties.Append(vbTab)
+			propties.Append("End Property")
+            propties.Append(vbNewLine)
+			
+			getHelper.Append(vbTab)
+			getHelper.Append(vbTab)
+			getHelper.Append(vbTab)
+		    getHelper.Append(vbTab)
+			getHelper.AppendFormat("Case ""{0}"" : Return Me.{0}", memberName)
+            getHelper.Append(vbNewLine)
+			
+			setHelper.Append(vbTab)
+			setHelper.Append(vbTab)
+			setHelper.Append(vbTab)
+		    setHelper.Append(vbTab)
+			setHelper.AppendFormat("Case ""{0}"" : Me.{0} = CType(value, {1})", memberName, dataType)
+			setHelper.Append(vbNewLine)
+        Next
+
+        Dim relationList As XmlNodeList = _entityNode.SelectNodes("relation")
+
+        For Each relationNode As XmlElement In relationList
+
+            Dim columnName As String = relationNode.Attributes("field").Value
+            Dim memberName As String = relationNode.Attributes("member").Value
+            Dim propertyName As String = GetObjectProperty(memberName)
+            Dim relationship As String = relationNode.Attributes("relationship").Value
+            Dim type As String = relationNode.Attributes("type").Value
+            Dim lazyLoad As String = SafeAttributeRead(relationNode, "lazyLoad")
+            
+			Dim isLazyLoad as Boolean = (String.Compare(lazyLoad, "true", True) = 0)			
+			Dim className = GetClassName(type)
+			Dim createInstance = false
+			
+			Dim memberType As String = ""
+            Dim propertyType As String = ""
+            Dim summary As String = ""
+            Dim propertyText As String = ""
+			
+            Select Case relationship
+                Case "ManyToOne"
+                    propertyType = GetClassName(type)
+					summary = String.Format("Instance of a {0} object", GetClassName(type))                    
+					If isLazyLoad Then
+						memberType = "ObjectHolder"
+                    	propertyText = String.Format("CType(Me.{0}.InnerObject, {1})", memberName, propertyType)
+					Else
+						memberType = propertyType
+                    	propertyText = String.Format("CType(Me.{0}, {1})", memberName, propertyType)
+					End If					
+                Case "OneToMany", "ManyToMany"
+                    propertyText = "Me." + memberName                    
+					summary = String.Format("Collection of {0} objects", className)
+					
+					If isLazyLoad Then
+						memberType = String.Format("IList(Of {0})", className)
+                    	propertyType = String.Format("IList(Of {0})", className)
+                    Else
+						createInstance = true
+						memberType = String.Format("Collection(Of {0})", className)
+                    	propertyType = String.Format("Collection(Of {0})", className)                    
+					End if
+            End Select
+
+            members.Append(vbTab)
+			members.AppendFormat("Private {0} as {1}", memberName, memberType)
+			If createInstance Then
+				members.AppendFormat(" = New {0}", memberType)				
+			End If
+			members.Append(vbNewLine)
+			
+			propties.Append(vbTab)
+            propties.AppendFormat("'''<summary>{0}</summary>", summary)
+			propties.Append(vbNewLine)
+			
+			propties.Append(vbTab)
+            propties.Append("Public ReadOnly Property ")
+            propties.Append(propertyName)
+            propties.Append("() as ")
+            propties.Append(propertyType)
+            propties.Append(vbNewLine)
+
+            propties.Append(vbTab)
+			propties.Append(vbTab)
+			propties.Append("Get")
+            propties.Append(vbNewLine)
+			
+			propties.Append(vbTab)
+			propties.Append(vbTab)
+			propties.Append(vbTab)
+			propties.Append("Return ")
+            propties.Append(propertyText)
+            propties.Append(vbNewLine)
+            
+			propties.Append(vbTab)
+			propties.Append(vbTab)
+			propties.Append("End Get")
+			propties.Append(vbNewLine)
+
+            propties.Append(vbTab)
+			propties.Append("End Property")
+            propties.Append(vbNewLine)
+
+            getHelper.Append(vbTab)
+			getHelper.Append(vbTab)
+			getHelper.Append(vbTab)
+		    getHelper.Append(vbTab)
+			getHelper.AppendFormat("Case ""{0}"" : Return Me.{0}", memberName)
+			getHelper.Append(vbNewLine)
+			
+			setHelper.Append(vbTab)
+			setHelper.Append(vbTab)
+			setHelper.Append(vbTab)
+		    setHelper.Append(vbTab)			
+            setHelper.AppendFormat("Case ""{0}"" : Me.{0} = CType(value, {1})", memberName, memberType)
+			setHelper.Append(vbNewLine)
+        Next
+
+    End Sub
+
+
+</script>
+<% Me.Generate() %>
+'------------------------------------------------------------------------------
+' <autogenerated>
+'     This code was generated by a CodeSmith Template.
+'
+'	  DO NOT MODIFY contents of this file. Changes to this
+'	  file will be lost if the code is regenerated.
+' </autogenerated>
+'------------------------------------------------------------------------------
+
+Imports System
+Imports System.Collections
+Imports System.Collections.ObjectModel
+Imports Wilson.ORMapper
+
+<% if (_explicateNamespace) then Response.WriteLine("Namespace " + _namespace) %>
+'''<summary>Database mapping to table <%= TableName %></summary>
+Partial Public Class <%= ClassName %>
+<% if (ImplementHelper) then Response.WriteLine("	Implements IObjectHelper") %>
+
+<% if (DefaultMethods) then %>
+#Region "ORMapper Default Methods"
+    '''<summary>Initializes a new instance of this class</summary>
+    Public Sub New()
+    End Sub
+
+    <% if KeyType <> "User" AndAlso KeyType <> "Composite" AndAlso KeyType <> "None" then %>
+	'''<summary>Initializes a new instance of this class</summary>
+    '''<param name="track">Set to true to begin ORMapper tracking on this instance</param>
+    Public Sub New(ByVal track As Boolean)
+        If track Then
+            <%= SingletonName %>.StartTracking(Me, InitialState.Inserted)
+        End If
+    End Sub
+
+	<% end if %>
+	<% If KeyType <> "None" AndAlso primaryKeys.Count > 0 Then %>
+    '''<summary>Retrieve an instance of this class using its ID from the persistence store</summary>
+    Public Shared Function Retrieve(<%= GetPrimaryKeyArguments %>) As <%= ClassName %>
+		<% If KeyType = "Composite" AndAlso primaryKeys.Count > 1 Then %>
+		Dim helper As QueryHelper = <%= SingletonName %>.QueryHelper
+		Dim where As String = <%= GetPrimaryKeyWhere("helper", "where") %>
+		Return RetrieveScalar(where)
+		<% Else %>
+        Return <%= SingletonName %>.GetObject(Of <%= ClassName %>)(<%= CamelCase(primaryKeys.GetKey(0)) %>)
+		<% End If %>
+    End Function
+	
+	<% End If %>	
+    '''<summary>Retrieve the first instance of this class using the where clause</summary>
+	'''<param name="whereClause">The SQL where clause to filter the records</param>
+	Public Shared Function RetrieveScalar(ByVal whereClause As String) As <%= ClassName %>
+		Return RetrieveScalar(whereClause, String.Empty)
+	End Function
+
+	'''<summary>Retrieve the first instance of this class using the where clause</summary>
+	'''<param name="whereClause">The SQL where clause to filter the records</param>
+	'''<param name="sortClause">The SQL sort statement</param>
+	Public Shared Function RetrieveScalar(ByVal whereClause As String, ByVal sortClause As String) As <%= ClassName %>
+		Dim pageCount As Integer
+		Dim pageSet As Collection(Of <%= ClassName %>) = RetrievePage(whereClause, sortClause, 1, 1, pageCount)
+		If Not (pageSet Is Nothing) AndAlso pageSet.Count > 0 Then
+			Return pageSet.Item(0)
+		Else
+			Return Nothing
+		End If
+	End Function
+
+	'''<summary>Retrieve all instances of this class from the persistence store</summary>
+    Public Shared Function RetrieveAll() As Collection(Of <%= ClassName %>)
+        Return RetrieveAll(String.Empty)
+    End Function
+
+    '''<summary>Retrieve all instances of this class from the persistence store</summary>
+    '''<param name="sortClause">The SQL sort statement</param>
+	Public Shared Function RetrieveAll(ByVal sortClause as String) As Collection(Of <%= ClassName %>)
+        Dim query As ObjectQuery(Of <%= ClassName %>) = New ObjectQuery(Of <%= ClassName %>)(String.Empty, sortClause)
+        Return RetrieveQuery(query)
+    End Function
+
+	'''<summary>Retrieve a paged collection of instances of this class from the persistence store</summary>
+	'''<param name="pageSize">The number of records in each page</param>
+	'''<param name="pageIndex">The page index to return</param>
+	'''<param name="pageCount">The total number of pages</param>
+    Public Shared Function RetrievePage(ByVal pageSize As Integer, ByVal pageIndex As Integer, ByRef pageCount as Integer) As Collection(Of <%= ClassName %>)
+        Return RetrievePage(String.Empty, String.Empty, pageSize, pageIndex, pageCount)
+    End Function
+
+	'''<summary>Retrieve a paged collection of instances of this class from the persistence store</summary>
+    '''<param name="whereClause">The SQL where clause to filter the records</param>
+	'''<param name="pageSize">The number of records in each page</param>
+	'''<param name="pageIndex">The page index to return</param>
+	'''<param name="pageCount">The total number of pages</param>
+    Public Shared Function RetrievePage(ByVal whereClause as String, ByVal pageSize As Integer, ByVal pageIndex As Integer, ByRef pageCount as Integer) As Collection(Of <%= ClassName %>)
+        Return RetrievePage(whereClause, String.Empty, pageSize, pageIndex, pageCount)
+    End Function
+	
+	'''<summary>Retrieve a paged collection of instances of this class from the persistence store</summary>
+    '''<param name="whereClause">The SQL where clause to filter the records</param>
+	'''<param name="sortClause">The SQL sort statement</param>
+	'''<param name="pageSize">The number of records in each page</param>
+	'''<param name="pageIndex">The page index to return</param>
+	'''<param name="pageCount">The total number of pages</param>
+	Public Shared Function RetrievePage(ByVal whereClause as String, ByVal sortClause as String, ByVal pageSize As Integer, ByVal pageIndex As Integer, ByRef pageCount as Integer) As Collection(Of <%= ClassName %>)
+        Dim query As ObjectQuery(Of <%= ClassName %>) = New ObjectQuery(Of <%= ClassName %>)(whereClause, sortClause, pageSize, pageIndex)
+        Dim pageSet as ObjectSet(Of <%= ClassName %>) = RetrieveQuery(query)		
+		pageCount = pageSet.PageCount
+		Return pageSet
+    End Function
+	
+    '''<summary>Retrieve instances of this class from the persistence store based on the where clause</summary>
+    '''<param name="whereClause">The SQL where clause to filter the records</param>
+    Public Shared Function RetrieveQuery(ByVal whereClause As String) As Collection(Of <%= ClassName %>)
+        Return RetrieveQuery(whereClause, String.Empty)
+    End Function
+	
+    '''<summary>Retrieve instances of this class from the persistence store based on the where clause</summary>
+    '''<param name="whereClause">The SQL where clause to filter the records</param>
+	'''<param name="sortClause">The SQL sort statement</param>
+    Public Shared Function RetrieveQuery(ByVal whereClause As String, ByVal sortClause as String) As Collection(Of <%= ClassName %>)
+        Dim query As ObjectQuery(Of <%= ClassName %>) = New ObjectQuery(Of <%= ClassName %>)(whereClause, sortClause)
+        Return RetrieveQuery(query)
+    End Function
+	<% if Not Me.IsReadOnly then %>
+	
+    '''<summary>Save this instance to the persistence store</summary>
+    Public Sub Save()
+		Me.Save(false)
+    End Sub
+
+    '''<summary>Save this instance to the persistence store</summary>
+   	'''<param name="includeChildren">Include changes to related child instances</param>
+	Public Sub Save(ByVal includeChildren as Boolean)
+        If <%= SingletonName %>.GetObjectState(Me) = ObjectState.Unknown Then
+            <%= SingletonName %>.StartTracking(Me, InitialState.Inserted)
+        End If
+		
+		Dim depth as PersistDepth
+		If includeChildren Then
+			depth = PersistDepth.ObjectGraph
+		Else
+			depth = PersistDepth.SingleObject
+		End If
+		
+        <%= SingletonName %>.PersistChanges(Me, depth)
+    End Sub
+	
+	'''<summary>Save this instance to the persistence store using a transaction</summary>
+	'''<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+	Public Sub SaveWithTransaction(ByVal transaction As Wilson.ORMapper.Transaction)
+		SaveWithTransaction(transaction, False)
+	End Sub
+	
+	'''<summary>Save this instance to the persistence store using a transaction</summary>
+	'''<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+	'''<param name="includeChildren">Include changes to related child instances</param>
+	Public Sub SaveWithTransaction(ByVal transaction As Wilson.ORMapper.Transaction, ByVal includeChildren As Boolean)
+		If transaction Is Nothing Then
+			Throw New ArgumentNullException("transaction")
+		End If
+		
+		If <%= SingletonName %>.GetObjectState(Me) = ObjectState.Unknown Then
+			<%= SingletonName %>.StartTracking(Me, InitialState.Inserted)
+		End If
+		
+		Dim depth as PersistDepth
+		If includeChildren Then
+			depth = PersistDepth.ObjectGraph
+		Else
+			depth = PersistDepth.SingleObject
+		End If		
+		
+		transaction.PersistChanges(Me, depth)
+		
+	End Sub
+	
+    '''<summary>Delete this instance from the persistence store</summary>
+    Public Sub Delete()
+        If <%= SingletonName %>.GetObjectState(Me) = ObjectState.Unknown Then
+            Return
+        End If
+		
+        <%= SingletonName %>.MarkForDeletion(Me)
+        <%= SingletonName %>.PersistChanges(Me)
+    End Sub
+		
+	'''<summary>Delete this instance from the persistence store using a transaction</summary>
+	'''<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+	Public Sub DeleteWithTransaction(ByVal transaction As Wilson.ORMapper.Transaction)
+		If transaction Is Nothing Then
+			Throw New ArgumentNullException("transaction")
+		End If
+		
+		If <%= SingletonName %>.GetObjectState(Me) = ObjectState.Unknown Then
+			Return
+		End If
+		
+		<%= SingletonName %>.MarkForDeletion(Me)
+		SaveWithTransaction(transaction)
+	End Sub
+
+	'''<summary>Delete instances from the persistence store based on the where clause</summary>
+	'''<param name="whereClause">The SQL where clause of rows to delete</param>
+	Public Shared Function Delete(ByVal whereClause As String) As Integer
+		Return <%= SingletonName %>.ExecuteDelete(GetType(<%= ClassName %>), whereClause)
+	End Function
+	
+	'''<summary>Delete instances from the persistence store based on the where clause</summary>
+	'''<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+	'''<param name="whereClause">The SQL where clause of rows to delete</param>
+	Public Shared Function DeleteWithTransaction(ByVal transaction As Wilson.ORMapper.Transaction, ByVal whereClause As String) As Integer
+		If transaction Is Nothing Then
+			Throw New ArgumentNullException("transaction")
+		End If
+		Return transaction.ExecuteDelete(GetType(<%= ClassName %>), whereClause)
+	End Function
+	
+	<% If KeyType <> "None" AndAlso primaryKeys.Count > 0 Then %>
+	'''<summary>Delete instance from the persistence store based on primary key(s)</summary>
+	Public Shared Function DeleteByKey(<%= GetPrimaryKeyArguments %>) As Integer
+		Dim helper As QueryHelper = <%= SingletonName %>.QueryHelper
+		Dim where As String = <%= GetPrimaryKeyWhere("helper", "where") %>		
+		Return Delete(where)
+	End Function
+	
+	'''<summary>Delete instance from the persistence store based on primary key(s) using a transaction</summary>
+	'''<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+	Public Shared Function DeleteByKeyWithTransaction(ByVal transaction As Wilson.ORMapper.Transaction, <%= GetPrimaryKeyArguments %>) As Integer
+		Dim helper As QueryHelper = <%= SingletonName %>.QueryHelper
+		Dim where As String = <%= GetPrimaryKeyWhere("helper", "where") %>		
+		Return DeleteWithTransaction(transaction, where)
+	End Function
+	
+	<% End If %>
+	'''<summary>Delete instances from the persistence store based on the where clause</summary>
+    '''<param name="whereClause">The SQL where clause of rows to delete</param>
+    '''<param name="updateClause">The SQL update clause for values to set</param>
+    Public Shared Function Update(ByVal whereClause As String, ByVal updateClause As String) As Integer
+        Return <%= SingletonName %>.ExecuteUpdate(GetType(<%= ClassName %>), whereClause, updateClause)
+    End Function
+	
+	'''<summary>Updates instances from the persistence store based on the where clause and uses the Update clause to set the values</summary>
+	'''<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+	'''<param name="whereClause">The SQL where clause of rows to update</param>
+	'''<param name="updateClause">The SQL update clause for values to set</param>
+	Public Shared Function UpdateWithTransaction(ByVal transaction As Wilson.ORMapper.Transaction, ByVal whereClause As String, ByVal updateClause As String) As Integer
+		If transaction Is Nothing Then
+			Throw New ArgumentNullException("transaction")
+		End If		
+		Return transaction.ExecuteUpdate(GetType(<%= ClassName %>), whereClause, updateClause)
+	End Function
+	
+	<% end if 'readonly%>	
+	
+	''' <summary>Refresh the data for this instance from the persistence store</summary>
+	''' <returns>Returns a new instance with the refreshed data or Nothing if instance not tracked</returns>
+	''' <example>Resync an instance code fragment
+	''' <code>
+	''' Dim instance as <%= ClassName %>
+	''' ' Some retrieval and update logic
+	''' instance = instance.Resync()
+	''' </code>
+	''' </example>
+	Public Function Resync() As <%= ClassName %>
+		If DataManager.ObjectSpace.GetObjectState(Me) = ObjectState.Unknown Then
+			Return Nothing
+		End If
+
+		Return CType(DataManager.ObjectSpace.Resync(Me), <%= ClassName %>)
+	End Function
+	
+    '''<summary>Retrieve instances of this class from the persistence store based on the ObjectQuery</summary>
+    '''<param name="query">The object query to filter the records</param>
+    Friend Shared Function RetrieveQuery(ByVal query As ObjectQuery(Of <%= ClassName %>)) As ObjectSet(Of <%= ClassName %>)
+        Return <%= SingletonName %>.GetObjectSet(query)
+    End Function
+
+#End Region 'ORMapper Default Methods
+<% end if %>	
+
+#Region "ORMapper Members - DO NOT MODIFY"
+	' ----------------------------------------------------------------------
+	'  NOTE: The following region is required by a CodeSmith template.
+	'        DO NOT MODIFY the contents of this region. Changes 
+	'        to this region will be lost if the code is regenerated.
+	' ----------------------------------------------------------------------
+	'<AutoGeneratedMembers>
+
+<%= members.ToString() %>
+
+<%= propties.ToString() %>
+
+	'</AutoGeneratedMembers>
+#End Region 'ORMapper Members - DO NOT MODIFY
+
+<% if (ImplementHelper) then %>
+#Region "IObjectHelper Members - DO NOT MODIFY"
+	' ----------------------------------------------------------------------
+	'  NOTE: The following region is required by a CodeSmith template.
+	'        DO NOT MODIFY the contents of this region. Changes 
+	'        to this region will be lost if the code is regenerated.
+    ' ----------------------------------------------------------------------
+	'<AutoGeneratedObjectHelper>
+    
+	''' <summary>Default Property to update local member variables</summary>	
+    Default Public Property Item(ByVal memberName As String) As Object Implements IObjectHelper.Item
+        Get
+            Select Case memberName
+<%= getHelper.ToString() %>	                
+				Case Else : Throw New Exception(String.Format("Mapping: IObjectHelper Get is missing member case {0}", memberName))
+            End Select
+        End Get
+        Set(ByVal value As Object)
+			'handle null values
+			If value Is Nothing Then 
+				Return 
+			End If
+			
+			Select Case memberName
+<%= setHelper.ToString() %>		
+				Case Else : Throw New Exception(String.Format("Mapping: IObjectHelper Set is missing member case {0}", memberName))
+            End Select
+        End Set
+    End Property
+	'</AutoGeneratedObjectHelper>
+	
+#End Region 'IObjectHelper Members - DO NOT MODIFY
+<% end if %>		
+
+End Class
+
+<% if (_explicateNamespace) then Response.WriteLine("End Namespace") %>

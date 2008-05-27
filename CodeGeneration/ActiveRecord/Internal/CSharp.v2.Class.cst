@@ -1,0 +1,751 @@
+	<%@ CodeTemplate 
+	Language="C#" 
+	TargetLanguage="C#" 
+	Description="This Template Generates C# Business Objects for the ORMapper" 
+	Debug="true" %>
+
+<%@ Import Namespace="System.Collections" %>
+<%@ Import Namespace="System.Collections.Specialized" %>
+<%@ Import Namespace="System.IO" %>
+<%@ Import Namespace="System.Xml" %>
+<%@ Import Namespace="System.Text" %>
+<%@ Import Namespace="System.Text.RegularExpressions" %>
+
+
+<script runat="template">
+	private const string _prefix = "_";
+
+	private StringBuilder members;
+	private StringBuilder propties;
+	private StringBuilder getHelper;
+	private StringBuilder setHelper;
+	
+	private string _tableName;
+	
+	private string _className;
+	private string _namespace;
+    private bool _implementHelper = true;
+	private XmlElement _entityNode;
+	private bool _defaultMethods = false;
+	private string _singletonName;
+	private bool _explicateNamespace = false;
+	
+	private NameValueCollection  primaryKeys = new NameValueCollection();
+	
+	public XmlElement EntityNode
+	{
+		get { return _entityNode; }
+        set { _entityNode = value; }
+	}
+	
+	public string Namespace {
+        get { return _namespace;}
+        set { _namespace = value;}
+    }
+    
+    public string ClassName {
+        get { return _className;}
+        set { _className = value;}
+    }
+    
+    public bool ImplementHelper {
+        get { return _implementHelper;}
+        set { _implementHelper = value;}
+    }
+    
+	public bool DefaultMethods {
+        get { return _defaultMethods;}
+        set { _defaultMethods = value;}
+    }
+	
+	public string SingletonName  {
+        get { return _singletonName;}
+        set { _singletonName = value;}
+    }
+	
+	public bool ExplicateNamespace {
+        get { return _explicateNamespace;}
+        set { _explicateNamespace = value;}
+    }
+	
+	[Browsable(false)]
+	public string TableName
+	{
+		get { return _entityNode.Attributes["table"].Value; }
+	}
+	[Browsable(false)]
+	public string KeyMember
+	{
+		get { return _entityNode.Attributes["keyMember"].Value; }
+	}
+	[Browsable(false)]
+	public string KeyType
+	{
+		get { return _entityNode.Attributes["keyType"].Value; }
+	}
+	[Browsable(false)]
+	public string EntityType
+	{
+		get { return _entityNode.Attributes["type"].Value; }
+	}
+	[Browsable(false)]
+	public bool ReadOnly
+	{
+		get 
+		{ 
+			string temp = SafeAttributeRead(_entityNode, "readOnly");
+			if (temp.ToLower() == "true")
+				return true;
+			else
+				return false;			
+		}
+	}
+	public string CamelCase(string name)
+	{
+		return char.ToLower(name[0]) + name.Substring(1);
+	}
+	
+	public string PascalCase(string name)
+	{
+		return char.ToUpper(name[0]) + name.Substring(1);
+	}
+	
+	public string GetObjectProperty(string member)
+	{
+		string output = member.Substring(_prefix.Length);
+		return PascalCase(output);
+	}
+	
+	public string GetClassName(string name)
+    {
+        string[] namespaces = name.Split(new Char[] {'.'});
+        return namespaces[namespaces.Length-1];
+    }
+	
+	public string GetAliasVariableType(string type)
+	{
+		switch (type)
+		{
+			case "System.String": return "string";
+			case "System.Byte": return "byte";
+			case "System.Byte[]": return "byte[]";			
+			case "System.Int16": return "short";
+			case "System.Int32": return "int";
+			case "System.Int64": return "long";
+			case "System.Char": return "char";
+			case "System.Single": return "float";
+			case "System.Double": return "double";
+			case "System.Boolean": return "bool";
+			case "System.Decimal": return "decimal";
+			case "System.SByte": return "sbyte";
+			case "System.UInt16": return "ushort";
+			case "System.UInt32": return "uint";
+			case "System.UInt64": return "ulong";
+			case "System.Object": return "object";
+			default:
+				// remove System.
+				if (type.StartsWith("System."))
+					type = type.Substring(7);
+					
+				return type;
+		}
+	}
+	
+	public string GetPrimaryKeyArguments()
+	{
+		StringBuilder sb = new StringBuilder();
+		for(int x = 0; x < primaryKeys.Count; x++)
+		{
+			string property = primaryKeys.Keys[x];
+			string dataType = primaryKeys[x];			
+			sb.AppendFormat("{0} {1}", dataType, CamelCase(property));
+			if (x < primaryKeys.Count-1)
+			{
+				sb.Append(", ");
+			}
+		}
+		
+		return sb.ToString();
+	}
+	
+	public string GetPrimaryKeyWhere(string helperName, string whereName)
+	{
+		StringBuilder code = new StringBuilder();
+		for(int x = 0; x < primaryKeys.Count; x++)
+		{
+			string property = primaryKeys.Keys[x];
+			string parameter = CamelCase(property);
+			string dataType = primaryKeys[x];			
+			
+			if (x > 0)
+			{
+				code.Append('\t', 3);
+				code.Append(whereName);
+				code.Append(" += ");
+			}
+			
+			code.Append(helperName);
+			code.Append(".GetExpression(\"");
+			code.Append(ClassName);
+			code.Append(".");
+			code.Append(property);
+			code.Append("\", ");
+			code.Append(parameter);
+			code.Append(");");			
+			code.Append("\r\n");
+			
+			if (x < primaryKeys.Count-1)
+			{
+				code.Append('\t', 3);
+				code.Append(whereName);
+				code.Append(" += ");
+				code.Append("\" and \";");
+				code.Append("\r\n");
+			}
+		}
+		
+		return code.ToString();
+	}
+	
+	public bool IsPrimaryKey(string name)
+	{
+		ArrayList keys = new ArrayList(KeyMember.Split(new Char[] {',', ' '}));
+		return keys.Contains(name);
+	}
+	
+	public string SafeAttributeRead(XmlElement attributeNode, string name)
+	{
+		return SafeAttributeRead(attributeNode, name, false);
+	}
+	
+	public string SafeAttributeRead(XmlElement attributeNode, string name, bool asNull)
+	{
+		XmlNode node = attributeNode.Attributes[name];
+		if (node != null)
+		{
+			return node.Value;
+		}		
+		if (asNull)
+			return (string) null;
+		else
+			return string.Empty;			
+	}
+	
+	public string GetNullValue(string type, string value)
+	{
+		switch (type)
+		{
+			case "System.String": 
+				return "\"" + value + "\"";
+			case "System.Char": 
+				return "'" + value + "'";
+			case "System.DateTime":
+				if (value == DateTime.MinValue.ToString())
+					return "DateTime.MinValue";
+				else
+					return string.Format("DateTime.Parse(\"{0}\")", value);
+			case "System.Guid":
+				if (value == Guid.Empty.ToString())
+					return "Guid.Empty";
+				else
+					return string.Format("new Guid(\"{0}\")", value);					
+			case "System.Byte[]":
+				return "new byte[0]";				
+			default :
+				return value;
+		}
+	}
+	
+	public bool IsNullableType(string nativeType)
+	{
+		if (nativeType.StartsWith("System."))
+		{
+			Type myType = Type.GetType(nativeType, false);
+			if (myType != null)
+			{
+				return myType.IsValueType;
+			}			
+		}
+		return false;		
+	}
+	
+	public void Generate()
+	{
+		primaryKeys = new NameValueCollection ();
+		members = new StringBuilder();
+		propties = new StringBuilder();
+		getHelper = new StringBuilder();
+		setHelper = new StringBuilder();
+		
+		XmlNodeList attributeList = _entityNode.SelectNodes("attribute");
+		foreach(XmlElement attributeNode in attributeList)
+		{
+			string columnName = SafeAttributeRead(attributeNode, "field");
+			string memberName = SafeAttributeRead(attributeNode, "member");
+			string propertyName = SafeAttributeRead(attributeNode, "alias");
+			string nativeType = SafeAttributeRead(attributeNode, "type");
+			string dataType = GetAliasVariableType(nativeType);
+			string persistType = SafeAttributeRead(attributeNode, "persistType");
+			string nullValue = SafeAttributeRead(attributeNode, "nullValue", true);
+			string nullable = SafeAttributeRead(attributeNode, "nullable", true);
+			
+			if (nullValue == null 
+				&& nullable != null 
+				&& string.Compare(nullable, "True", true) == 0 
+				&& IsNullableType(nativeType))
+			{
+				dataType = string.Format("Nullable<{0}>", dataType);
+			}
+			
+			// set default value
+			if (nullValue == null)
+				members.AppendFormat("\t\tprivate {0} {1};\r\n", dataType, memberName);
+			else
+				members.AppendFormat("\t\tprivate {0} {1} = {2};\r\n", dataType, memberName, GetNullValue(nativeType, nullValue));
+			
+			propties.AppendFormat("\t\t///<summary>Database mapping to column {0}.{1}</summary>\r\n", TableName, columnName);
+			if (IsPrimaryKey(memberName))
+			{
+				propties.Append("\t\t///<remarks>This is a Primary Key</remarks>\r\n");	
+				primaryKeys.Add(propertyName, dataType); // save primary key type				
+			}
+			propties.AppendFormat("\t\tpublic {0} {1}\r\n",	dataType, propertyName);
+			propties.Append("\t\t{\r\n");
+			//get
+			propties.Append("\t\t\tget { return this.");
+			propties.Append(memberName);
+			propties.Append("; }\r\n");
+			//set - readonly for keymember of type auto
+			if ((KeyMember != memberName || KeyType.ToLower() != "auto") 
+				&& persistType != "ReadOnly" && persistType != "Concurrent")
+			{
+				propties.Append("\t\t\tset { this.");
+				propties.Append(memberName);
+				propties.Append(" = value; }\r\n");
+			}
+			propties.Append("\t\t}\r\n");
+			
+			//IObjectHelper get Indexer case statement
+			getHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": return this.{0};\r\n", memberName);
+			//IObjectHelper set Indexer case statement
+			setHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": this.{0} = ({1})value; break;\r\n", memberName, dataType);
+		}
+		
+        XmlNodeList relationList = _entityNode.SelectNodes("relation");
+		foreach(XmlElement relationNode in relationList)
+		{
+			string columnName = relationNode.Attributes["field"].Value;
+			string memberName = relationNode.Attributes["member"].Value;
+			string propertyName = GetObjectProperty(memberName);			
+			string relationship = relationNode.Attributes["relationship"].Value;
+			string type = relationNode.Attributes["type"].Value;
+			string lazyLoad = SafeAttributeRead(relationNode, "lazyLoad");
+
+			string className = GetClassName(type);
+			bool isLazyLoad = (string.Compare(lazyLoad, "true", true) == 0);
+			
+			bool createInstance = false;
+			string memberType = "";
+			string propertyType = "";
+			string summary = "";
+			string propertyText = "";
+			
+			switch (relationship)
+			{
+				case "ManyToOne" :
+					propertyType = GetClassName(type);
+					summary = string.Format("Instance of a {0} object", GetClassName(type));
+					if (isLazyLoad)
+					{
+						memberType = "ObjectHolder";
+						propertyText = string.Format("({0})this.{1}.InnerObject", propertyType, memberName);
+					}
+					else
+					{
+						memberType = propertyType;
+						propertyText = string.Format("({0})this.{1}", propertyType, memberName);
+					}
+					break;
+				case "OneToMany" :
+				case "ManyToMany" :
+					summary = string.Format("Collection of {0} objects", className);
+					propertyText = "this." + memberName;
+					if (isLazyLoad)
+					{
+						memberType = string.Format("IList<{0}>", className);
+						propertyType = string.Format("IList<{0}>", className);
+					}
+					else
+					{
+						createInstance = true;
+						memberType = string.Format("Collection<{0}>", className);
+						propertyType = string.Format("Collection<{0}>", className);
+					}
+					break;				
+			}
+			
+			if (createInstance)
+				members.AppendFormat("\t\tprivate {0} {1} = new {0}();\r\n", memberType, memberName);
+			else
+				members.AppendFormat("\t\tprivate {0} {1};\r\n", memberType, memberName);
+				
+			propties.AppendFormat("\t\t///<summary>{0}</summary>\r\n", summary);
+			propties.AppendFormat("\t\tpublic {0} {1}\r\n",	propertyType, propertyName);
+			propties.Append("\t\t{\r\n");
+			//get
+			propties.Append("\t\t\tget { return ");
+			propties.Append(propertyText);
+			propties.Append("; }\r\n");
+			propties.Append("\t\t}\r\n");
+			
+			//IObjectHelper get Indexer case statement
+			getHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": return this.{0};\r\n", memberName);
+			//IObjectHelper set Indexer case statement
+			setHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": this.{0} = ({1})value; break;\r\n", memberName, memberType);
+
+		}
+		
+	}
+	
+	
+</script>
+<% this.Generate();  %>
+//------------------------------------------------------------------------------
+// <autogenerated>
+//     This code was generated by a CodeSmith Template.
+//
+//	   DO NOT MODIFY contents of this file. Changes to this
+//	   file will be lost if the code is regenerated.
+// </autogenerated>
+//------------------------------------------------------------------------------
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Wilson.ORMapper;
+
+namespace <%= Namespace %>
+{
+	///<summary>Database mapping to table <%= TableName %></summary>
+	public partial class <%
+	 	Response.Write(ClassName);
+		if (ImplementHelper)
+			Response.Write(" : IObjectHelper");
+	%>
+	{
+<% if (DefaultMethods) { %>	
+		#region ORMapper Default Methods
+		///<summary>Initializes a new instance of this class</summary>
+		public <%= ClassName %>()
+		{
+			// Default Constructor
+		}
+		
+		<% if (KeyType != "User" && KeyType != "Composite" && KeyType != "None") { %>
+		///<summary>Initializes a new instance of this class</summary>
+		///<param name="track">Set to true to begin ORMapper tracking on this instance</param>
+		public <%= ClassName %>(bool track)
+		{
+			if (track) <%= SingletonName %>.StartTracking(this, InitialState.Inserted);
+		}
+		<% } %>	
+		
+		<% if (KeyType != "None" && primaryKeys.Count > 0) { %>
+		///<summary>Retrieve an instance of this class using its ID from the persistence store</summary>
+		public static <%= ClassName %> Retrieve(<%= GetPrimaryKeyArguments() %>)
+		{
+			<% if (KeyType == "Composite" && primaryKeys.Count > 1) { %>			
+			QueryHelper helper = <%= SingletonName %>.QueryHelper;
+			string where = <%= GetPrimaryKeyWhere("helper", "where") %>
+			return RetrieveScalar(where);			
+			<% } else {%>	
+			return <%= SingletonName %>.GetObject<<%= ClassName %>>(<%= CamelCase(primaryKeys.GetKey(0)) %>);
+			<% } %>	
+		}
+		<% } %>	
+		
+		///<summary>Retrieve the first instance of this class using the where clause</summary>
+		///<param name="whereClause">The SQL where clause to filter the records</param>
+		public static <%= ClassName %> RetrieveScalar(string whereClause)
+		{
+			return RetrieveScalar(whereClause, string.Empty);
+		}
+
+		///<summary>Retrieve the first instance of this class using the where clause</summary>
+		///<param name="whereClause">The SQL where clause to filter the records</param>
+		///<param name="sortClause">The SQL sort statement</param>
+		public static <%= ClassName %> RetrieveScalar(string whereClause, string sortClause)
+		{
+			int pageCount;
+			Collection<<%= ClassName %>> pageSet = RetrievePage(whereClause, sortClause, 1, 1, out pageCount);
+			if (pageSet != null && pageSet.Count > 0)
+				return pageSet[0];
+			else
+				return null;
+		}
+		
+		///<summary>Retrieve all instances of this class from the persistence store</summary>
+		public static Collection<<%= ClassName %>> RetrieveAll()
+		{
+			return RetrieveAll(string.Empty);
+		}
+
+		///<summary>Retrieve all instances of this class from the persistence store</summary>
+		///<param name="sortClause">The SQL sort statement</param>
+		public static Collection<<%= ClassName %>> RetrieveAll(string sortClause)
+		{
+			ObjectQuery<<%= ClassName %>> query = new ObjectQuery<<%= ClassName %>>(string.Empty, sortClause);
+			return RetrieveQuery(query);
+		}
+		
+		///<summary>Retrieve a paged collection of instances of this class from the persistence store</summary>
+		///<param name="pageSize">The number of records in each page</param>
+		///<param name="pageIndex">The page index to return</param>
+		///<param name="pageCount">The total number of pages</param>
+		public static Collection<<%= ClassName %>> RetrievePage(int pageSize, int pageIndex, out int pageCount)
+		{
+			return RetrievePage(string.Empty, string.Empty, pageSize, pageIndex, out pageCount);
+		}
+		
+		///<summary>Retrieve a paged collection of instances of this class from the persistence store</summary>
+		///<param name="whereClause">The SQL where clause to filter the records</param>
+		///<param name="pageSize">The number of records in each page</param>
+		///<param name="pageIndex">The page index to return</param>
+		///<param name="pageCount">The total number of pages</param>
+		public static Collection<<%= ClassName %>> RetrievePage(string whereClause, int pageSize, int pageIndex, out int pageCount)
+		{
+			return RetrievePage(whereClause, string.Empty, pageSize, pageIndex, out pageCount);
+		}
+		
+		///<summary>Retrieve a paged collection of instances of this class from the persistence store</summary>
+		///<param name="whereClause">The SQL where clause to filter the records</param>
+		///<param name="sortClause">The SQL sort statement</param>
+		///<param name="pageSize">The number of records in each page</param>
+		///<param name="pageIndex">The page index to return</param>
+		///<param name="pageCount">The total number of pages</param>
+		public static Collection<<%= ClassName %>> RetrievePage(string whereClause, string sortClause, int pageSize, int pageIndex, out int pageCount)
+		{
+			ObjectQuery<<%= ClassName %>> query = new ObjectQuery<<%= ClassName %>>(whereClause, sortClause, pageSize, pageIndex);
+			ObjectSet<<%= ClassName %>> pageSet = RetrieveQuery(query);
+			pageCount = pageSet.PageCount;
+			return pageSet;
+		}
+		
+		///<summary>Retrieve instances of this class from the persistence store based on the where clause</summary>
+		///<param name="whereClause">The SQL where clause to filter the records</param>
+		public static Collection<<%= ClassName %>> RetrieveQuery(string whereClause)
+		{
+			return RetrieveQuery(whereClause, string.Empty);
+		}
+		
+		///<summary>Retrieve instances of this class from the persistence store based on the where clause</summary>
+		///<param name="whereClause">The SQL where clause to filter the records</param>
+		///<param name="sortClause">The SQL sort statement</param>
+		public static Collection<<%= ClassName %>> RetrieveQuery(string whereClause, string sortClause)
+		{
+			ObjectQuery<<%= ClassName %>> query = new ObjectQuery<<%= ClassName %>>(whereClause, sortClause);
+			return RetrieveQuery(query);
+		}
+		
+		<% if (!this.ReadOnly) { %>
+		///<summary>Save this instance to the persistence store</summary>
+		public void Save()
+		{
+			this.Save(false);
+		}
+
+		///<summary>Save this instance to the persistence store</summary>
+		///<param name="includeChildren">Include changes to related child instances</param>
+		public void Save(bool includeChildren)
+		{
+			if (<%= SingletonName %>.GetObjectState(this) == ObjectState.Unknown)
+				<%= SingletonName %>.StartTracking(this, InitialState.Inserted);
+
+			PersistDepth depth = includeChildren ? PersistDepth.ObjectGraph : PersistDepth.SingleObject;
+			<%= SingletonName %>.PersistChanges(this, depth);
+		}
+
+		///<summary>Save this instance to the persistence store using a transaction</summary>
+		///<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+		public void SaveWithTransaction(Wilson.ORMapper.Transaction transaction)
+		{
+			SaveWithTransaction(transaction, false);
+		}
+
+		///<summary>Save this instance to the persistence store using a transaction</summary>
+		///<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+		///<param name="includeChildren">Include changes to related child instances</param>
+		public void SaveWithTransaction(Wilson.ORMapper.Transaction transaction, bool includeChildren)
+		{
+			if (transaction == null)
+				throw new ArgumentNullException("transaction");
+
+			if (<%= SingletonName %>.GetObjectState(this) == ObjectState.Unknown)
+				<%= SingletonName %>.StartTracking(this, InitialState.Inserted);
+
+			PersistDepth depth = includeChildren ? PersistDepth.ObjectGraph : PersistDepth.SingleObject;
+			transaction.PersistChanges(this, depth);
+		}
+		
+		///<summary>Delete this instance from the persistence store</summary>
+		public void Delete()
+		{
+			if (<%= SingletonName %>.GetObjectState(this) == ObjectState.Unknown)
+				return;
+
+			<%= SingletonName %>.MarkForDeletion(this);
+			<%= SingletonName %>.PersistChanges(this);
+		}
+		
+		///<summary>Delete this instance from the persistence store using a transaction</summary>
+		///<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+		public void DeleteWithTransaction(Wilson.ORMapper.Transaction transaction)
+		{
+			if (transaction == null)
+				throw new ArgumentNullException("transaction");
+			
+			if (<%= SingletonName %>.GetObjectState(this) == ObjectState.Unknown)
+				return;
+
+			<%= SingletonName %>.MarkForDeletion(this);
+			SaveWithTransaction(transaction);
+		}
+		
+		///<summary>Delete instances from the persistence store based on the where clause</summary>
+		///<param name="whereClause">The SQL where clause of rows to delete</param>
+		public static int Delete(string whereClause)
+		{			
+			return <%= SingletonName %>.ExecuteDelete(typeof(<%= ClassName %>), whereClause);
+		}
+		
+		///<summary>Delete instances from the persistence store based on the where clause</summary>
+		///<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+		///<param name="whereClause">The SQL where clause of rows to delete</param>
+		public static int DeleteWithTransaction(Wilson.ORMapper.Transaction transaction, string whereClause)
+		{			
+			if (transaction == null)
+				throw new ArgumentNullException("transaction");
+			
+			return transaction.ExecuteDelete(typeof(<%= ClassName %>), whereClause);
+		}
+		
+		<% if (KeyType != "None" && primaryKeys.Count > 0) { %>
+		///<summary>Delete instance from the persistence store based on primary key(s)</summary>
+		public static int DeleteByKey(<%= GetPrimaryKeyArguments() %>)
+		{			
+			QueryHelper helper = <%= SingletonName %>.QueryHelper;
+			string where = <%= GetPrimaryKeyWhere("helper", "where") %>
+			return Delete(where);
+		}
+		
+		///<summary>Delete instance from the persistence store based on primary key(s) using a transaction</summary>
+		///<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+		public static int DeleteByKeyWithTransaction(Wilson.ORMapper.Transaction transaction, <%= GetPrimaryKeyArguments() %>)
+		{			
+			QueryHelper helper = <%= SingletonName %>.QueryHelper;
+			string where = <%= GetPrimaryKeyWhere("helper", "where") %>
+			return DeleteWithTransaction(transaction, where);
+		}
+		
+		<% } %>	
+		///<summary>Updates instances from the persistence store based on the where clause and uses the Update clause to set the values</summary>
+		///<param name="whereClause">The SQL where clause of rows to update</param>
+		///<param name="updateClause">The SQL update clause for values to set</param>
+		public static int Update(string whereClause, string updateClause)
+		{
+			return <%= SingletonName %>.ExecuteUpdate(typeof(<%= ClassName %>), whereClause, updateClause);
+		}
+		
+		///<summary>Updates instances from the persistence store based on the where clause and uses the Update clause to set the values</summary>
+		///<param name="transaction">An instance of a Wilson.ORMapper.Transaction to perform operation with.</param>
+		///<param name="whereClause">The SQL where clause of rows to update</param>
+		///<param name="updateClause">The SQL update clause for values to set</param>
+		public static int UpdateWithTransaction(Wilson.ORMapper.Transaction transaction, string whereClause, string updateClause)
+		{
+			if (transaction == null)
+				throw new ArgumentNullException("transaction");
+			
+			return transaction.ExecuteUpdate(typeof(<%= ClassName %>), whereClause, updateClause);
+		}
+
+		<% } // readonly%>
+		
+		/// <summary>Refresh the data for this instance from the persistence store</summary>
+		/// <returns>Returns a new instance with the refreshed data or null if instance not tracked</returns>
+		/// <example>Resync an instance code fragment
+		/// <code>
+		/// <%= ClassName %> instance;
+		/// // Some retrieval and update logic
+		/// instance = instance.Resync();
+		/// </code>
+		/// </example>
+		public <%= ClassName %> Resync()
+		{
+			if (DataManager.ObjectSpace.GetObjectState(this) == ObjectState.Unknown)
+				return null;
+			
+			return (<%= ClassName %>)DataManager.ObjectSpace.Resync(this);
+		}
+		
+		///<summary>Retrieve instances of this class from the persistence store based on the ObjectQuery</summary>
+		///<param name="query">The object query to filter the records</param>
+		internal static ObjectSet<<%= ClassName %>> RetrieveQuery(ObjectQuery<<%= ClassName %>> query)
+		{
+			return <%= SingletonName %>.GetObjectSet<<%= ClassName %>>(query);
+		}
+		
+		#endregion
+<% } %>	
+
+		#region ORMapper Members - DO NOT MODIFY
+		// ----------------------------------------------------------------------
+		//  NOTE: The following region is required by a CodeSmith template.
+		//        DO NOT MODIFY the contents of this region. Changes 
+		//        to this region will be lost if the code is regenerated.
+	    // ----------------------------------------------------------------------
+		//<AutoGeneratedMembers>
+
+<%= members.ToString() %>
+
+<%= propties.ToString() %>
+
+		//</AutoGeneratedMembers>
+		#endregion //ORMapper Members - DO NOT MODIFY
+		
+<% if (ImplementHelper) { %>
+		#region IObjectHelper Members - DO NOT MODIFY
+		// ----------------------------------------------------------------------
+		//  NOTE: The following region is required by a CodeSmith template.
+		//        DO NOT MODIFY the contents of this region. Changes 
+		//        to this region will be lost if the code is regenerated.
+	    // ----------------------------------------------------------------------
+		//<AutoGeneratedObjectHelper>
+
+		/// <summary>Indexer to update local member variables</summary>	
+		/// <remarks>This indexer is used by the Wilson ORMapper</remarks>
+		public object this[string memberName]
+		{
+			get {
+				switch (memberName) {
+<%= getHelper.ToString() %>				
+					default: throw new Exception(string.Format("Mapping: IObjectHelper Get is missing member case {0}", memberName));
+				}
+			}
+			set {
+				//handle null values
+				if(value == null)
+					return;
+					
+				switch (memberName) {
+<%= setHelper.ToString() %>				
+					default: throw new Exception(string.Format("Mapping: IObjectHelper Set is missing member case {0}", memberName));
+				}
+			}
+		}
+		//</AutoGeneratedObjectHelper>
+		#endregion //IObjectHelper Members - DO NOT MODIFY
+<% } %>		
+
+	}
+}

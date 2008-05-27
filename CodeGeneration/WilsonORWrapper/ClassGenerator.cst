@@ -1,0 +1,182 @@
+<%-- 
+Written by Brian DeMarzo (http://www.demarzo.net)
+Derived from CodeSmith templates by Paul Weiter
+--%>
+<%@ CodeTemplate 
+	Language="C#" 
+	TargetLanguage="C#" 
+	Description="Generate entity objects and generic factory classes for Wilson O/R Mapper. Requires .Net 2.0." 
+	Debug="true" %>
+
+<%@ Assembly Src="Internal\CommonUtility.cs" %>
+<%@ Assembly Src="Internal\ProjectUtility.cs" %>
+<%@ Assembly Name="Microsoft.Build.Engine" %>
+<%@ Assembly Name="Microsoft.Build.Utilities" %>
+
+<%@ Register Name="CommonProperties" Template="Internal\CommonProperties.cst" MergeProperties="True" ExcludeProperties="" %>
+<%@ Register Name="MappingCommon" Template="Internal\MappingsCommon.cst" MergeProperties="True" ExcludeProperties="MappingObject,MappingFile" %>
+
+<%@ Register Name="EntityClassTemplate" Template="Internal\EntityClass.cst" MergeProperties="False" %>
+<%@ Register Name="EntityPartialClassTemplate" Template="Internal\EntityPartialClass.cst" MergeProperties="False" %>
+<%@ Register Name="ServiceClassTemplate" Template="Internal\ServiceClass.cst" MergeProperties="False" %>
+<%@ Register Name="ServicePartialClassTemplate" Template="Internal\ServicePartialClass.cst" MergeProperties="False" %>
+<%@ Register Name="UnitTestClassTemplate" Template="Internal\TestClass.cst" MergeProperties="False" %>
+
+<%@ Import Namespace="System.IO" %>
+
+<script runat="template">
+	private EntityClassTemplate _entityClassTemplate;
+	private EntityPartialClassTemplate _entityPartialClassTemplate;
+	private ServiceClassTemplate _serviceClassTemplate;
+	private ServicePartialClassTemplate _servicePartialClassTemplate;
+	private CodeTemplate _testTemplate = null;
+
+	private ProjectUtility _serviceProject;
+	private ProjectUtility _entityProject;
+	private ProjectUtility _testProject;
+	
+	private MappingCommon _mappingCommon;
+
+	public string BuildFileName(string name)
+	{
+		name = Path.ChangeExtension(name, ".cs");
+		name = Path.Combine(UnitTestFolder, name);
+		return name;
+	}
+
+	public void Initialize()
+	{
+		if (!Directory.Exists(this.ServiceFolder))
+			Directory.CreateDirectory(this.ServiceFolder);
+			
+		// init templates		
+		_entityClassTemplate = new EntityClassTemplate();
+		_entityPartialClassTemplate = new EntityPartialClassTemplate();
+		_serviceClassTemplate = new ServiceClassTemplate();
+		_servicePartialClassTemplate = new ServicePartialClassTemplate();
+		_testTemplate = new UnitTestClassTemplate();
+
+		this.CopyPropertiesTo(_entityClassTemplate);
+		this.CopyPropertiesTo(_entityPartialClassTemplate);
+		this.CopyPropertiesTo(_serviceClassTemplate);
+		this.CopyPropertiesTo(_servicePartialClassTemplate);
+		this.CopyPropertiesTo(_testTemplate);
+			
+		// load mappings
+		_mappingCommon = new MappingCommon();
+		this.CopyPropertiesTo(_mappingCommon);
+		
+		Response.WriteLine("Loading Mapping File '{0}'.", MappingFile);
+		_mappingCommon.LoadMappingFile();
+		
+		this.CopyPropertiesTo(_mappingCommon);
+		
+		// load projects
+		_entityProject = new ProjectUtility(this.EntityProjectFile,
+			Path.Combine(this.CodeTemplateInfo.DirectoryName, "Internal"));
+		_entityProject.AddReferenceItem("ORMapper.Entities", true);
+		if ( this.ImplementIObjectHelper )
+			_entityProject.AddReferenceItem("WilsonORMapper", true);
+
+		_serviceProject = new ProjectUtility(this.ServiceProjectFile, 
+			Path.Combine(this.CodeTemplateInfo.DirectoryName, "Internal"));
+		_serviceProject.AddReferenceItem("System.configuration", false);
+		_serviceProject.AddReferenceItem("System.Web", false);
+		_serviceProject.AddReferenceItem("ORMapper.Services", true);
+		_serviceProject.AddReferenceItem("WilsonORMapper", true);
+		_serviceProject.AddReferenceItem(this.EntityNamespace, true);
+		
+		if ( this.GenerateUnitTests )
+		{
+			_testProject = new ProjectUtility(this.UnitTestProjectFile, 
+				Path.Combine(this.CodeTemplateInfo.DirectoryName, "Internal"));
+			_testProject.AddReferenceItem(this.EntityNamespace, true);
+			_testProject.AddReferenceItem(this.ServiceNamespace, true);
+			_testProject.AddReferenceItem("ORMapper.Entities", true);
+			_testProject.AddReferenceItem("ORMapper.Services", true);
+			_testProject.AddReferenceItem("nunit.framework", true);
+			_testProject.AddReferenceItem("WilsonORMapper", true);
+		}
+	}
+	
+	public void Generate()
+	{		
+		mappings map = _mappingCommon.MappingObject;
+		_serviceProject.AddEmbeddedResource(this.MappingFile);
+
+		//generate entity classes and services
+		foreach(entity en in map.entities)
+		{
+			string className = CommonUtility.GetClassName(en.type);
+			string generatedFile;
+			string partialFile;
+			
+			//generate entity classes
+			generatedFile = Path.Combine(this.EntityFolder, className + ".Generated.cs");
+			partialFile = Path.Combine(this.EntityFolder, className + ".cs");
+			
+			if (!File.Exists(partialFile) || this.EntityPartialOverwrite)
+			{
+				_entityPartialClassTemplate.SetProperty("MappingEntity", en);
+				Response.WriteLine("Generating Partial Class '{0}' ...", partialFile);		
+				_entityPartialClassTemplate.RenderToFile(partialFile, true);
+				Response.WriteLine("File {0} saved succesfully!", partialFile);
+			}			
+			if (!File.Exists(generatedFile) || this.EntityOverwrite)
+			{
+				_entityClassTemplate.SetProperty("MappingEntity", en);
+				Response.WriteLine("Generating Class '{0}' ...", generatedFile);
+				_entityClassTemplate.RenderToFile(generatedFile, true);
+				Response.WriteLine("File {0} saved succesfully!", generatedFile);
+			}
+			_entityProject.AddDependentClassItem(partialFile, generatedFile);
+			
+			//generate entity services
+			generatedFile = Path.Combine(this.ServiceFolder, className + "Service.Generated.cs");
+			partialFile = Path.Combine(this.ServiceFolder, className + "Service.cs");
+			
+			if (!File.Exists(partialFile) || this.ServicePartialOverwrite)
+			{
+				_servicePartialClassTemplate.SetProperty("MappingEntity", en);
+				Response.WriteLine("Generating Service Partial Class '{0}' ...", partialFile);		
+				_servicePartialClassTemplate.RenderToFile(partialFile, true);
+				Response.WriteLine("File {0} saved succesfully!", partialFile);
+			}			
+			if (!File.Exists(generatedFile) || this.ServiceOverwrite)
+			{
+				_serviceClassTemplate.SetProperty("MappingEntity", en);
+				Response.WriteLine("Generating Class '{0}' ...", generatedFile);
+				_serviceClassTemplate.RenderToFile(generatedFile, true);
+				Response.WriteLine("File {0} saved succesfully!", generatedFile);
+			}
+			_serviceProject.AddDependentClassItem(partialFile, generatedFile);
+
+			//generate unit tests
+			if ( this.GenerateUnitTests )
+			{
+				string testClassName = CommonUtility.GetClassName(en.type) + "Test";
+				string testClassFile = BuildFileName(testClassName);
+				
+				if (!File.Exists(testClassFile) || this.UnitTestOverwrite)
+				{
+					_testTemplate.SetProperty("MappingEntity", en);
+					Response.WriteLine("Generating Test '{0}' ...", testClassFile);		
+					_testTemplate.RenderToFile(testClassFile, true);
+					Response.WriteLine("File {0} saved succesfully!", testClassFile);
+				}
+				_testProject.AddCompileItem(testClassFile);
+			}
+		}
+		
+		_serviceProject.SaveProject();
+		_entityProject.SaveProject();
+		if ( this.GenerateUnitTests )
+			_testProject.SaveProject();
+	}
+</script>
+
+<% 
+//Debugger.Break();
+this.Initialize();  
+this.Generate();  
+%>

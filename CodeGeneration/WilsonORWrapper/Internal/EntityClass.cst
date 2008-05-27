@@ -1,0 +1,487 @@
+<%-- 
+Written by Brian DeMarzo (http://www.demarzo.net)
+Derived from CodeSmith templates by Paul Weiter
+--%>
+<%@ CodeTemplate 
+	Language="C#" 
+	TargetLanguage="C#" 
+	Description="Generates an entity class for Wilson O/R Mapper. Requires .Net 2.0." 
+	Debug="true" %>
+
+<%@ Assembly Src="CommonUtility.cs" %>
+
+<%@ Register Name="CommonProperties" Template="CommonProperties.cst" MergeProperties="True" ExcludeProperties="" %>
+<%@ Register Name="MappingCommon" Template="MappingsCommon.cst" MergeProperties="True" ExcludeProperties="" %>
+<%@ Register Name="CSharpProperty" Template="EntityProperty.cst" MergeProperties="False" ExcludeProperties="" %>
+
+<%@ Property Name="MappingEntity" Type="entity" Optional="True" %>
+
+<%@ Import Namespace="System.Collections" %>
+<%@ Import Namespace="System.Text" %>
+
+<script runat="template">
+	private System.Collections.Specialized.NameValueCollection  primaryKeys = new System.Collections.Specialized.NameValueCollection();
+	private StringBuilder properties;
+	private StringBuilder getHelper;
+	private StringBuilder setHelper;
+	private string _className;
+	private string _equatableString;
+	private string _comparableString;
+	private string _hashcodeString;
+	private string _tostringString;
+	private string _primaryKeysString;
+	private string _primaryKeyIdentityFields;
+	private string _primaryKeyIdentityConstructorParams;
+	private string _primaryKeyIdentityConstructorSets;
+	
+	public string ClassName
+	{
+		get { return _className; }
+	}
+	
+	public string GetPrimaryKeyArguments()
+	{
+		StringBuilder sb = new StringBuilder();
+		for(int x = 0; x < primaryKeys.Count; x++)
+		{
+			string property = primaryKeys.Keys[x];
+			string dataType = primaryKeys[x];	
+			string paramName = StringUtil.ToCamelCase(property);
+			paramName = CommonUtility.CreateEscapedIdentifier(paramName);
+			
+			sb.AppendFormat("{0} {1}", dataType, paramName);
+			if (x < primaryKeys.Count-1)
+			{
+				sb.Append(", ");
+			}
+		}
+		
+		return sb.ToString();
+	}
+	
+	public string GetPrimaryKeyWhere(string helperName, string whereName)
+	{
+		StringBuilder code = new StringBuilder();
+		for(int x = 0; x < primaryKeys.Count; x++)
+		{
+			string property = primaryKeys.Keys[x];
+			string parameter = StringUtil.ToCamelCase(property);
+			parameter = CommonUtility.CreateEscapedIdentifier(parameter);
+			string dataType = primaryKeys[x];			
+			
+			if (x > 0)
+			{
+				code.Append('\t', 3);
+				code.Append(whereName);
+				code.Append(" += ");
+			}
+			
+			code.Append(helperName);
+			code.Append(".GetExpression(\"");
+			code.Append(ClassName);
+			code.Append(".");
+			code.Append(property);
+			code.Append("\", ");
+			code.Append(parameter);
+			code.Append(");");			
+			code.Append("\r\n");
+			
+			if (x < primaryKeys.Count-1)
+			{
+				code.Append('\t', 3);
+				code.Append(whereName);
+				code.Append(" += ");
+				code.Append("\" and \";");
+				code.Append("\r\n");
+			}
+		}
+		
+		return code.ToString();
+	}
+	
+	public bool IsPrimaryKey(string name)
+	{
+		ArrayList keys = new ArrayList(this.MappingEntity.keyMember.Split(new Char[] {',', ' '}));
+		return keys.Contains(name);
+	}
+	
+	public void Generate()
+	{
+		_className = CommonUtility.GetClassName(this.MappingEntity.type);
+		CSharpProperty propertyTemplate = new CSharpProperty();
+		
+		primaryKeys = new System.Collections.Specialized.NameValueCollection ();
+		properties = new StringBuilder();
+		getHelper = new StringBuilder();
+		setHelper = new StringBuilder();
+		
+		StringBuilder equatable = new StringBuilder();
+		StringBuilder comparable = new StringBuilder();
+		StringBuilder hashcode = new StringBuilder();
+		StringBuilder tostring = new StringBuilder();
+		StringBuilder primaryKeysStringBuilder = new StringBuilder();
+		StringBuilder primaryKeyIdentity = new StringBuilder();
+		StringBuilder primaryKeyConstructor = new StringBuilder();
+		StringBuilder primaryKeyConstructorSets = new StringBuilder();
+
+		foreach(attribute at in this.MappingEntity.attributes)
+		{
+			string summary = string.Format("Database mapping to column {0}.{1}", this.MappingEntity.table, at.field);
+			string propertyName = at.alias;
+			string propertyType = CommonUtility.GetAliasVariableType(at.type);
+			string memberName = at.member;
+			string memberType = propertyType;
+			string memberValue = "";
+			string propertyText = "";
+			string attributeText = "";
+			
+			bool isReadonly = (at.persistType == attributePersistType.ReadOnly || at.persistType == attributePersistType.Concurrent) || this.MappingEntity.readOnly;
+			bool isIdentity = (this.MappingEntity.keyType == entityKeyType.Auto);
+			
+			if (at.nullValue != null && at.nullable)
+			{
+				memberValue = CommonUtility.GetNullDefault(at.type, at.nullValue);
+			}
+			else if (at.nullValue == null && at.nullable && CommonUtility.IsNullableType(at.type))
+			{
+				propertyType = string.Format("Nullable<{0}>", propertyType);
+				memberType = propertyType;
+			}
+			
+			if (IsPrimaryKey(memberName))
+			{
+				primaryKeys.Add(propertyName, propertyType); // save primary key type
+				attributeText = string.Format("[DataObjectField(true, {0})]", isIdentity.ToString().ToLower());
+				
+				//return (_id.Equals(obj.ID));
+				//or
+				//return (_id.Equals(obj.ID)) && (_id2.Equsl(obj.ID2));
+				if ( equatable.Length > 0 )
+					equatable.Append(" && ");
+				equatable.Append(String.Format("({0}.Equals(obj.{1}))", memberName, propertyName));
+				
+				//cv = (_id.CompareTo(obj.ID));
+				//if ( cv != 0 )
+				//	cv = (_id2.CompareTo(obj.ID2));
+				if ( comparable.Length > 0 )
+					comparable.Append("\t\t\tif ( cv == 0 )\n\t");
+				comparable.Append(String.Format("\t\t\tcv = ({0}.CompareTo(obj.{1}));\n", memberName, propertyName));
+				
+				//add primary key values as string for simple hash code
+				//_id.ToString()
+				//or
+				//_id.ToString() + _id2.ToString()
+				if ( hashcode.Length > 0 )
+					hashcode.Append(" + ");
+				hashcode.Append(String.Format("{0}.GetHashCode().ToString()", memberName));
+				
+				//tostring should look like the inner params of String.Format()
+				//"{0} {1} {2}", _id.ToString(), _id1.ToString(), _id2.ToString()
+				tostring.Append(String.Format(", {0}.ToString()", memberName));
+				
+				if ( primaryKeysStringBuilder.Length > 0 )
+					primaryKeysStringBuilder.Append(",");
+				primaryKeysStringBuilder.Append(String.Format("\"{0}.{1}\"", ClassName, propertyName));
+				
+				//public readonly int <%= ClassName %>ID;
+				primaryKeyIdentity.Append(String.Format("\t\tpublic readonly {0} {1};\n", propertyType, propertyName));
+				
+				//int property, [int property]
+				if ( primaryKeyConstructor.Length > 0 )
+					primaryKeyConstructor.Append(", ");
+				primaryKeyConstructor.Append(String.Format("{0} {1}", propertyType, StringUtil.ToCamelCase(propertyName)));				
+				
+				//this.<%= ClassName %>ID = <%= ClassName %>ID;
+				primaryKeyConstructorSets.Append(String.Format("\t\t\tthis.{0} = {1};\n", propertyName, StringUtil.ToCamelCase(propertyName)));
+			}
+			
+			propertyTemplate.MemberName = memberName;
+			propertyTemplate.MemberType = memberType;
+			propertyTemplate.MemberValue = memberValue;
+			propertyTemplate.PropertyName = propertyName;
+			propertyTemplate.PropertyType = propertyType;
+			propertyTemplate.Readonly = isReadonly;
+			propertyTemplate.Summary = summary;
+			propertyTemplate.PropertyGet = propertyText;
+			propertyTemplate.AttributeText = attributeText;
+			propertyTemplate.RaisePropertyChange = false;
+			
+			properties.Append(propertyTemplate.RenderToString());
+			
+			//IObjectHelper get Indexer case statement
+			getHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": return {0};\r\n", memberName);
+			//IObjectHelper set Indexer case statement
+			setHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": {0} = ({1})value; break;\r\n", memberName, memberType);
+		}
+		
+		_equatableString = equatable.ToString();
+		_comparableString = comparable.ToString();
+		_hashcodeString = hashcode.ToString();
+		//tostring should look like the inner params of String.Format()
+		//"{0},{1},{2}", _id.ToString(), _id1.ToString(), _id2.ToString()
+		tostring.Insert(0, "\"{0}\"");
+		for (int idx = 1; idx < primaryKeys.Count; idx++)
+		{
+			string toInsert = ",{" + idx.ToString() + "}";
+			tostring.Insert(idx * 4, toInsert);
+		}
+		_tostringString = tostring.ToString();
+		_primaryKeysString = primaryKeysStringBuilder.ToString();
+		_primaryKeyIdentityFields = primaryKeyIdentity.ToString();
+		_primaryKeyIdentityConstructorParams = primaryKeyConstructor.ToString();
+		_primaryKeyIdentityConstructorSets = primaryKeyConstructorSets.ToString();
+		
+		if (this.MappingEntity.lookups != null)
+		{
+			foreach(lookup lp in this.MappingEntity.lookups)
+			{
+					string summary = string.Format("Database lookup mapping to column {0}.{1}", this.MappingEntity.table, lp.foreignKey);
+					string propertyName = lp.alias;
+					string propertyType = CommonUtility.GetAliasVariableType(lp.type);
+					string memberName = lp.member;
+					string memberType = propertyType;
+					string memberValue = "";
+					string propertyText = "";
+					string attributeText = "";
+					
+					if (lp.nullValue != null && lp.nullable)
+					{
+						memberValue = CommonUtility.GetNullDefault(lp.type, lp.nullValue);
+					}
+					else if (lp.nullValue == null && lp.nullable && CommonUtility.IsNullableType(lp.type))
+					{
+						propertyType = string.Format("Nullable<{0}>", propertyType);
+						memberType = propertyType;
+					}
+					
+					propertyTemplate.MemberName = memberName;
+					propertyTemplate.MemberType = memberType;
+					propertyTemplate.MemberValue = memberValue;
+					propertyTemplate.PropertyName = propertyName;
+					propertyTemplate.PropertyType = propertyType;
+					propertyTemplate.Readonly = true;
+					propertyTemplate.Summary = summary;
+					propertyTemplate.PropertyGet = propertyText;
+					propertyTemplate.AttributeText = attributeText;
+					
+					properties.Append(propertyTemplate.RenderToString());
+					
+					//IObjectHelper get Indexer case statement
+					getHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": return {0};\r\n", memberName);
+					//IObjectHelper set Indexer case statement
+					setHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": {0} = ({1})value; break;\r\n", memberName, memberType);
+			} // foreach lookup
+		} // if lookup
+		
+		foreach(relation rt in this.MappingEntity.relations)
+		{
+			if (rt.queryOnly)
+				continue; // skip query only
+			
+			string summary = "";
+			string propertyName = rt.alias;
+			string propertyType = "";						
+			string memberName = rt.member;
+			string memberType = "";
+			string memberValue = "";			
+			string propertyText = memberName;
+			bool isReadonly = true;
+			string className = CommonUtility.GetClassName(rt.type);
+			
+			switch (rt.relationship)
+			{
+				case relationRelationship.ManyToOne :
+					summary = string.Format("Instance of a {0} object", className);
+					propertyType = className;
+					memberType = propertyType;
+						
+					if (rt.lazyLoad)
+					{
+						memberType = string.Format("ObjectHolder<{0}>", propertyType);
+						propertyText = string.Format("{0}.InnerObject", memberName);
+					}
+					break;
+				case relationRelationship.OneToMany :
+				case relationRelationship.ManyToMany :
+					summary = string.Format("Collection of {0} objects", className);
+					if (rt.lazyLoad)
+					{
+						propertyType = string.Format("IList<{0}>", className);
+					}
+					else
+					{
+						propertyType = string.Format("Collection<{0}>", className);
+						memberValue = string.Format("new Collection<{0}>()", className);
+					}
+					memberType = propertyType;
+					break;
+			}
+						
+			propertyTemplate.MemberName = memberName;
+			propertyTemplate.MemberType = memberType;
+			propertyTemplate.MemberValue = memberValue;
+			propertyTemplate.PropertyName = propertyName;
+			propertyTemplate.PropertyType = propertyType;
+			propertyTemplate.Readonly = isReadonly;
+			propertyTemplate.Summary = summary;
+			propertyTemplate.PropertyGet = propertyText;
+			
+			properties.Append(propertyTemplate.RenderToString());
+			
+			//IObjectHelper get Indexer case statement
+			getHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": return {0};\r\n", memberName);
+			//IObjectHelper set Indexer case statement
+			setHelper.AppendFormat("\t\t\t\t\tcase \"{0}\": {0} = ({1})value; break;\r\n", memberName, memberType);
+			
+		}
+	}
+</script>
+<% Generate(); %>
+//------------------------------------------------------------------------------
+// <autogenerated>
+//     This code was generated by a CodeSmith Template.
+//
+//	   DO NOT MODIFY contents of this file. Changes to this
+//	   file will be lost if the code is regenerated.
+// </autogenerated>
+//------------------------------------------------------------------------------
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using ORMapper.Entities;
+<% if (ImplementIObjectHelper) { %>
+using Wilson.ORMapper;<% } %>
+
+namespace <%= EntityNamespace %>
+{
+	#region <%= ClassName %>
+	[Serializable,DataObject(true)]
+    public partial class <%
+	 	Response.Write(ClassName);
+		if (this.MappingEntity.readOnly)
+			Response.Write(string.Format(" : EntityBase<{0}>", ClassName));
+		else
+			Response.Write(string.Format(" : PersistableEntityBase<{0}>", ClassName));
+			
+		if (ImplementIObjectHelper)
+			Response.Write(", IObjectHelper");
+		%>
+	{
+		#region Properties
+<%= properties.ToString() %>
+		#endregion
+		
+		///<summary>Initializes a new instance of this class</summary>
+		public <%= ClassName %>() : base()
+		{
+			// Default Constructor
+		}
+
+		#region IComparable
+		/// <summary>
+		/// Compares this entity to another entity by checking for equality of
+		/// primary key identity fields.
+		/// </summary>
+		/// <param name="obj">The entity to compare to.</param>
+		/// <returns>A number that reflects the comparative similarity of entities.</returns>
+		public override int CompareTo(<%= ClassName %> obj)
+		{
+			int cv;
+<%= _comparableString %>
+			return cv;
+		}
+		#endregion
+
+		#region IEquatable
+		/// <summary>
+		/// Indicates whether this entity is equal to another specified entity, using 
+		/// the primary key identity fields of the underlying objects.
+		/// Note that this does not check for object reference equality; to check
+		/// object reference equality, use the == operator.
+		/// </summary>
+		public override bool Equals(<%= ClassName %> obj)
+		{
+			return (<%= _equatableString %>);
+		}
+		#endregion
+
+		#region System.Object
+		/// <summary>
+		/// Returns the hash code for this entity, 
+		/// based on the primary key identity fields of the underlying object.
+		/// </summary>
+		public override int GetHashCode()
+		{
+			string hashstring = <%= _hashcodeString %>;
+			int hashcode;
+			while ( int.TryParse(hashstring, out hashcode) == false )
+				hashcode = hashcode / 11;
+			
+			return hashcode;
+		}
+		/// <summary>
+		/// Returns a formatted string that includes key fields of this entity.
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			return String.Format(<%= _tostringString %>);
+		}
+		#endregion
+			
+<% if (ImplementIObjectHelper) { %>
+		#region IObjectHelper
+		/// <summary>Indexer to update local member variables</summary>	
+		/// <remarks>This indexer is used by the Wilson ORMapper</remarks>
+		object IObjectHelper.this[string memberName]
+		{
+			get {
+				switch (memberName) {
+<%= getHelper.ToString() %>									
+					default: throw new Exception(string.Format("Mapping: IObjectHelper Get is missing member case {0}", memberName));
+				}
+			}
+			set {
+				//handle null values
+				if(value == null)
+					return;
+					
+				switch (memberName) {
+<%= setHelper.ToString() %>				
+					default: throw new Exception(string.Format("Mapping: IObjectHelper Set is missing member case {0}", memberName));
+				}
+			}
+		}
+		#endregion
+<% } %>		
+	}
+	#endregion
+	
+	#region <%= ClassName%>Identity
+	public class <%= ClassName %>Identity : IIdentity
+	{
+<%= _primaryKeyIdentityFields %>
+
+		private readonly string[] IDENTITY_KEYS = new string[] { <%= _primaryKeysString %> };
+
+		public <%= ClassName %>Identity(<%= _primaryKeyIdentityConstructorParams %>)
+		{
+<%= _primaryKeyIdentityConstructorSets %>
+		}
+		public string[] Keys
+		{
+			get { return IDENTITY_KEYS; }
+		}
+		public DictionaryEntry[] GetIdentity()
+		{
+			DictionaryEntry[] entries = new DictionaryEntry[<%= primaryKeys.Count %>]; <%
+			for ( int idx = 0; idx < primaryKeys.Count; idx++) { %>
+			entries[<%= idx %>] = new DictionaryEntry("<%= ClassName %>.<%= primaryKeys.GetKey(idx) %>", <%= primaryKeys.GetKey(idx) %>); <%
+			} %>
+
+			return entries;
+		}
+	}
+	#endregion
+}
