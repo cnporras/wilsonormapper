@@ -28,7 +28,7 @@ namespace Wilson.ORMapper.Internals
 
 		protected EntityMap entity;
 		protected CustomProvider provider;
-		protected string  select;
+		protected string select;
 		protected string insert;
 		protected string update;
 		protected string delete;
@@ -131,7 +131,7 @@ namespace Wilson.ORMapper.Internals
 
 		// Handle Database.Owner.Table and Database..Table Syntax
 		protected string GetDelimited(string tableName, string fieldName) {
-			return string.Format("{0}.{2}{1}{3}", this.GetDelimited(tableName), fieldName, QS, QE);
+			return string.Format("{0}.{2}{1}{3}", this.GetDelimited(tableName, true), fieldName, QS, QE);
 		}
 
 		virtual protected string GetPostHint() {

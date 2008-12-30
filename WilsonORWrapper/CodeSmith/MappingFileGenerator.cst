@@ -18,7 +18,6 @@
 <%@ Import Namespace="System.Text.RegularExpressions" %>
 <%@ Import Namespace="System.Globalization" %>
 
-<%@ Property Category="2.Database" Name="IncludeSchema" Type="System.Boolean" Default="false" Optional="False" Description="Includes the schema or owner associated to the table in the mapping.config (e.g. <schema|owner>.<tablename>" %>
 <%@ Property Category="2.Database" Name="IncludeViews" Type="System.Boolean" Default="false" Optional="False" Description="Include views in mapping." %>
 <%@ Property Category="2.Database" Name="SourceDatabase" Type="SchemaExplorer.DatabaseSchema" Optional="False" Description="Database that the mapping file should be based on." %>
 <%@ Property Category="2.Database" Name="IgnoreList" Type="CodeSmith.CustomProperties.StringCollection" Optional="True" Description="List of tables and views to ignore when generating mapping." Default="sysdiagrams" %>
@@ -52,17 +51,7 @@
 		return temp;
 	}	
 	
-	public bool IsIgnored(TableSchema table)
-	{
-		string name = (IncludeSchema) ? table.FullName : table.Name;
-		return IsIgnored(name);
-	}
-	public bool IsIgnored(ViewSchema view)
-	{
-		string name = (IncludeSchema) ? view.FullName : view.Name;
-		return IsIgnored(name);
-	}
-	private bool IsIgnored(string name)
+	public bool IsIgnored(string name)
 	{
 		if (IgnoreList == null || IgnoreList.Count == 0)
 			return false;
@@ -79,17 +68,7 @@
 		return false;
 	}
 	
-	public bool IsIncluded(TableSchema table)
-	{
-		string name = (IncludeSchema) ? table.FullName : table.Name;
-		return IsIncluded(name);
-	}
-	public bool IsIncluded(ViewSchema view)
-	{
-		string name = (IncludeSchema) ? view.FullName : view.Name;
-		return IsIncluded(name);
-	}
-	private bool IsIncluded(string name)
+	public bool IsIncluded(string name)
 	{
 		if (IncludeList == null || IncludeList.Count == 0)
 			return true;
@@ -108,18 +87,16 @@
 	
 	public string GetClassName(string tableFullName, string tableName)
 	{
-		string classListKey = (IncludeSchema) ? tableFullName : tableName;
-		if (_classList.ContainsKey(classListKey))
+		if (_classList.ContainsKey(tableFullName))
 		{
-			return _classList[classListKey];
+			return _classList[tableFullName];
 		}
-		
 		string name = StringUtil.ToPascalCase(CustomClean(tableName));
 		if (SingleTense)
 			tableName = StringUtil.ToSingular(tableName);
 		
 		tableName = CommonUtility.GetUniqueName(_classList, tableName);		
-		_classList.Add(classListKey, tableName);		
+		_classList.Add(tableFullName, tableName);		
 		
 		return tableName;
 	}
@@ -399,13 +376,13 @@ foreach (TableSchema table in tables)
 {
 	_memberList.Clear();
 		
-	if (IsManyToManyTable(table) || (IsIgnored(table) || !IsIncluded(table)))
+	if (IsManyToManyTable(table) || (IsIgnored(table.FullName) || !IsIncluded(table.FullName)))
 		continue;
 		
 	string className = GetClassName(table.FullName, table.Name);
 	string typeName = string.Format("{0}.{1}", ClassNamespace, className);
 
-	entity en = mappingInstance.GetExistingOrNewEntity(table, IncludeSchema);		
+	entity en = mappingInstance.GetExistingOrNewEntity(table.FullName);		
 	SetKeyType(table, en);
 	
 	string keyMember = GetKeyFields(table);		
@@ -530,12 +507,12 @@ if (IncludeViews)
 	{
 		_memberList.Clear();
 	
-		if (IsIgnored(view) && !IsIncluded(view))
+		if (IsIgnored(view.FullName) && !IsIncluded(view.FullName))
 			continue;
 		
 		string className = GetClassName(view.FullName, view.Name);
 		string typeName = string.Format("{0}.{1}", ClassNamespace, className);
-		entity en = mappingInstance.GetExistingOrNewEntity(view, IncludeSchema);		
+		entity en = mappingInstance.GetExistingOrNewEntity(view.Name);		
 		en.table = view.Name;
 		en.type = typeName;
 		en.keyMember = "";

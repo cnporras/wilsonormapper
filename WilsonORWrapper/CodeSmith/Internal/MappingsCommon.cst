@@ -8,13 +8,11 @@
 <%@ Property Category="1.Mapping" Name="MappingFile" Type="System.String" Default="Mappings.config" Optional="False" Description="The full path to the mapping file." Editor="CodeSmith.CustomProperties.FileNameEditor" %>
 
 <%@ Assembly Name="CodeSmith.CustomProperties" %>
-<%@ Assembly Name="SchemaExplorer" %>
 <%@ Assembly Name="System.Design" %>
 <%@ Assembly Name="System.Data" %>
 <%@ Assembly Name="System.Xml" %>
 
 <%@ Import Namespace="CodeSmith.CustomProperties" %>
-<%@ Import Namespace="SchemaExplorer" %>
 <%@ Import Namespace="System.IO" %>
 <%@ Import Namespace="System.Collections.Generic" %>
 <%@ Import Namespace="System.Xml.Serialization" %>
@@ -59,17 +57,7 @@
 		return MappingObject;
 	}
 	
-	public entity GetExistingOrNewEntity(TableSchema table, bool includeSchema)
-	{
-		string tableName = (includeSchema) ? table.FullName : table.Name;
-		return BuildEntity(tableName);
-	}
-	public entity GetExistingOrNewEntity(ViewSchema view, bool includeSchema)
-	{
-		string viewName = (includeSchema) ? view.FullName : view.Name;
-		return BuildEntity(viewName);
-	}
-	private entity BuildEntity(string tableName)
+	public entity GetExistingOrNewEntity(string tableName)
 	{
 		entity en = null;
 		
@@ -85,7 +73,6 @@
 		{
 			en = new entity();
 			en.table = tableName;
-			
 			MappingObject.entities.Add(en);
 		}
 		if (en.attributes == null)
