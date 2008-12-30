@@ -192,10 +192,7 @@ namespace Wilson.ORMapper.Internals {
 					dataValues[index1] = (data[dataFields[index1]] == DBNull.Value ? null : data[dataFields[index1]]);
 				}
 				string whereClause = relation.Filter;
-				string sortClause = relation.SortOrder;
-				if (sortClause == null || sortClause.Length == 0) {
-					sortClause = this.context.Mappings[typeName].SortOrder;
-				}
+				string sortClause = this.context.Mappings[typeName].SortOrder;
 
 				ObjectQuery query = null;
 				SelectProcedure selectSP = null;

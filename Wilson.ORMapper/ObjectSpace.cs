@@ -453,7 +453,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetObjectReader(query, true);
 		}
 		
@@ -498,7 +498,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery<T> query = new ObjectQuery<T>(objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetObjectReader<T>(query, true);
 		}
 
@@ -546,7 +546,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetObjectSet(query, true);
 		}
 		
@@ -591,7 +591,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery<T> query = new ObjectQuery<T>(objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetObjectSet<T>(query, true);
 		}
 
@@ -645,7 +645,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetCollection(collectionType, query, true);
 		}
 		
@@ -693,7 +693,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery<T> query = new ObjectQuery<T>(objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetCollection<T>(query, true);
 		}
 		
@@ -741,7 +741,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetDataSet(null, query);
 		}
 
@@ -781,7 +781,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetDataSet(null, query, selectFields);
 		}
 		
@@ -847,7 +847,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetDataSet(dataSet, query);
 		}
 
@@ -893,7 +893,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetDataSet(dataSet, query, selectFields);
 		}
 		
@@ -957,7 +957,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery<T> query = new ObjectQuery<T>(objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetDataSet(null, query);
 		}
 
@@ -994,7 +994,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery<T> query = new ObjectQuery<T>(objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetDataSet(null, query, selectFields);
 		}
 
@@ -1044,7 +1044,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery<T> query = new ObjectQuery<T>(objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetDataSet(dataSet, query);
 		}
 
@@ -1087,7 +1087,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery<T> query = new ObjectQuery<T>(objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.context.GetDataSet(dataSet, query, selectFields);
 		}
 

@@ -11,9 +11,8 @@ using System;
 namespace Wilson.ORMapper.Internals
 {
 	// <relation relationship="ManyToMany" member="memberName" field="fieldName"
-	//		type="typeName" [alias="aliasName"] [queryOnly="bool"] [lazyLoad="bool"]
-	//		[cascadeDelete="bool"] [filter="whereClause"] [sortOrder="sortClause"]
-	//		table="tableName" sourceField="sourceField" destField="destField"
+	//		type="typeName" [alias="aliasName"] [queryOnly="bool"] [lazyLoad="bool"] [cascadeDelete="bool"]
+	//		table="tableName" sourceField="sourceField" destField="destField" [filter="whereClause"]
 	//    [selectSP="selectSPName" insertSP="insertSPName" deleteSP="deleteSPName"] />
 	// Note: selectSP Parameters - field
 	//    insertSP Parameters - source, dest
@@ -48,8 +47,8 @@ namespace Wilson.ORMapper.Internals
 		}
 
 		internal ManyMap(string member, string field, string type, string alias, string table, string source, string dest,
-			bool queryOnly, bool lazy, bool cascade, string filter, string sortOrder, string selectSP, string insertSP, string deleteSP, CustomProvider provider)
-			: base(Relationship.Many, member, field, type, alias, queryOnly, lazy, cascade, filter, sortOrder, selectSP, provider)
+			bool queryOnly, bool lazy, bool cascade, string filter, string selectSP, string insertSP, string deleteSP, CustomProvider provider)
+			: base(Relationship.Many, member, field, type, alias, queryOnly, lazy, cascade, filter, selectSP, provider)
 		{
 			if (table == null || table.Length == 0) {
 				throw new MappingException("Mapping: Relation table was Missing - " + member);

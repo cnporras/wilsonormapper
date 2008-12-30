@@ -3,6 +3,7 @@
 // Feel free to use and modify -- just leave these credit lines //
 // I also always appreciate any other public credit you provide //
 //**************************************************************//
+//**************************************************************//
 // Ken Muse (http://www.MomentsFromImpact.com) gave significant //
 // assistance with Recursive PersistChanges and Cascade Deletes //
 //**************************************************************//
@@ -28,7 +29,7 @@ namespace Wilson.ORMapper.Internals
 
 		protected EntityMap entity;
 		protected CustomProvider provider;
-		protected string  select;
+		protected string select;
 		protected string insert;
 		protected string update;
 		protected string delete;
@@ -119,23 +120,9 @@ namespace Wilson.ORMapper.Internals
 			return string.Join(".", objectParts);
 		}
 
-		public string GetDelimited(string tableName, bool tableOnly) {
-			if (tableOnly) {
-				string[] tableParts = tableName.Split('.');
-				return QS + tableParts[tableParts.Length - 1] + QE;
-			}
-			else {
-				return this.GetDelimited(tableName);
-			}
-		}
-
 		// Handle Database.Owner.Table and Database..Table Syntax
 		protected string GetDelimited(string tableName, string fieldName) {
 			return string.Format("{0}.{2}{1}{3}", this.GetDelimited(tableName), fieldName, QS, QE);
-		}
-
-		virtual protected string GetPostHint() {
-			return string.Empty;
 		}
 
 		public string Insert {
@@ -274,7 +261,7 @@ namespace Wilson.ORMapper.Internals
 			StringBuilder fieldList = new StringBuilder();
 			StringBuilder fromList = new StringBuilder();
 			Hashtable lookupTables = new Hashtable();
-			fromList.Append(this.GetDelimited(this.entity.Table) + this.GetPostHint());
+			fromList.Append(this.GetDelimited(this.entity.Table));
 			for (int index = 0; index < this.entity.FieldCount; index++) {
 				this.AddSelectField(fieldList, fromList, lookupTables, this.entity[index]);
 			}
@@ -298,12 +285,11 @@ namespace Wilson.ORMapper.Internals
 				string lookupKey = string.Format("{0};{1};{2}", lookup.Table.ToUpper(),
 					string.Join(",", lookup.Source).ToUpper(), string.Join(",", lookup.Dest).ToUpper());
 				if (!lookupTables.ContainsKey(lookupKey)) {
-					string lookupTable = lookup.Table.Substring(lookup.Table.LastIndexOf('.') + 1);
-					lookup.tableAlias = lookupTable + "_" + (lookupTables.Count + 1).ToString();
+					lookup.tableAlias = lookup.Table + "_" + (lookupTables.Count + 1).ToString();
 					lookupTables.Add(lookupKey, lookup.tableAlias);
 					StringBuilder join = new StringBuilder();
 					join.AppendFormat(" LEFT JOIN {0} {1} {2} ON", this.GetDelimited(lookup.Table),
-							this.provider.ColumnAliasKeyword, this.GetDelimited(lookup.TableAlias, true) + this.GetPostHint());
+							this.provider.ColumnAliasKeyword, this.GetDelimited(lookup.TableAlias));
 					for (int fkey = 0; fkey < lookup.Source.Length; fkey++) {
 						join.AppendFormat(" {0} = {1} AND", this.GetDelimited(this.entity.Table, lookup.Source[fkey]),
 							this.GetDelimited(lookup.TableAlias, lookup.Dest[fkey]));

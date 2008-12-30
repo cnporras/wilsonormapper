@@ -48,8 +48,8 @@ namespace Wilson.ORMapper
 
 		internal Transaction(Context context, IsolationLevel isolationLevel) {
 			this.context = context;
-			this.connection = this.context.Connection.GetConnection();
-			this.transaction = this.connection.BeginTransaction(isolationLevel);
+			this.transaction = this.context.Connection.GetTransaction(isolationLevel);
+			this.connection = this.transaction.Connection;
 			this.context.Connection.InterceptCommand(this.id, null, CommandInfo.BeginTran, null);
 		}
 
@@ -132,7 +132,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.GetDataSet(null, query);
 		}
 
@@ -172,7 +172,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			return this.GetDataSet(null, query, selectFields);
 		}
 		
@@ -238,7 +238,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			Commands commands = this.context.Mappings.Commands(query.ObjectType.ToString());
 			return this.context.Connection.TransactionDataSet(this.id, objectQuery.ObjectType, CommandInfo.DataSet, this.transaction, dataSet, commands.Select(query));
 		}
@@ -285,7 +285,7 @@ namespace Wilson.ORMapper
 			string sortClause = (objectQuery.SortClause.Length > 0 ? objectQuery.SortClause
 				: this.context.Mappings[objectQuery.ObjectType.ToString()].SortOrder);
 			ObjectQuery query = new ObjectQuery(objectQuery.ObjectType,	objectQuery.WhereClause,
-				sortClause, objectQuery.PageSize, objectQuery.PageIndex, objectQuery.SkipCounts);
+				sortClause, objectQuery.PageSize, objectQuery.PageIndex);
 			Commands commands = this.context.Mappings.Commands(query.ObjectType.ToString());
 			return this.context.Connection.TransactionDataSet(this.id, objectQuery.ObjectType, CommandInfo.DataSet, this.transaction, dataSet, commands.Select(query, selectFields));
 		}

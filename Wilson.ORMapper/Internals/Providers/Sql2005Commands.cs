@@ -47,14 +47,5 @@ namespace Wilson.ORMapper.Internals
 		override protected string SelectIdentity() {
 			return "; SELECT KeyField = SCOPE_IDENTITY();";
 		}
-
-		protected override string GetPostHint() {
-			if (this.entity.Hint != null && this.entity.Hint.Length > 0) {
-				return " WITH (" + this.entity.Hint + ")";
-			}
-			else {
-				return string.Empty;
-			}
-		}
 	}
 }

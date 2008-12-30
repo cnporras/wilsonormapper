@@ -1,9 +1,0 @@
-
-CHANGE LOG
-==========
-
-For detailed change log, view the Subversion repository log, or view the project wiki.
-
-Subversion repository: https://svn1.hosted-projects.com/computersims/wilsonorwrapper/
-Project web site: http://www.hosted-projects.com/trac/computersims/wilsonorwrapper/
-

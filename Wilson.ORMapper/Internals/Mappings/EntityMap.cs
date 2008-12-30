@@ -16,7 +16,7 @@ namespace Wilson.ORMapper.Internals
 {
 	// <entity type="typeName" table="tableName" keyMember="memberName[,...]"
 	//   [keyType="Auto|Guid|User|Composite|None"] [sortOrder="sortClause"]
-	//   [readOnly="bool"] [changesOnly="bool"] [autoTrack="bool"] [hint="tableHint"]
+	//   [readOnly="bool"] [changesOnly="bool"] [autoTrack="bool"]
 	//   [typeField="typeDiscriminatorField"] [typeValue="typeDiscriminatorValue"]
 	//   [insertSP="insertSPName" updateSP="updateSPName" deleteSP="deleteSPName"] />
 	internal class EntityMap
@@ -29,7 +29,6 @@ namespace Wilson.ORMapper.Internals
 		private bool readOnly = false;
 		private bool changesOnly = false;
 		private bool autoTrack = true;
-		private string hint;
 
 		private EntityMap baseEntity = null;
 		private string typeField = null;
@@ -113,10 +112,6 @@ namespace Wilson.ORMapper.Internals
 
 		public bool AutoTrack {
 			get { return this.autoTrack; }
-		}
-
-		public string Hint {
-			get { return this.hint; }
 		}
 
 		public EntityMap BaseEntity {
@@ -212,7 +207,7 @@ namespace Wilson.ORMapper.Internals
 		}
 
 		internal EntityMap(string type, string table, string keyMember, KeyType keyType, string sortOrder,
-				bool readOnly, bool changesOnly, bool autoTrack, string hint, string typeField, string typeValue)
+				bool readOnly, bool changesOnly, bool autoTrack, string typeField, string typeValue)
 		{
 			if (type == null || type.Length == 0) {
 				throw new MappingException("Mapping: Entity type was Missing");
@@ -223,7 +218,6 @@ namespace Wilson.ORMapper.Internals
 			if (keyType != KeyType.None && (keyMember == null || keyMember.Length == 0)) {
 				throw new MappingException("Mapping: Entity keyMember was Missing - " + type);
 			}
-
 			this.type = type;
 			this.table = table;
 			this.keyMembers = keyMember.Replace(", ", ",").Split(',');
@@ -232,7 +226,6 @@ namespace Wilson.ORMapper.Internals
 			this.readOnly = readOnly;
 			this.changesOnly = changesOnly;
 			this.autoTrack = autoTrack;
-			this.hint = hint;
 
 			this.baseEntity = null;
 			this.typeField = typeField;
@@ -281,7 +274,6 @@ namespace Wilson.ORMapper.Internals
 			this.readOnly = baseEntity.readOnly;
 			this.changesOnly = baseEntity.changesOnly;
 			this.autoTrack = baseEntity.autoTrack;
-			this.hint = baseEntity.hint;
 			
 			this.baseEntity = baseEntity;
 			this.typeField = baseEntity.typeField;
@@ -369,18 +361,18 @@ namespace Wilson.ORMapper.Internals
 			}
 		}
 
-		internal void AddChild(string member, string field, string type, string alias, bool queryOnly, bool lazy, bool cascade, string filter, string sortOrder, string selectSP, CustomProvider provider) {
-			this.AddRelation(member, new ChildMap(member, field, type, alias, queryOnly, lazy, cascade, filter, sortOrder, selectSP, provider));
+		internal void AddChild(string member, string field, string type, string alias, bool queryOnly, bool lazy, bool cascade, string filter, string selectSP, CustomProvider provider) {
+			this.AddRelation(member, new ChildMap(member, field, type, alias, queryOnly, lazy, cascade, filter, selectSP, provider));
 			this.childRelations++;
 		}
 
-		internal void AddParent(string member, string field, string type, string alias, bool queryOnly, bool lazy, bool cascade, string filter, string sortOrder, string selectSP, CustomProvider provider) {
-			this.AddRelation(member, new ParentMap(member, field, type, alias, queryOnly, lazy, cascade, filter, sortOrder, selectSP, provider));
+		internal void AddParent(string member, string field, string type, string alias, bool queryOnly, bool lazy, bool cascade, string filter, string selectSP, CustomProvider provider) {
+			this.AddRelation(member, new ParentMap(member, field, type, alias, queryOnly, lazy, cascade, filter, selectSP, provider));
 		}
 
 		internal void AddMany(string member, string field, string type, string alias, string table, string parent, string child,
-				bool queryOnly, bool lazy, bool cascade, string filter, string sortOrder, string selectSP, string insertSP, string deleteSP, CustomProvider provider) {
-			this.AddRelation(member, new ManyMap(member, field, type, alias, table, parent, child, queryOnly, lazy, cascade, filter, sortOrder, selectSP, insertSP, deleteSP, provider));
+				bool queryOnly, bool lazy, bool cascade, string filter, string selectSP, string insertSP, string deleteSP, CustomProvider provider) {
+					this.AddRelation(member, new ManyMap(member, field, type, alias, table, parent, child, queryOnly, lazy, cascade, filter, selectSP, insertSP, deleteSP, provider));
 		}
 
 		private void AddRelation(string member, RelationMap relation) {
@@ -470,18 +462,6 @@ namespace Wilson.ORMapper.Internals
 				}
 				if (type == null) {
 					throw new ORMapperException("ORMapper: Type could not be located in any loaded assembly - " + typeName);
-				}
-				typesByName[typeName] = type;
-			}
-			return type;
-		}
-
-		internal static Type GetType(string typeName, string assemblyName) {
-			Type type = (Type)typesByName[typeName];
-			if (type == null) {
-				type = System.Type.GetType(typeName + "," + assemblyName);
-				if (type == null) {
-					throw new ORMapperException("ORMapper: Type could not be located in assembly - " + typeName + ", " + assemblyName);
 				}
 				typesByName[typeName] = type;
 			}

@@ -54,14 +54,5 @@ namespace Wilson.ORMapper.Internals
 				return ";" + Connection.SplitToken + "SELECT @@IDENTITY AS KeyField;";
 			}
 		}
-
-		protected override string GetPostHint() {
-			if (this.provider.Provider == Provider.MsSql && this.entity.Hint != null && this.entity.Hint.Length > 0) {
-				return " WITH (" + this.entity.Hint + ")";
-			}
-			else {
-				return string.Empty;
-			}
-		}
 	}
 }

@@ -11,13 +11,12 @@ namespace Wilson.ORMapper.Internals
 {
 	// <relation relationship="OneToMany" member="memberName" field="fieldName"
 	//		type="typeName" [alias="aliasName"] [queryOnly="bool"] [lazyLoad="bool"]
-	//    [cascadeDelete="bool"] [filter="whereClause"] [sortOrder="sortClause"]
-	//		[selectSP="selectSPName"] />
+	//    [cascadeDelete="bool"] [filter="whereClause"] [selectSP="selectSPName"] />
 	// Note: selectSP Parameters - field
 	//    cascadeDelete does not work with stored procs
 	internal class ChildMap : RelationMap
 	{
-		internal ChildMap(string member, string field, string type, string alias, bool queryOnly, bool lazy, bool cascade, string filter, string sortOrder, string selectSP, CustomProvider provider)
-			: base(Relationship.Child, member, field, type, alias, queryOnly, lazy, cascade, filter, sortOrder, selectSP, provider) {}
+		internal ChildMap(string member, string field, string type, string alias, bool queryOnly, bool lazy, bool cascade, string filter, string selectSP, CustomProvider provider)
+			: base(Relationship.Child, member, field, type, alias, queryOnly, lazy, cascade, filter, selectSP, provider) {}
 	}
 }
