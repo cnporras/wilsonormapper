@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wilson.ORMapper.DotNetV2", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wilson.ORHelper.DotNetV2", "Wilson.ORHelper\Wilson.ORHelper.DotNetV2.csproj", "{DC4259DC-35E6-4BD7-8091-54E0B2122994}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wilson.ORMapper.Test", "Test\Wilson.ORMapper.Test.csproj", "{B2ECFE7E-5CDE-4533-A072-1918E8B52C52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +21,10 @@ Global
 		{DC4259DC-35E6-4BD7-8091-54E0B2122994}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC4259DC-35E6-4BD7-8091-54E0B2122994}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC4259DC-35E6-4BD7-8091-54E0B2122994}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2ECFE7E-5CDE-4533-A072-1918E8B52C52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2ECFE7E-5CDE-4533-A072-1918E8B52C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2ECFE7E-5CDE-4533-A072-1918E8B52C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2ECFE7E-5CDE-4533-A072-1918E8B52C52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

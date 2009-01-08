@@ -8,8 +8,8 @@
     <ProjectGuid>{B2ECFE7E-5CDE-4533-A072-1918E8B52C52}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test</RootNamespace>
-    <AssemblyName>Test</AssemblyName>
+    <RootNamespace>Wilson.ORMapper.Test</RootNamespace>
+    <AssemblyName>Wilson.ORMapper.Test</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -54,9 +54,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj">
+    <ProjectReference Include="..\Wilson.ORMapper\Wilson.ORMapper.DotNetV2.csproj">
       <Project>{A5023F45-094E-4D38-A69C-3754A94051F6}</Project>
-      <Name>Core</Name>
+      <Name>Wilson.ORMapper.DotNetV2</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
