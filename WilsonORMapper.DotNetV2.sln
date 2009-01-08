@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wilson.ORMapper.DotNetV2", "Wilson.ORMapper\Wilson.ORMapper.DotNetV2.csproj", "{A5023F45-094E-4D38-A69C-3754A94051F6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wilson.ORHelper.DotNetV2", "Wilson.ORHelper\Wilson.ORHelper.DotNetV2.csproj", "{DC4259DC-35E6-4BD7-8091-54E0B2122994}"
