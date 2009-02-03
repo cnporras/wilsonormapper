@@ -115,7 +115,7 @@ namespace Test
         {
             var entity = new MappedEntity<TestClass>();
 
-            var keyType = KeyType.Composite;
+//            var keyType = KeyType.Composite;
 
             entity.CompositeKey(
                 x => x.ID,
